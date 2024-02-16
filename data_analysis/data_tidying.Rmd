@@ -8,8 +8,13 @@ output: github_document
 library(tidyverse)
 ```
 
-
 ```{r loading-dataset}
-seot = read.csv(/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot_morphometricsReproStatus_ak_monson.csv)
+base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
+
+seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
+```
+
+```{r glimpsing data}
+glimpse(seot)
 ```
 
