@@ -1,12 +1,19 @@
 ---
-title: "Project proposal"
-author: "Team name"
+title: "Project proposal: Alaskan Sea Otters"
+author: "Autumn Pauly,"
+date: "February 2023"
 output: github_document
 ---
 
-```{r load-packages, message = FALSE}
+```{r load-packages, echo=FALSE, message = FALSE}
 library(tidyverse)
 library(broom)
+```
+
+```{r load-data, echo=FALSE, message=FALSE, warning=FALSE}
+base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
+
+seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
 ```
 
 ## 1. Introduction
@@ -14,7 +21,19 @@ library(broom)
 
 
 ## 2. Data
+Our data files can be found in the 'data' folder in our project repository on GitHub. 
 
+Data Citation: 
+Monson, D. H., Kloecker, K. A. and Esslinger, G. G., 2021, Morphometric and reproductive status data for Sea Otters collected or captured in Alaska: U.S. Geological Survey data release, https://doi.org/10.5066/P9Q5PD3Y.
+
+Referenced Publications(s): 
+Tinker, M. T., J. L. Bodkin, L. Bowen, B. E. Ballachey, G. Bentall, A. M. Burdin, H. A. Coletti, G. G. Esslinger, B. B. Hatfield, M. C. Kenner, K. A. Kloecker, B. H. Konar, A. K. Miles, D. H. Monson, M. J. Murray, B. P. Weitzman, and J. A. Estes. 2021. Sea otter population collapse in southwest Alaska: assessing ecological covariates, consequences, and causal factors. Ecological Monographs 91(4):e01472. doi:10.1002/ecm.1472
+
+Laidre, K. L., J. A. Estes, M. T. Tinker, J. L. Bodkin, D. H. Monson, K. Schneider, and M. P. Gillingham. 2006. Patterns of growth and body condition in sea otters from the Aleutian archipelago before and after the recent population decline. Journal of Animal Ecology 75(4):978-989. doi:10.1111/j.1365-2656.2006.01117.x
+
+Monson, D. H. and L. Bowen. 2015. Evaluating the status of individuals and populations: Advantages of multiple approaches and time scales. Pages 121-158 in Larson, S., J. L. Bodkin, and G. R. VanBlaricom (eds) Sea Otter Conservation. Academic Press Boston, MA, USA. doi:10.1016/B978-0-12-801402-8.00006-8
+
+Monson, D. H., J. A. Estes, J. L. Bodkin, and D. B. Siniff. 2000. Life history plasticity and population regulation in sea otters. Oikos 90(3):457-468. doi:10.1034/j.1600-0706.2000.900304.x
 
 ## 3. Ethics review
 
