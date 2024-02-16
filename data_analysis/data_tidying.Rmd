@@ -4,4 +4,12 @@ author: "Autumn Pauly"
 output: github_document
 ---
 
+```{r loading-packages}
+library(tidyverse)
+```
+
+
+```{r loading-dataset}
+seot = read.csv(/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot_morphometricsReproStatus_ak_monson.csv)
+```
 
