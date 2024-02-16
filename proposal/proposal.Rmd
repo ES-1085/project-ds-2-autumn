@@ -36,6 +36,8 @@ Monson, D. H. and L. Bowen. 2015. Evaluating the status of individuals and popul
 Monson, D. H., J. A. Estes, J. L. Bodkin, and D. B. Siniff. 2000. Life history plasticity and population regulation in sea otters. Oikos 90(3):457-468. doi:10.1034/j.1600-0706.2000.900304.x
 
 ## 3. Ethics review
+### Limitations in data sources
+The data from this project was collected by multiple researchers over several decades (1947-2019). The understanding is that standardized data collection forms were distributed by the USGS to researchers for data entry. Bias, missing values, and uncertainty are always present in data, but in the case of our dataset, there are potentially multiple sources of bias and multiple data collection styles between researchers.
 
 ## 4. Data analysis plan
 
