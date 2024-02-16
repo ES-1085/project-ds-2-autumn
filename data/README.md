@@ -1,4 +1,4 @@
-# data
+# Data
 
 Place data file(s) in this folder.
 

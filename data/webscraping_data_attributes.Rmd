@@ -1,0 +1,96 @@
+---
+title: "Webscraping Attributes"
+author: "Autumn Pauly,"
+date: "February 2023"
+output: github_document
+---
+
+#Install/Load Packages
+
+```{r load-packages}
+install.packages("robotstxt")
+install.packages("rvest")
+library(tidyverse)
+library(rvest)
+library(robotstxt)
+library(xml2)
+```
+
+## Path Allowed?
+
+We should first determine whether we are allowed to scrape data from this website. 
+
+```{r path-allowed}
+paths_allowed("https://alaska.usgs.gov/data/metadata/ecosystems/seaOtter/seot_morphometricsReproStatus_ak_monson/seot_morphometricsReproStatus_ak_monson_metadata.html")
+```
+
+### Reading the Page
+
+This will allow us to read the whole page. 
+
+```{r}
+attribute_page <- read_html("https://alaska.usgs.gov/data/metadata/ecosystems/seaOtter/seot_morphometricsReproStatus_ak_monson/seot_morphometricsReproStatus_ak_monson_metadata.html#5")
+
+attribute_page
+```
+### Determining Type of Page
+After reading the page, we should see what type of webpage we're looking at.
+
+```{r}
+typeof(page)
+class(page)
+```
+
+# Scraping Website Data
+
+### Scraping Attributes
+The function below will allow us to scrape the attribute names. As we can see, these attributes need some string tidying. 
+
+```{r attribute-data}
+#scraping attribute title
+attribute <- attribute_page |>
+  html_nodes(".attrlabl") |>
+  html_text()
+
+#scraping attribute title
+attribute_desription <- attribute_page |>
+  html_nodes(".attrdef") |>
+  html_text()
+```
+
+Now, let's create the dataframe that we need to display these attributes. 
+
+```{r creating-dataframe}
+seot_data_attributes <- tibble(
+  attribute = attribute, 
+  attribute_desription = attribute_desription)
+
+seot_data_attributes
+```
+
+### Tidying the Data Frame
+As we can see, every other row has the information we want. Let's fix this. 
+
+```{r tidying-attribute-dataframe}
+seot_data_attributes <- seot_data_attributes %>% 
+  filter(attribute != "Attribute_Label:") %>% 
+  filter(attribute_desription != "Attribute_Definition:") %>% 
+  select(attribute, attribute_desription)
+
+glimpse(seot_data_attributes)
+```
+
+There is still some issues within the `attribute_description` column, where there is a "\n" at the beginning of each value. Let's remove this. 
+
+```{r str-remove}
+#removing quotes from column `attribute`
+seot_data_attributes <- seot_data_attributes %>% 
+  mutate(attribute = str_replace(attribute, '""', '')) %>% 
+  mutate(attribute_desription = str_replace(attribute_desription, '\n', '')) %>% 
+  mutate(attribute_desription = str_replace(attribute_desription, '\n', '')) 
+
+seot_data_attributes
+```
+
+
+
