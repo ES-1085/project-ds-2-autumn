@@ -1,0 +1,7 @@
+---
+title: "Data Tidying"
+author: "Autumn Pauly"
+output: github_document
+---
+
+
