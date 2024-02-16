@@ -1,0 +1,1630 @@
+<?xml version="1.0"?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Monson, Daniel H. (ORCID: 0000-0002-4593-5673)</origin>
+        <origin>Kloecker, Kimberly A. (ORCID: 0000-0002-2461-968X)</origin>
+        <origin>Esslinger, George G. (ORCID: 0000-0002-3459-0083)</origin>
+        <pubdate>20210521</pubdate>
+        <title>Morphometric and Reproductive Status Data for Sea Otters Collected or Captured in Alaska</title>
+        <geoform>tabular digital data</geoform>
+        <pubinfo>
+          <pubplace>Anchorage, Alaska</pubplace>
+          <publish>U.S. Geological Survey, Alaska Science Center</publish>
+        </pubinfo>
+        <othercit>Suggested Citation:  Monson, D.H., Kloecker, K.A., Esslinger, G.G., 2021, Morphometric and reproductive status data for Sea Otters collected or captured in Alaska: U.S. Geological Survey data release, https://doi.org/10.5066/P9Q5PD3Y</othercit>
+        <onlink>https://doi.org/10.5066/P9Q5PD3Y</onlink>
+        <lworkcit>
+          <citeinfo>
+            <origin>U.S. Geological Survey, Alaska Science Center</origin>
+            <pubdate>2005</pubdate>
+            <title>Nearshore Marine Ecosystem Research Program</title>
+            <geoform>website</geoform>
+            <serinfo>
+              <sername>Alaska Science Portal</sername>
+              <issue>99</issue>
+            </serinfo>
+            <pubinfo>
+              <pubplace>Anchorage, Alaska</pubplace>
+              <publish>U.S. Geological Survey, Alaska Science Center</publish>
+            </pubinfo>
+            <othercit>This is a link to the broader USGS Alaska Science Center research project supported by these data. Users will find a description of the research project and links to associated reports, publications, and data products.</othercit>
+            <onlink>https://alaska.usgs.gov/portal/project.php?project_id=99</onlink>
+          </citeinfo>
+        </lworkcit>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>This dataset includes morphometric measurements and pregnancy / dependency status from sea otters captured or collected (experimental harvests or recovered after the Exxon Valdez Oil Spill) in Alaska, 1947-2019 by the U.S. Geological Survey (USGS) and the U.S. Fish and Wildlife Service (USFWS). Data collected include total body length, tail length, body mass, axillary girth, paw width, canine diameter and baculum length along with sex, age, and reproductive status of females (pregnancy / dependency status). For females with dependent pups, pup sex, mass, and total length are included when available. For harvested animals, data includes pregnancy status along with fetal sex, mass, and length.</abstract>
+      <purpose>These data were collected during experimental harvests primarily conducted in the 1960's and 1970's, or during sea otter captures related to USFWS and USGS sea otter sampling and tagging studies conducted from the late 1980's up to and including 2019, or recovered dead during the 1989 Exxon Valdez Oil spill (EVOS).</purpose>
+      <supplinf>Morphometric data from experimental harvests and sea otter captures are appropriate for investigations of structural body size and condition in sea otters with some caveats: However, during experimental harvests (1967-1971), total length was measured as curvilinear length along the back as the otter lay on its stomach and occasionally along the curve of the back while the otters curled in a fetal position due to rigor mortis. In contrast length was measured as straight-line length as the otter lay on its back during early studies (1947-1963) and more recent live captures (1986-2019). Therefore, must use corrected “true standard lgth” when comparing lengths between methods. Paw width data were collected to quantify estimates of prey size based on paw width during sea otter foraging studies. Canine width was collected as a potential metric to sex skulls collected during carcasses collection survey. Reproductive status information was collected for studying sea otter reproductive biology but is useful as a covariate for body condition analysis. Baculum length was measured on males a way to estimate age-class of the animal.</supplinf>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <rngdates>
+          <begdate>1947</begdate>
+          <enddate>2019</enddate>
+        </rngdates>
+      </timeinfo>
+      <current>observed</current>
+    </timeperd>
+    <status>
+      <progress>In work</progress>
+      <update>Irregular</update>
+    </status>
+    <spdom>
+      <descgeog>Coastal Alaska including Southeast, Southcentral, and Southwest Alaska including the Aleutian Islands</descgeog>
+      <bounding>
+        <westbc>173.1</westbc>
+        <eastbc>-133.8</eastbc>
+        <northbc>60.7</northbc>
+        <southbc>51.3</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>USGS Metadata Identifier</themekt>
+        <themekey>USGS:ASC379</themekey>
+      </theme>
+      <theme>
+        <themekt>ISO 19115 Topic Category</themekt>
+        <themekey>Biota</themekey>
+        <themekey>Environment</themekey>
+      </theme>
+      <theme>
+        <themekt>NASA GCMD Earth Science Keyword Thesaurus</themekt>
+        <themekey>Animals/Vertebrates</themekey>
+        <themekey>Mammals</themekey>
+        <themekey>Carnivores</themekey>
+        <themekey>Martens/Weasels/Wolverines</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS CSA Biocomplexity Thesaurus</themekt>
+        <themekey>Marine mammals</themekey>
+        <themekey>Animal morphology</themekey>
+        <themekey>Age composition</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Thesaurus</themekt>
+        <themekey>Wildlife</themekey>
+        <themekey>Coastal ecosystems</themekey>
+        <themekey>Marine ecosystems</themekey>
+      </theme>
+      <theme>
+        <themekt>None</themekt>
+        <themekey>Body measurements</themekey>
+        <themekey>Reproductive status</themekey>
+        <themekey>Sea Otter</themekey>
+        <themekey>Enhydra lutris</themekey>
+      </theme>
+      <place>
+        <placekt>USGS Geographic Names Information System (GNIS)</placekt>
+        <placekey>Alaska</placekey>
+        <placekey>Near Islands</placekey>
+        <placekey>Attu Island</placekey>
+        <placekey>Shemya Island</placekey>
+        <placekey>Rat Islands</placekey>
+        <placekey>Amchitka Island</placekey>
+        <placekey>Delarof Islands</placekey>
+        <placekey>Andreanof Islands</placekey>
+        <placekey>Kanaga Island</placekey>
+        <placekey>Tanaga Island</placekey>
+        <placekey>Adak Island</placekey>
+        <placekey>Dolgoi Island</placekey>
+        <placekey>Unga Island</placekey>
+        <placekey>Kodiak Island</placekey>
+        <placekey>Katmai</placekey>
+        <placekey>Kachemak Bay</placekey>
+        <placekey>Prince William Sound</placekey>
+        <placekey>Port Althorp</placekey>
+        <placekey>Chichagof Island</placekey>
+        <placekey>Baranof Island</placekey>
+        <placekey>Kuiu Island</placekey>
+        <placekey>Coronation Island</placekey>
+      </place>
+    </keywords>
+    <taxonomy>
+      <keywtax>
+        <taxonkt>None</taxonkt>
+        <taxonkey>Animals</taxonkey>
+        <taxonkey>Marine Mammals</taxonkey>
+        <taxonkey>Mustelids</taxonkey>
+      </keywtax>
+      <taxonsys>
+        <classsys>
+          <classcit>
+            <citeinfo>
+              <origin>ITIS Integrated Taxonomic Information System</origin>
+              <pubdate>Unknown</pubdate>
+              <title>ITIS Integrated Taxonomic Information System</title>
+              <geoform>online database</geoform>
+              <pubinfo>
+                <pubplace>online</pubplace>
+                <publish>ITIS-North America</publish>
+              </pubinfo>
+              <othercit>Taxonomic details retrieved October 16, 2022 from the Integrated Taxonomic Information System online database  https://www.itis.gov</othercit>
+              <onlink>https://doi.org/10.5066/F7KH0KBK</onlink>
+            </citeinfo>
+          </classcit>
+        </classsys>
+        <taxonpro>Species were identified by skilled observers in the field.</taxonpro>
+        <taxoncom>Taxonomy is complete for all samples. No vouchers were collected.</taxoncom>
+      </taxonsys>
+      <taxoncl>
+        <taxonrn>Kingdom</taxonrn>
+        <taxonrv>Animalia</taxonrv>
+        <taxoncl>
+          <taxonrn>Subkingdom</taxonrn>
+          <taxonrv>Bilateria</taxonrv>
+          <taxoncl>
+            <taxonrn>Infrakingdom</taxonrn>
+            <taxonrv>Deuterostomia</taxonrv>
+            <taxoncl>
+              <taxonrn>Phylum</taxonrn>
+              <taxonrv>Chordata</taxonrv>
+              <taxoncl>
+                <taxonrn>Subphylum</taxonrn>
+                <taxonrv>Vertebrata</taxonrv>
+                <taxoncl>
+                  <taxonrn>Infraphylum</taxonrn>
+                  <taxonrv>Gnathostomata</taxonrv>
+                  <taxoncl>
+                    <taxonrn>Superclass</taxonrn>
+                    <taxonrv>Tetrapoda</taxonrv>
+                    <taxoncl>
+                      <taxonrn>Class</taxonrn>
+                      <taxonrv>Mammalia</taxonrv>
+                      <taxoncl>
+                        <taxonrn>Subclass</taxonrn>
+                        <taxonrv>Theria</taxonrv>
+                        <taxoncl>
+                          <taxonrn>Infraclass</taxonrn>
+                          <taxonrv>Eutheria</taxonrv>
+                          <taxoncl>
+                            <taxonrn>Order</taxonrn>
+                            <taxonrv>Carnivora</taxonrv>
+                            <taxoncl>
+                              <taxonrn>Suborder</taxonrn>
+                              <taxonrv>Caniformia</taxonrv>
+                              <taxoncl>
+                                <taxonrn>Family</taxonrn>
+                                <taxonrv>Mustelidae</taxonrv>
+                                <taxoncl>
+                                  <taxonrn>Subfamily</taxonrn>
+                                  <taxonrv>Lutrinae</taxonrv>
+                                  <taxoncl>
+                                    <taxonrn>Genus</taxonrn>
+                                    <taxonrv>Enhydra</taxonrv>
+                                    <taxoncl>
+                                      <taxonrn>Species</taxonrn>
+                                      <taxonrv>Enhydra lutris</taxonrv>
+                                      <common>Sea Otter</common>
+                                      <common>TSN: 180547</common>
+                                    </taxoncl>
+                                  </taxoncl>
+                                </taxoncl>
+                              </taxoncl>
+                            </taxoncl>
+                          </taxoncl>
+                        </taxoncl>
+                      </taxoncl>
+                    </taxoncl>
+                  </taxoncl>
+                </taxoncl>
+              </taxoncl>
+            </taxoncl>
+          </taxoncl>
+        </taxoncl>
+      </taxoncl>
+    </taxonomy>
+    <accconst>None</accconst>
+    <useconst>It is requested that the authors and the USGS Alaska Science Center be cited for any subsequent publications that reference this dataset.</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>ascweb@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <crossref>
+      <citeinfo>
+        <origin>Monson, D.H.</origin>
+        <origin>Estes, J.A.</origin>
+        <origin>Bodkin, J.L.</origin>
+        <origin>Siniff, D.B.</origin>
+        <pubdate>2000</pubdate>
+        <title>Life history plasticity and population regulation in sea otters</title>
+        <geoform>journal article</geoform>
+        <serinfo>
+          <sername>Oikos</sername>
+          <issue>90(3):457-468</issue>
+        </serinfo>
+        <pubinfo>
+          <pubplace>online</pubplace>
+          <publish>Wiley</publish>
+        </pubinfo>
+        <othercit>Monson, D.H., Estes, J.A., Bodkin, J.L., Siniff, D.B. 2000. Life history plasticity and population regulation in sea otters. Oikos 90(3):457-468  doi:10.1034/j.1600-0706.2000.900304.x</othercit>
+        <onlink>https://doi.org/10.1034/j.1600-0706.2000.900304.x</onlink>
+      </citeinfo>
+    </crossref>
+    <crossref>
+      <citeinfo>
+        <origin>Laidre, K.L</origin>
+        <origin>Estes, J.A.</origin>
+        <origin>Tinker, M.T.</origin>
+        <origin>Bodkin, J.</origin>
+        <origin>Monson, D.</origin>
+        <origin>Schneider, K.</origin>
+        <pubdate>2006</pubdate>
+        <title>Patterns of growth and body condition in sea otters from the Aleutian archipelago before and after the recent population decline</title>
+        <geoform>journal article</geoform>
+        <serinfo>
+          <sername>Journal of Animal Ecology</sername>
+          <issue>75(4):978-989</issue>
+        </serinfo>
+        <pubinfo>
+          <pubplace>online</pubplace>
+          <publish>Wiley</publish>
+        </pubinfo>
+        <othercit>Laidre, K.L, Estes, J.A., Tinker, M.T., Bodkin, J., Monson, D., Schneider, K. 2006. Patterns of growth and body condition in sea otters from the Aleutian archipelago before and after the recent population decline. Journal of Animal Ecology 75(4):978-989  doi:10.1111/j.1365-2656.2006.01117.x</othercit>
+        <onlink>https://doi.org/10.1111/j.1365-2656.2006.01117.x</onlink>
+      </citeinfo>
+    </crossref>
+    <crossref>
+      <citeinfo>
+        <origin>Monson, D.H.</origin>
+        <origin>Bowen, L.</origin>
+        <pubdate>2015</pubdate>
+        <title>Chapter 6 - Evaluating the Status of Individuals and Populations: Advantages of Multiple Approaches and Time Scales</title>
+        <geoform>Book Chapter</geoform>
+        <serinfo>
+          <sername>Sea Otter Conservation</sername>
+          <issue>.</issue>
+        </serinfo>
+        <pubinfo>
+          <pubplace>n/a</pubplace>
+          <publish>Elsevier</publish>
+        </pubinfo>
+        <othercit>Monson, D.H., Bowen, L. 2015. Chapter 6 - Evaluating the Status of Individuals and Populations: Advantages of Multiple Approaches and Time Scales. pp.121-158 in: Sea Otter Conservation. Larson, S.E., Bodkin, J.L., VanBlaricom, G.R. (eds). Academic Press.  doi:10.1016/B978-0-12-801402-8.00006-8</othercit>
+        <onlink>https://doi.org/10.1016/B978-0-12-801402-8.00006-8</onlink>
+      </citeinfo>
+    </crossref>
+    <crossref>
+      <citeinfo>
+        <origin>Tinker, M.T.</origin>
+        <origin>Bodkin, J.L.</origin>
+        <origin>Bowen, L.</origin>
+        <origin>Ballachey, B.</origin>
+        <origin>Bentall, G.</origin>
+        <origin>Burdin, A.</origin>
+        <origin>Coletti, H.</origin>
+        <origin>Esslinger, G.</origin>
+        <origin>Hatfield, B.B.</origin>
+        <origin>Kenner, M.C.</origin>
+        <origin>Kloecker, K.</origin>
+        <origin>Konar, B.</origin>
+        <origin>Miles, A.K.</origin>
+        <origin>Monson, D.H.</origin>
+        <origin>Murray, M.J.</origin>
+        <origin>Weitzman, B.</origin>
+        <origin>Estes, J.A.</origin>
+        <pubdate>2021</pubdate>
+        <title>Sea otter population collapse in southwest Alaska: assessing ecological covariates, consequences, and causal factors</title>
+        <geoform>journal article</geoform>
+        <serinfo>
+          <sername>Ecological Monographs</sername>
+          <issue>91(4):e01472</issue>
+        </serinfo>
+        <pubinfo>
+          <pubplace>online</pubplace>
+          <publish>Wiley</publish>
+        </pubinfo>
+        <othercit>Tinker, M.T., Bodkin, J.L., Bowen, L., Ballachey, B., Bentall, G., Burdin, A., Coletti, H., Esslinger, G., Hatfield, B.B., Kenner, M.C., Kloecker, K., Konar, B., Miles, A.K., Monson, D.H., Murray, M.J., Weitzman, B., Estes, J.A. 2021. Sea otter population collapse in southwest Alaska: assessing ecological covariates, consequences, and causal factors. Ecological Monographs 91(4):e01472  doi:10.1002/ecm.1472</othercit>
+        <onlink>https://doi.org/10.1002/ecm.1472</onlink>
+      </citeinfo>
+    </crossref>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>Individual otter IDs, collection dates, sampling locations, sex of individual, reproductive status of females and other values were cross-checked and verified with field worksheets. Morphometric data (mass, length, tail length, girth, paw width, canine width, baculum length) were recorded with varying degrees of accuracy. Mass was measured with a 100 lb spring scale periodically checked for accuracy by the Weights and Measures Section of the Alaska Department of Transportation and recoded to the nearest 0.5 lbs and then converted to kg. During experimental harvests (1967-1971), total body length (tip of the nose to the tip of the tail) was measured as curvilinear length along the otter's back as it lay on its stomach, but measured as straight-line length as they lay on their back during early studies (1947-1963) and during more recent studies (1986-2019), and recorded to the nearest 0.1-0.3 cm. Tail lengths were measure using a PVC pipe with a measuring tap glued along its length, which was slid over the tail and pressed firmly up to the base of the tail and recorded to the nearest 0.1-0.3 cm.  Paw width was measured using a slide calipers and recorded to the nearest 0.1 cm. Canine width was also measured with a caliper and recorded to the nearest 0.1 mm. Baculum length was measure using a tape measure and feeling the ends of the bone and recorded to the nearest 0.5 cm. All morphometric measures had some amount of measurement error due to soft tissue positioning with curvilinear lengths, baculum lengths, girths, and paw widths the most difficult to measure with precision and accuracy while canine widths were the easiest to measure precisely and accurately. Dependent pup weights were measured with smaller spring scales (20-50 lb) and recorded to the nearest 0.1 lbs then converted kg. Newborn pups and fetuses were weight on ≤ 15-kg capacity balance during early studies (1947-1971). Age was primarily estimated by cementum analysis of a premolar tooth (+/- 1-2 yrs) and/or dental wear patterns. Generally, accuracy of ages estimates decrease with age. Animals aged as dependent pups are considered "known-age" and animals estimated to be &gt;10 yrs are aged with the least amount of certainty.</attraccr>
+    </attracc>
+    <logic>Attribute values fall within expected ranges and data were proofed for the presence of duplication and omission. For numeric data fields, no data is indicated by "-9" while no data in text fields is indicated by "." Geographic location data were checked against field sheets and plotted to be sure the coordinates are reasonably accurate.</logic>
+    <complete>For numeric data fields, "-9" indicates no data is were not collected or not provided while no data in text fields is indicated by "."</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>Geographic location data are reported at various levels of accuracy. We did not have harvest location for early studies (1947-1971) beyond the island name where it was collected so these are all reported as a single reference coordinate for each island where collections took place. Similarly, we did not have specific coordinates for animals collected during the 1989 Exxon Valdez Oil Spill response, so reference locations based on geographic names are reported. Most recent live-captured animals (1987-2019) have capture location recorded at the time of capture and are generally within 0.5 km of actual capture location.</horizpar>
+      </horizpa>
+    </posacc>
+    <lineage>
+      <method>
+        <methtype>Field</methtype>
+        <methdesc>Presented here are morphometric data from sea otters in coastal areas of Southeast, Southcentral, and Southwestern Alaska, since 1947. The measured otters were obtained in several ways, the majority from: 1) experimental harvests primarily conducted in the 1960's and 1970's, 2) sea otter captures related to USFWS and USGS sea otter sampling and tagging studies conducted from the late 1980's up to and including 2019, and 3) recovered dead during the 1989 Exxon Valdez Oil Spill response. The specific body measurements taken and their expected accuracy are detailed in the Data Quality - Attribute Accuracy section of this metadata record.</methdesc>
+      </method>
+      <procstep>
+        <procdesc>Field data sheets were transcribed into digital tables.</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <indspref>Location, State, Region, and Area names are derived from local geographic place names where sea otters were encountered. They do not describe precise geographic points.</indspref>
+    <direct>Point</direct>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <geograph>
+        <latres>0.00001</latres>
+        <longres>0.00001</longres>
+        <geogunit>Decimal degrees</geogunit>
+      </geograph>
+      <geodetic>
+        <horizdn>World Geodetic System of 1984</horizdn>
+        <ellips>World Geodetic System of 1984</ellips>
+        <semiaxis>6378137</semiaxis>
+        <denflat>298.257223563</denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>seot_morphometricsReproStatus_ak_monson</enttypl>
+        <enttypd>Table with capture/collection, morphometric, and reproductive condition data of sea otters in coastal Alaska. Presented in a Comma Separated Value (CSV) formatted table.</enttypd>
+        <enttypds>Author defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>OTTER_NO</attrlabl>
+        <attrdef>Unique identifier of each individual measured otter. Assigned by researchers with a variety of naming conventions across locations and time.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <udom>Unique identifier of each individual measured otter. Assigned by researchers with a variety of naming conventions across locations and time.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>recap</attrlabl>
+        <attrdef>Whether the measured otter was captured only once or recaptured at least one time.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>0</edomv>
+            <edomvd>The otter was captured only once</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>1</edomv>
+            <edomvd>The otter was recaptured at least one time.</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DATE</attrlabl>
+        <attrdef>Date of capture or collection.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1947-05-02</rdommin>
+            <rdommax>2019-05-30</rdommax>
+            <attrunit>Date (YYYY-MM-DD)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>YEAR</attrlabl>
+        <attrdef>Year of capture or collection</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1947</rdommin>
+            <rdommax>2019</rdommax>
+            <attrunit>Year (YYYY)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LOCATION</attrlabl>
+        <attrdef>Place name of location of capture or collection. Derived from local geographic place names.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <udom>Place name of location of capture or collection.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>STATE</attrlabl>
+        <attrdef>State (in USA) of capture or collection.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>Alaska</edomv>
+            <edomvd>State of Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>REGION</attrlabl>
+        <attrdef>Region within the State of the capture or collection (may encompass multiple Areas).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>west aleutians</edomv>
+            <edomvd>Western Aleutian Islands, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>east aleutians</edomv>
+            <edomvd>Eastern Aleutian Islands, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>AK peninsula</edomv>
+            <edomvd>Alaska Peninsula, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>kodiak</edomv>
+            <edomvd>Kodiak Island, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>lower cook inlet</edomv>
+            <edomvd>Lower Cook Inlet, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>PWS</edomv>
+            <edomvd>Prince William Sound, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>SE</edomv>
+            <edomvd>Southeast Alaska, Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>AREA</attrlabl>
+        <attrdef>Area within the state of the capture or collection. Derived from local geographic place name.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>near islands</edomv>
+            <edomvd>Near Island group, Aleutian Islands</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>rats</edomv>
+            <edomvd>Rat Island group, Aleutian Islands</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>delarofs</edomv>
+            <edomvd>Delarof Island group, Aleutian Islands</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>andreanofs</edomv>
+            <edomvd>Andreanof Island group, Aleutian Islands</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>fox islands</edomv>
+            <edomvd>Fox Island group, Aleutian Islands</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>WAP</edomv>
+            <edomvd>Western Alaska Peninsula</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>EAP</edomv>
+            <edomvd>Eastern Alaska Peninula</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>shuyak</edomv>
+            <edomvd>Shuyak Island, Kodiak Island group</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>afognak</edomv>
+            <edomvd>Afognak Island, Kodiak Island group</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>kodiak</edomv>
+            <edomvd>Kodiak Island</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>kachemak</edomv>
+            <edomvd>Kachemak Bay, Lower Cook Inlet</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>WPWS</edomv>
+            <edomvd>Western Prince William Sound</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>EPWS</edomv>
+            <edomvd>Eastern Prince William Sound</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>NSE</edomv>
+            <edomvd>Northern Southeast Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>CSE</edomv>
+            <edomvd>Central Southeast Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>SSE</edomv>
+            <edomvd>Southern Southeast Alaska</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LAT</attrlabl>
+        <attrdef>Latitude of capture or collection location.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>51.372123</rdommin>
+            <rdommax>60.7025</rdommax>
+            <attrunit>Decimal degrees (WGS84)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LONG</attrlabl>
+        <attrdef>Longitude of capture or collection location.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-178.96399</rdommin>
+            <rdommax>179.396581</rdommax>
+            <attrunit>Decimal degrees (WGS84)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SEX</attrlabl>
+        <attrdef>Sex of otter</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>M</edomv>
+            <edomvd>Male</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>F</edomv>
+            <edomvd>Female</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>U</edomv>
+            <edomvd>Unknown</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>WEIGHT</attrlabl>
+        <attrdef>Weight of otter</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.8</rdommin>
+            <rdommax>45.4</rdommax>
+            <attrunit>Kilograms</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TAIL_LGTH_1</attrlabl>
+        <attrdef>Length of tail; first replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>313.8</rdommax>
+            <attrunit>centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TAIL_LGTH_2</attrlabl>
+        <attrdef>Length of tail; second replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>21.5</rdommin>
+            <rdommax>37.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TAIL_LGTH_3</attrlabl>
+        <attrdef>Length of tail; third replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>22.0</rdommin>
+            <rdommax>37.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>mean_tail_lgth</attrlabl>
+        <attrdef>Mean of replicate tail length measurements</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>15.5</rdommin>
+            <rdommax>172.9</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LGTH1</attrlabl>
+        <attrdef>Length of otter, including tail; first replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>40.2</rdommin>
+            <rdommax>155.9</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LGTH2</attrlabl>
+        <attrdef>Length of otter, including tail; second replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>90.0</rdommin>
+            <rdommax>146.5</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LGTH3</attrlabl>
+        <attrdef>Length of otter, including tail; third replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>102.2</rdommin>
+            <rdommax>143.7</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>curvilinear_correction</attrlabl>
+        <attrdef>Correction factor for lengths measured as curvilinear instead of standard length.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>1</edomv>
+            <edomvd>No correction for lengths measured as standard length.</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>0.974</edomv>
+            <edomvd>Correction factor for lengths measured as curvilinear length.</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>mean_lgth</attrlabl>
+        <attrdef>Mean of replicate otter length measurements</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>40.2</rdommin>
+            <rdommax>155.9</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>true_standard_lgth</attrlabl>
+        <attrdef>Mean length * curvilinear correction</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>40.2</rdommin>
+            <rdommax>151.9</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>body_lgth</attrlabl>
+        <attrdef>Body length not including tail = true standard lgth - mean tail lgth</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-43.4</rdommin>
+            <rdommax>115.2</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>CURVE_LGTH1</attrlabl>
+        <attrdef>Curvilinear length of otter, including tail; first replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>47.0</rdommin>
+            <rdommax>160.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>CURVE_LGTH2</attrlabl>
+        <attrdef>Curvilinear length of otter, including tail; first replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>111.5</rdommin>
+            <rdommax>166.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>GIRTH1</attrlabl>
+        <attrdef>Circumference of chest at ziphoid; first replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>29.5</rdommin>
+            <rdommax>96.5</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>GIRTH2</attrlabl>
+        <attrdef>Circumference of chest at ziphoid; second replicate measurement</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>74.5</rdommin>
+            <rdommax>78.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>mean_girth</attrlabl>
+        <attrdef>Mean of replicate girth measurements</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>29.5</rdommin>
+            <rdommax>96.5</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PAW</attrlabl>
+        <attrdef>Width of front paw at widest point</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>34.0</rdommin>
+            <rdommax>63.0</rdommax>
+            <attrunit>Millimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>W_PUP</attrlabl>
+        <attrdef>Whether an adult female was with a dependent pup at the time of capture or collection.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>Not applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>N</edomv>
+            <edomvd>Adult female not with dependent pup</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>U</edomv>
+            <edomvd>Unknown</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>D</edomv>
+            <edomvd>The individual is the dependent pup</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>Y</edomv>
+            <edomvd>Adult female with dependent pup</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PUP_NUMBER</attrlabl>
+        <attrdef>Unique identifier of pup, if present and marked</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <udom>Unique identifier of pup, if present and marked</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PUP_SEX</attrlabl>
+        <attrdef>Sex of pup</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>No applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>F</edomv>
+            <edomvd>Female</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>M</edomv>
+            <edomvd>Male</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>U</edomv>
+            <edomvd>Unknown</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PUP_WGHT</attrlabl>
+        <attrdef>Weight of pup</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.9</rdommin>
+            <rdommax>28.0</rdommax>
+            <attrunit>Kilograms</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PUP_LGTH</attrlabl>
+        <attrdef>Length of pup</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>45.8</rdommin>
+            <rdommax>113.5</rdommax>
+            <attrunit>Kilograms</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PUP_CURVLGTH</attrlabl>
+        <attrdef>Curvilinear of length of pup</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>47.0</rdommin>
+            <rdommax>113.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FETUS_PRES</attrlabl>
+        <attrdef>Whether fetus was present at time of collection.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>N</edomv>
+            <edomvd>No fetus present</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>Not Applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>Y</edomv>
+            <edomvd>Fetus present</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>M</edomv>
+            <edomvd>Multiple fetuses present</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FETUS_NUM</attrlabl>
+        <attrdef>Number of fetuses present</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>3</rdommax>
+            <attrunit>count</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FETUS_SEX</attrlabl>
+        <attrdef>Sex of fetus</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>Not Applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>M</edomv>
+            <edomvd>Male</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>F</edomv>
+            <edomvd>Female</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>U</edomv>
+            <edomvd>Unknown</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FETUS_WT</attrlabl>
+        <attrdef>Weight of fetus</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>2112.0</rdommax>
+            <attrunit>Grams</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FETUS_LTH</attrlabl>
+        <attrdef>Length of fetus</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.3</rdommin>
+            <rdommax>65.0</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FE_REP_CON</attrlabl>
+        <attrdef>Female reproductive condition</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>Not applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>IMP</edomv>
+            <edomvd>Implanted pregnant</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>UNI</edomv>
+            <edomvd>Unimplanted pregnant</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>POS</edomv>
+            <edomvd>this code is not documented</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>ANE</edomv>
+            <edomvd>Anestrous</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>PRO</edomv>
+            <edomvd>this code is not documented</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>EST</edomv>
+            <edomvd>In estrous</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>FAI</edomv>
+            <edomvd>this code is not documented</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FE_REP_STA</attrlabl>
+        <attrdef>Female reproductive state (collections only)</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>Not applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>N</edomv>
+            <edomvd>nulliparous</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>M</edomv>
+            <edomvd>multiparous</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>P</edomv>
+            <edomvd>primiparous</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PREGNANCY_STATUS</attrlabl>
+        <attrdef>Pregnancy status</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>.</edomv>
+            <edomvd>Not applicable</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>NP</edomv>
+            <edomvd>Not pregnant at collection or capture</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>U</edomv>
+            <edomvd>Unknown</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>NPP</edomv>
+            <edomvd>Not palpably pregnant at capture</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>P</edomv>
+            <edomvd>Fetus present at collection or palpably pregnant at capture</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>PP</edomv>
+            <edomvd>this code is not documented</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>TT</edomv>
+            <edomvd>this code is not documented</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>CAN_DIA</attrlabl>
+        <attrdef>Diameter of canine tooth at gum line (widest dimension)</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>2.9</rdommin>
+            <rdommax>11.1</rdommax>
+            <attrunit>Millimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FINAL_AGE</attrlabl>
+        <attrdef>Age of otter at time of capture or collection (based on 1-known age, 2-tooth cementum age, 3-field age estimate).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>23</rdommax>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>AGE_CATEGORY</attrlabl>
+        <attrdef>Age category of otter at time of capture or collection (0 = &lt; 1yr, 1.5 = 1-2 yrs, 7 - 3-10 yrs, 13 = &gt; 10 yrs)</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>7</edomv>
+            <edomvd>3-10 yrs</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>0</edomv>
+            <edomvd>&lt; 1yr</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>13</edomv>
+            <edomvd>&gt; 10 yrs</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>1.5</edomv>
+            <edomvd>1-2 yrs</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9.0</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>BACULA_LGTH</attrlabl>
+        <attrdef>Baculum length</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>2.2</rdommin>
+            <rdommax>163.4</rdommax>
+            <attrunit>Centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>-9</edomv>
+            <edomvd>no data</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>comments</attrlabl>
+        <attrdef>Notes</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <udom>Notes</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Cause_of_death_Capture_method</attrlabl>
+        <attrdef>Cause of death or capture method</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>1</edomv>
+            <edomvd>Collected via harvest</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>0</edomv>
+            <edomvd>Typical live capture</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>4</edomv>
+            <edomvd>Measured after some time in captivity</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>5</edomv>
+            <edomvd>Captured off a beach</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>ascweb@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <resdesc>The U.S. Geological Survey, Alaska Science Center is the authoritative source and distributor of these data.</resdesc>
+    <distliab>Unless otherwise stated, all data, metadata and related materials are considered to satisfy the quality standards relative to the purpose for which the data were collected. Although these data and associated metadata have been reviewed for accuracy and completeness and approved for release by the U.S. Geological Survey, no warranty expressed or implied is made regarding the display or utility of the data for other purposes or on all computer systems, nor shall the act of distribution constitute any such warranty. Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>CSV</formname>
+          <formcont>Data are distributed in a Zip package containing data in CSV format and FGDC metadata in XML and HTML formats.</formcont>
+          <filedec>Compression applied by the 7-Zip utility using the default compression level [5]. The Zip package can be decompressed and unpacked by open source or commercially available unzip tools.</filedec>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>https://doi.org/10.5066/P9Q5PD3Y</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>20221016</metd>
+    <metc>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>ascweb@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FGDC Biological Data Profile of the Content Standard for Digital Geospatial Metadata (CSDGM)</metstdn>
+    <metstdv>FGDC-STD-001.1-1999</metstdv>
+  </metainfo>
+</metadata>
