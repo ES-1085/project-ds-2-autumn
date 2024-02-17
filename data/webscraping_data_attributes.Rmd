@@ -51,11 +51,13 @@ The function below will allow us to scrape the attribute names. As we can see, t
 attribute <- attribute_page |>
   html_nodes(".attrlabl") |>
   html_text()
+attribute
 
 #scraping attribute title
-attribute_desription <- attribute_page |>
+attribute_description <- attribute_page |>
   html_nodes(".attrdef") |>
   html_text()
+attribute_description
 ```
 
 Now, let's create the dataframe that we need to display these attributes. 
@@ -63,7 +65,7 @@ Now, let's create the dataframe that we need to display these attributes.
 ```{r creating-dataframe}
 seot_data_attributes <- tibble(
   attribute = attribute, 
-  attribute_desription = attribute_desription)
+  attribute_description = attribute_description)
 
 seot_data_attributes
 ```
@@ -74,8 +76,8 @@ As we can see, every other row has the information we want. Let's fix this.
 ```{r tidying-attribute-dataframe}
 seot_data_attributes <- seot_data_attributes %>% 
   filter(attribute != "Attribute_Label:") %>% 
-  filter(attribute_desription != "Attribute_Definition:") %>% 
-  select(attribute, attribute_desription)
+  filter(attribute_description != "Attribute_Definition:") %>% 
+  select(attribute, attribute_description)
 
 glimpse(seot_data_attributes)
 ```
@@ -86,11 +88,18 @@ There is still some issues within the `attribute_description` column, where ther
 #removing quotes from column `attribute`
 seot_data_attributes <- seot_data_attributes %>% 
   mutate(attribute = str_replace(attribute, '""', '')) %>% 
-  mutate(attribute_desription = str_replace(attribute_desription, '\n', '')) %>% 
-  mutate(attribute_desription = str_replace(attribute_desription, '\n', '')) 
+  mutate(attribute_description = str_replace(attribute_description, '\n', '')) %>% 
+  mutate(attribute_description = str_replace(attribute_description, '\n', ''))
 
 seot_data_attributes
 ```
+### Creating Sentence
 
+Now let's create the sentence that we'd need for the ReadME.md file in the `data` folder. 
 
+```{r sentence}
+seot_data_attributes <- seot_data_attributes %>%  
+  mutate(sentence_description = str_glue("`{attribute}`: {attribute_description}"))
+```
 
+Now we have the data/sentences we need to complete the ReadME.md file!
