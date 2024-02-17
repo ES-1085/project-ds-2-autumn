@@ -3,3 +3,22 @@ title: "Analysis"
 author: "Autumn Pauly"
 output: github_document
 ---
+
+```{r loading-packages}
+library(tidyverse)
+```
+
+```{r loading-dataset}
+base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
+
+seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
+```
+
+```{r glimpsing data}
+seot %>% 
+  ggplot(aes(x = YEAR, fill = "firebrick")) +
+  geom_histogram(binwidth = 1) + 
+  labs(title = "Count of Observations Per Year",
+       x = "Year", 
+       y = "Count")
+```
