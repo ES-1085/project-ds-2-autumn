@@ -23,3 +23,11 @@ seot %>%
        x = "Year", 
        y = "Count")
 ```
+
+```{r age}
+seot %>% 
+  ggplot(aes(x=FINAL_AGE)) + 
+   geom_histogram(binwidth = 1) + 
+  xlim(0,25)
+```
+
