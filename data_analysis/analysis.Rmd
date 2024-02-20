@@ -1,6 +1,6 @@
 ---
 title: "Analysis"
-author: "Autumn Pauly"
+author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
 
