@@ -28,6 +28,49 @@ seot %>%
 seot %>% 
   ggplot(aes(x=FINAL_AGE)) + 
    geom_histogram(binwidth = 1) + 
-  xlim(0,25)
+  xlim(0,25) + 
+  scale_fill_viridis_d() +
+  facet_grid(~SEX)
+```
+
+## Paw Width and Prey
+The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
+
+## Canine and Sexing
+The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
+
+The canine measurement is labeled under the `CAN_DIA` column, where a measurement of the diameter of canine tooth (mm) was taken at the gum line, which is the widest dimension. This canine width was measured with a caliper and recorded to the nearest 0.1 mm. 
+
+```{r glimpsing-canine-measurement-by-sex}
+seot <- seot %>% 
+  mutate(CAN_DIA = as.numeric(CAN_DIA))
+
+#scatterplot
+ggplot(data = seot, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+  geom_jitter() + 
+  ylim(2,12) + 
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+
+#boxplot
+ggplot(data = seot, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+  geom_boxplot() + 
+  ylim(2,12) + 
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+```
+
+```{r canine-histogram}
+#histogram
+ggplot(data = seot, mapping = aes(x = CAN_DIA)) +
+  geom_histogram() + 
+  facet_grid(~SEX) + 
+  xlim(2,13)
+
+
 ```
 
