@@ -17,7 +17,7 @@ seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv
 ```
 
 ## Glimpsing the Data
-
+### Yearly Observations
 First, let's look at the yearly observations for the sea otters. [add something here about the gap between 1970 and 1985]. 
 
 ```{r glimpsing data}
@@ -30,6 +30,8 @@ seot %>%
        y = "Count")
 ```
 
+### Age Diversity Among Sexes With Observations
+
 ```{r age}
 seot %>% 
   filter(SEX != "U") %>% 
@@ -37,14 +39,9 @@ seot %>%
    geom_histogram(binwidth = 1) + 
   xlim(0,25) + 
   facet_grid(~SEX)
-
-seot %>% 
-  filter(SEX != "U") %>% 
-  filter(FINAL_AGE > 0) %>% 
-  ggplot(aes(x=FINAL_AGE, y = SEX, color = SEX)) + 
-  geom_jitter()
 ```
 
+# Statistical Analysis 
 ## Paw Width and Prey
 The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
 
