@@ -192,10 +192,24 @@ seot %>%
 seot %>% 
   filter(FINAL_AGE > 0) %>% 
   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
-  
 ```
 
+# Creating Map
 
+## Introduction
+
+```{r lat-long-glimpse}
+seot %>% 
+  count(LOCATION)
+
+seot %>% 
+  count(REGION)
+```
+
+```{r filtering-by-location}
+seot %>% 
+  filter(LOCATION == "adak")
+```
 
 
 
