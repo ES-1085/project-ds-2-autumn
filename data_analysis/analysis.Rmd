@@ -10,13 +10,6 @@ library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r loading-dataset}
-#base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
-
-#seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
-seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
-```
-
 # Glimpsing the Data
 ## Yearly Observations
 First, let's look at the yearly observations for the sea otters. [add something here about the gap between 1970 and 1985]. 
@@ -210,59 +203,3 @@ seot %>%
 seot %>% 
   filter(LOCATION == "adak")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
