@@ -1,6 +1,6 @@
 ---
 title: "Analysis"
-author: "Autumn Pauly"
+author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
 
@@ -9,9 +9,10 @@ library(tidyverse)
 ```
 
 ```{r loading-dataset}
-base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
+#base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
 
-seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
+#seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
+seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 ```
 
 ```{r glimpsing data}
@@ -23,26 +24,96 @@ seot %>%
        y = "Count")
 ```
 
-```{r average-weight-by-year}
-ggplot(data = seot, mapping = aes(x = YEAR, y = WEIGHT, color = SEX)) + 
-  geom_jitter()
-
-#bacula length
+```{r age}
 seot %>% 
-  filter(BACULA_LGTH = BACULA_LGTH > 0) %>% 
-ggplot(data = seot, mapping = aes(x = BACULA_LGTH, fill = SEX)) + 
-  geom_histogram() + 
-  xlim(5, 20) + 
-  facet_wrap(~YEAR)
+  filter(SEX != "U") %>% 
+  ggplot(aes(x=FINAL_AGE, fill = SEX)) + 
+   geom_histogram(binwidth = 1) + 
+  xlim(0,25) + 
+  facet_grid(~SEX)
+
+seot %>% 
+  filter(SEX != "U") %>% 
+  filter(FINAL_AGE > 0) %>% 
+  ggplot(aes(x=FINAL_AGE, y = SEX, color = SEX)) + 
+  geom_jitter()
 ```
 
+## Paw Width and Prey
+The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
 
-``` {r - tail-length}
-#tail length
-seot %>% 
-ggplot(data = seot, mapping = aes(x = TAIL_LGTH_1)) + 
+## Canine and Sexing
+The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
+
+The canine measurement is labeled under the `CAN_DIA` column, where a measurement of the diameter of canine tooth (mm) was taken at the gum line, which is the widest dimension. This canine width was measured with a caliper and recorded to the nearest 0.1 mm. 
+
+```{r glimpsing-canine-measurement-by-sex}
+seot_sex <- seot %>% 
+  mutate(CAN_DIA = as.numeric(CAN_DIA)) %>% 
+  filter(SEX != "U") %>% 
+  filter(CAN_DIA > 0)
+
+#scatterplot
+ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+  geom_jitter() + 
+  ylim(2,12) + 
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+
+#boxplot
+ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+  geom_boxplot() + 
+  ylim(2,12) + 
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+```
+
+```{r canine-histogram}
+#histogram
+ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
-  xlim(10, 40) + 
-  facet_wrap(~SEx)
+  facet_grid(~SEX) + 
+  xlim(2,13) + 
+  theme_gray() + 
+  labs( title = "Canine Diameter of Sea Otters", 
+        subtitle = "by Sex", 
+        x = "Canine Diameter (mm)", 
+        y = "Count", 
+        fill = "Sex")
+```
+
+To truly determine if the measurement of the canine diameter at the gum line is an appropriate metric by which to sex a sea otter, statistical testing should be performed. As was seen above, the distribution of both sexes appears to conform to a normal distribution. This suggests that we can use a test that follows a two-sample t-test with equal variance. 
+
+```{r stats-canine-ttest}
+t.test(CAN_DIA ~ SEX, data = seot_sex, var.equal = TRUE)
+```
+
+The diameter of the canine tooth for female sea otters is significantly smaller than that of the male otters (Two Sample t-test; t = -19.164, df = 1132, p-value < 2.2e-16). This would mean that this would be an appropriate metric by which to determine the sex of an unknown sea otter. 
+
+## Baculum Length and Aging
+
+The baculum length was measured on males a way to estimate age-class of the animal. We would like to perform statistical analysis on if there is a difference in baculum length in males of various ages and if this is an appropriate metric by which to estimate the age of male individuals.
+
+The baculum measurement is found under the `BACULA_LGTH` column with the unit of measurement being centimeters. The baculum length was measure using a tape measure and feeling the ends of the bone and recorded to the nearest 0.5 cm.
+
+```{r baculum-length-visualization}
+seot_baculum <- seot %>% 
+  filter(SEX == "M") %>% 
+  mutate(FINAL_AGE = as.numeric(FINAL_AGE)) %>% 
+  filter(FINAL_AGE > 0) %>% 
+  mutate(BACULA_LGTH = as.numeric(BACULA_LGTH)) %>% 
+  filter(BACULA_LGTH > 0)
+
+ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
+  geom_jitter() + 
+  geom_smooth() + 
+  labs(title = "Baculum Length by Age", 
+       x = "Final Age", 
+       y = "Bacula Length (cm)", 
+       color = "Age")
 ```
 
