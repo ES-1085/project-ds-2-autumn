@@ -26,11 +26,17 @@ seot %>%
 
 ```{r age}
 seot %>% 
-  ggplot(aes(x=FINAL_AGE)) + 
+  filter(SEX != "U") %>% 
+  ggplot(aes(x=FINAL_AGE, fill = SEX)) + 
    geom_histogram(binwidth = 1) + 
   xlim(0,25) + 
-  scale_fill_viridis_d() +
   facet_grid(~SEX)
+
+seot %>% 
+  filter(SEX != "U") %>% 
+  filter(FINAL_AGE > 0) %>% 
+  ggplot(aes(x=FINAL_AGE, y = SEX, color = SEX)) + 
+  geom_jitter()
 ```
 
 ## Paw Width and Prey
@@ -87,4 +93,37 @@ t.test(CAN_DIA ~ SEX, data = seot_sex, var.equal = TRUE)
 ```
 
 The diameter of the canine tooth for female sea otters is significantly smaller than that of the male otters (Two Sample t-test; t = -19.164, df = 1132, p-value < 2.2e-16). This would mean that this would be an appropriate metric by which to determine the sex of an unknown sea otter. 
+
+## Baculum Length and Aging
+
+The baculum length was measured on males a way to estimate age-class of the animal. We would like to perform statistical analysis on if there is a difference in baculum length in males of various ages and if this is an appropriate metric by which to estimate the age of male individuals.
+
+The baculum measurement is found under the `BACULA_LGTH` column with the unit of measurement being centimeters. The baculum length was measure using a tape measure and feeling the ends of the bone and recorded to the nearest 0.5 cm.
+
+```{r baculum-length-visualization}
+seot_baculum <- seot %>% 
+  filter(SEX == "M") %>% 
+  mutate(FINAL_AGE = as.numeric(FINAL_AGE)) %>% 
+  filter(FINAL_AGE > 0) %>% 
+  mutate(BACULA_LGTH = as.numeric(BACULA_LGTH)) %>% 
+  filter(BACULA_LGTH > 0)
+
+ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
+  geom_jitter() + 
+  geom_smooth() + 
+  labs(title = "Baculum Length by Age", 
+       x = "Final Age", 
+       y = "Bacula Length (cm)", 
+       color = "Age")
+```
+
+
+
+
+
+
+
+
+
+
 
