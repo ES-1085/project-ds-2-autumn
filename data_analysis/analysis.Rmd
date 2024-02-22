@@ -118,7 +118,9 @@ ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color 
        color = "Age")
 ```
 
-```{r}
+The statistics that we find with the Tukey HSD test that we performed is a little convoluted, so let's tidy this up and group ages into categories and try again. 
+
+```{r tukeyhsd-baculumlength-finalage}
 #create dataframe that includes the variables we want
 seot_baculum <- seot_baculum %>% 
   mutate(FINAL_AGE = as.factor(FINAL_AGE)) %>% 
@@ -131,6 +133,30 @@ summary(aovbaculum)
 
 #Tukey HSD Test
 TukeyHSD(aovbaculum)
+```
+
+Now we can more clearly see how the baculum length relates to ages. 
+
+```{r tukeyhsd-baculumlength-agecategory}
+#create dataframe that includes the variables we want
+seot_baculum_2 <- seot %>% 
+  filter(SEX == "M") %>% 
+  mutate(AGE_CATEGORY = as.numeric(AGE_CATEGORY)) %>% 
+  filter(AGE_CATEGORY > 0) %>% 
+  mutate(BACULA_LGTH = as.numeric(BACULA_LGTH)) %>% 
+  filter(BACULA_LGTH > 0)
+
+seot_baculum_2 <- seot_baculum_2 %>% 
+  mutate(AGE_CATEGORY = as.factor(AGE_CATEGORY)) %>% 
+  select(BACULA_LGTH, AGE_CATEGORY) 
+seot_baculum_2
+
+#creating the ANOVA test
+aovbaculum2 <- aov(BACULA_LGTH~AGE_CATEGORY, data = seot_baculum_2)
+summary(aovbaculum2)
+
+#Tukey HSD Test
+TukeyHSD(aovbaculum2)
 ```
 
 
