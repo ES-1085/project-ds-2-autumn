@@ -5,6 +5,7 @@ output: github_document
 ---
 
 ## Summary
+### Introduction
 
 Write-up of your project and findings go here. 
 Think of this as the text of your presentation. 
@@ -18,6 +19,15 @@ The addin will ignore code chunks and only count the words in prose.
 You can also load your data here and present any analysis results / plots, but I strongly urge you to keep that to a minimum (maybe only the most important graphic, if you have one you can choose). 
 And make sure to hide your code with  `echo = FALSE` unless the point you are trying to make is about the code itself.
 Your results with proper output and graphics go in your presentation, this space is for a brief summary of your project.
+
+## Navigating the Project Folder
+There are a variety of subfolders and files that are pivotal for the analysis of this project, including .Rmd, .md, .shapefiles, and others. 
+
+For the data dictionary, navigate to the `README.md` file located within the `data` folder. This details what each variable represents. 
+
+To begin analyzing the data, navigate to the `data_tidying.rmd` in the `data_analysis` folder. This contains the code that is needed to clean the USGS datasets into readable formats. These cleaned files are the base files for the next .Rmd files. 
+
+For statistical analysis, navigate to the `analysis.Rmd` file within the `data_analysis` folder. [insert a couple of sentences about what this file contains]. 
 
 ```{r load-data, echo = FALSE}
 # load data here, if you like
