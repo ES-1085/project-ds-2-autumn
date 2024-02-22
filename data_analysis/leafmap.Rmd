@@ -1,0 +1,7 @@
+---
+title: "Leafmap"
+author: "Autumn Pauly and Asher Panikian"
+output: github_document
+---
+
+
