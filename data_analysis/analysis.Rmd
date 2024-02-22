@@ -4,9 +4,10 @@ author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
 
-## Loading the Data
+# Loading the Data
 ```{r loading-packages}
 library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r loading-dataset}
@@ -16,8 +17,8 @@ library(tidyverse)
 seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 ```
 
-## Glimpsing the Data
-### Yearly Observations
+# Glimpsing the Data
+## Yearly Observations
 First, let's look at the yearly observations for the sea otters. [add something here about the gap between 1970 and 1985]. 
 
 ```{r glimpsing data}
@@ -30,7 +31,7 @@ seot %>%
        y = "Count")
 ```
 
-### Age Diversity Among Sexes With Observations
+## Age Diversity Among Sexes With Observations
 
 ```{r age}
 seot %>% 
@@ -49,6 +50,9 @@ The paw width data was collected in an effort to study the estimates of prey siz
 The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
 
 The canine measurement is labeled under the `CAN_DIA` column, where a measurement of the diameter of canine tooth (mm) was taken at the gum line, which is the widest dimension. This canine width was measured with a caliper and recorded to the nearest 0.1 mm. 
+
+### Creating Plots
+Let's create a plot to visualize the distribution of the data. This will help us determine which type of statistical test will be the most appropriate to use. First, we have to filter the `seot` dataset so that we will be able to visualize the `CAN_DIA` and `SEX` variables that we're interested in. 
 
 ```{r glimpsing-canine-measurement-by-sex}
 seot_sex <- seot %>% 
@@ -103,6 +107,9 @@ The diameter of the canine tooth for female sea otters is significantly smaller 
 The baculum length was measured on males a way to estimate age-class of the animal. We would like to perform statistical analysis on if there is a difference in baculum length in males of various ages and if this is an appropriate metric by which to estimate the age of male individuals.
 
 The baculum measurement is found under the `BACULA_LGTH` column with the unit of measurement being centimeters. The baculum length was measure using a tape measure and feeling the ends of the bone and recorded to the nearest 0.5 cm.
+
+### Creating Plots
+Let's create a plot to visualize the distribution of the data. This will help us determine which type of statistical test will be the most appropriate to use. First, we have to filter the `seot` dataset so that we will be able to visualize the `BACULA_LGTH` and `FINAL_AGE` variables that we're interested in. 
 
 ```{r baculum-length-visualization}
 seot_baculum <- seot %>% 
