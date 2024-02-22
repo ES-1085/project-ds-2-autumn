@@ -4,6 +4,7 @@ author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
 
+## Loading the Data
 ```{r loading-packages}
 library(tidyverse)
 ```
@@ -15,10 +16,15 @@ library(tidyverse)
 seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 ```
 
+## Glimpsing the Data
+
+First, let's look at the yearly observations for the sea otters. [add something here about the gap between 1970 and 1985]. 
+
 ```{r glimpsing data}
 seot %>% 
-  ggplot(aes(x = YEAR, fill = "firebrick")) +
+  ggplot(aes(x = YEAR)) +
   geom_histogram(binwidth = 1) + 
+  scale_fill_viridis_d(option = "magma") +
   labs(title = "Count of Observations Per Year",
        x = "Year", 
        y = "Count")
