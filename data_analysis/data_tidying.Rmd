@@ -4,17 +4,91 @@ author: "Autumn Pauly"
 output: github_document
 ---
 
+#Loading Data
 ```{r loading-packages}
 library(tidyverse)
 ```
 
 ```{r loading-dataset}
-base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
+#base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
 
-seot = read.csv(paste0(base_dir,"seot_morphometricsReproStatus_ak_monson.csv"),h=T)
+seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 ```
 
+# Glimpsing Data
 ```{r glimpsing data}
-glimpse(seot)
+glimpse(seot$REGION)
+
+seot %>% 
+  count(REGION)
 ```
+
+# Changing Regional Names
+
+```{r changing-region-names}
+#changing region variable to factor
+seot <- seot %>% 
+  mutate(REGION = as.factor(REGION))
+
+#changing regional names
+seot <- seot %>% 
+  mutate(REGION = recode(REGION, 
+                         "AK peninsula" = "alaskan_peninsula", 
+                         "PWS" = "prince_william_sound", 
+                         "SE" = "southeast_alaska", 
+                         "east aleutians" = "east_aleutians", 
+                         "lower cook inlet" = "lower_cook_inlet", 
+                         "west aleutians" = "west_aleutians"))
+```
+
+# Changing Area Names
+
+```{r changing-area-names}
+#changing area variable to factor
+seot <- seot %>% 
+  mutate(AREA = as.factor(REGION))
+
+#changing area names
+seot <- seot %>% 
+  mutate(AREA = recode(REGION, 
+                         "CSE" = "central_southeast_alaska" , 
+                          "EAP" = "eastern_alaskan_peninsula", 
+                         "EPWS" = "eastern_prince_william_sound", 
+                          "NSE" = "northern_southeast_alaska", 
+                          "SSE" = "southern_southeast_alaska", 
+                          "WAP" = "western_alaskan_peninsula", 
+                          "WPWS" = "western_prince_william_sound", 
+                          "fox islands" =  "fox_islands", 
+                          "near islands" = "near_islands", 
+                          "afognak" = "afognak_island", 
+                           "andreanofs" = "andreanof_islands", 
+                         "delarofs" = "delarof_islands" , 
+                         "kachemak" = "kachemak_bay", 
+                          "kodiak" = "kodiak_island" , 
+                          "rats" = "rat_islands" , 
+                          "shuyak" = "shuyak_island_kodiak" ))
+```
+
+```{r}
+seot %>% 
+  count(AREA)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
