@@ -18,9 +18,6 @@ seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv
 # Glimpsing Data
 ```{r glimpsing data}
 glimpse(seot$REGION)
-
-seot %>% 
-  count(REGION)
 ```
 
 # Changing Regional Names
@@ -41,16 +38,23 @@ seot <- seot %>%
                          "west aleutians" = "west_aleutians"))
 ```
 
+```{r counting-region}
+seot %>% 
+  count(REGION) %>% 
+  arrange(desc(n))
+```
+
+
 # Changing Area Names
 
 ```{r changing-area-names}
 #changing area variable to factor
 seot <- seot %>% 
-  mutate(AREA = as.factor(REGION))
+  mutate(AREA = as.factor(AREA))
 
 #changing area names
 seot <- seot %>% 
-  mutate(AREA = recode(REGION, 
+  mutate(AREA = recode(AREA, 
                          "CSE" = "central_southeast_alaska" , 
                           "EAP" = "eastern_alaskan_peninsula", 
                          "EPWS" = "eastern_prince_william_sound", 
@@ -69,13 +73,11 @@ seot <- seot %>%
                           "shuyak" = "shuyak_island_kodiak" ))
 ```
 
-```{r}
+```{r counting-area}
 seot %>% 
-  count(AREA)
+  count(AREA) %>% 
+  arrange(desc(n))
 ```
-
-
-
 
 
 
