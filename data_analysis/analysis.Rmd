@@ -22,3 +22,27 @@ seot %>%
        x = "Year", 
        y = "Count")
 ```
+
+```{r average-weight-by-year}
+ggplot(data = seot, mapping = aes(x = YEAR, y = WEIGHT, color = SEX)) + 
+  geom_jitter()
+
+#bacula length
+seot %>% 
+  filter(BACULA_LGTH = BACULA_LGTH > 0) %>% 
+ggplot(data = seot, mapping = aes(x = BACULA_LGTH, fill = SEX)) + 
+  geom_histogram() + 
+  xlim(5, 20) + 
+  facet_wrap(~YEAR)
+```
+
+
+``` {r - tail-length}
+#tail length
+seot %>% 
+ggplot(data = seot, mapping = aes(x = TAIL_LGTH_1)) + 
+  geom_histogram() + 
+  xlim(10, 40) + 
+  facet_wrap(~SEx)
+```
+
