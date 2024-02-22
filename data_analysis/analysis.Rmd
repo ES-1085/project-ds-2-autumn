@@ -42,11 +42,13 @@ The canine width was measured as a potential metric to sex the individuals. We w
 The canine measurement is labeled under the `CAN_DIA` column, where a measurement of the diameter of canine tooth (mm) was taken at the gum line, which is the widest dimension. This canine width was measured with a caliper and recorded to the nearest 0.1 mm. 
 
 ```{r glimpsing-canine-measurement-by-sex}
-seot <- seot %>% 
-  mutate(CAN_DIA = as.numeric(CAN_DIA))
+seot_sex <- seot %>% 
+  mutate(CAN_DIA = as.numeric(CAN_DIA)) %>% 
+  filter(SEX != "U") %>% 
+  filter(CAN_DIA > 0)
 
 #scatterplot
-ggplot(data = seot, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
   geom_jitter() + 
   ylim(2,12) + 
   labs(title = "Canine Diameter by Sex",
@@ -55,7 +57,7 @@ ggplot(data = seot, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) +
        color = "Sex")
 
 #boxplot
-ggplot(data = seot, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
   geom_boxplot() + 
   ylim(2,12) + 
   labs(title = "Canine Diameter by Sex",
@@ -66,11 +68,23 @@ ggplot(data = seot, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) +
 
 ```{r canine-histogram}
 #histogram
-ggplot(data = seot, mapping = aes(x = CAN_DIA)) +
+ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
   facet_grid(~SEX) + 
-  xlim(2,13)
-
-
+  xlim(2,13) + 
+  theme_gray() + 
+  labs( title = "Canine Diameter of Sea Otters", 
+        subtitle = "by Sex", 
+        x = "Canine Diameter (mm)", 
+        y = "Count", 
+        fill = "Sex")
 ```
+
+To truly determine if the measurement of the canine diameter at the gum line is an appropriate metric by which to sex a sea otter, statistical testing should be performed. As was seen above, the distribution of both sexes appears to conform to a normal distribution. This suggests that we can use a test that follows a two-sample t-test with equal variance. 
+
+```{r stats-canine-ttest}
+t.test(CAN_DIA ~ SEX, data = seot_sex, var.equal = TRUE)
+```
+
+The diameter of the canine tooth for female sea otters is significantly smaller than that of the male otters (Two Sample t-test; t = -19.164, df = 1132, p-value < 2.2e-16). This would mean that this would be an appropriate metric by which to determine the sex of an unknown sea otter. 
 
