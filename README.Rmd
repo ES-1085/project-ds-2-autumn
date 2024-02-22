@@ -29,6 +29,7 @@ Our presentation can be found [here](presentation/presentation.html).
 
 ## Data 
 
+Data source: 
 Monson, D. H., Kloecker, K. A. and Esslinger, G. G., 2021, Morphometric and reproductive status data for Sea Otters collected or captured in Alaska: U.S. Geological Survey data release, https://doi.org/10.5066/P9Q5PD3Y.
 
 Referenced Publications(s): 
@@ -42,5 +43,6 @@ Monson, D. H., J. A. Estes, J. L. Bodkin, and D. B. Siniff. 2000. Life history p
 
 ## References
 
-List any references here. You should, at a minimum, list your data source.
+Data source: 
+Monson, D. H., Kloecker, K. A. and Esslinger, G. G., 2021, Morphometric and reproductive status data for Sea Otters collected or captured in Alaska: U.S. Geological Survey data release, https://doi.org/10.5066/P9Q5PD3Y.
 
