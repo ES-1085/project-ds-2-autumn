@@ -79,6 +79,7 @@ ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   facet_grid(~SEX) + 
   xlim(2,13) + 
   theme_gray() + 
+  scale_fill_viridis_d(option = "turbo") + 
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
         x = "Canine Diameter (mm)", 
@@ -116,4 +117,102 @@ ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color 
        y = "Bacula Length (cm)", 
        color = "Age")
 ```
+
+```{r}
+#create dataframe that includes the variables we want
+seot_baculum <- seot_baculum %>% 
+  mutate(FINAL_AGE = as.factor(FINAL_AGE)) %>% 
+  select(BACULA_LGTH, FINAL_AGE) 
+seot_baculum
+
+#creating the ANOVA test
+aovbaculum <- aov(BACULA_LGTH~FINAL_AGE, data = seot_baculum)
+summary(aovbaculum)
+
+#Tukey HSD Test
+TukeyHSD(aovbaculum)
+```
+
+
+
+## Recapture Data 
+
+```{r recaptured-otters}
+seot %>% 
+  mutate(OTTER.NO = as.factor(OTTER.NO)) %>% 
+  count(OTTER.NO) %>% 
+  arrange(desc(n))
+```
+
+```{r recapture-data-again}
+seot %>% 
+  filter(OTTER.NO == "SO-01-28") %>% 
+  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+
+seot %>% 
+  filter(OTTER.NO == "SO-02-07") %>% 
+  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+
+seot %>% 
+  filter(FINAL_AGE > 0) %>% 
+  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
