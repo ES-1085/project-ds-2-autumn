@@ -10,6 +10,11 @@ library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r reading-CSV}
+seot = read.csv("/cloud/project/data/seot.csv", h = T)
+```
+
+
 # Glimpsing the Data
 ## Yearly Observations
 First, let's look at the yearly observations for the sea otters. [add something here about the gap between 1970 and 1985]. 
