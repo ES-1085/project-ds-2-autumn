@@ -162,7 +162,7 @@ summary(aovbaculum2)
 TukeyHSD(aovbaculum2)
 ```
 
-
+The baculum length of individuals who are ages 1 - 7 are significantly different than one another (one-way ANOVA, F_2,457, = 112, P < 0.005). In a Tukey HSD post-hoc test, the baculum length of individuals who were from ages 7 to 13 did not differ significantly (refer to Tukey multiple comparisons of means). This would suggest that you could use the baculum length to estimate the age of individuals who were 7 years or younger, but not for individuals who are over 7 years old. 
 
 ## Recapture Data 
 
