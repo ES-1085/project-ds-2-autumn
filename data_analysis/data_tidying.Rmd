@@ -21,7 +21,6 @@ glimpse(seot$REGION)
 ```
 
 # Changing Regional Names
-
 ```{r changing-region-names}
 #changing region variable to factor
 seot <- seot %>% 
@@ -44,9 +43,7 @@ seot %>%
   arrange(desc(n))
 ```
 
-
 # Changing Area Names
-
 ```{r changing-area-names}
 #changing area variable to factor
 seot <- seot %>% 
@@ -79,6 +76,20 @@ seot %>%
   arrange(desc(n))
 ```
 
+#Updating Values to "NA"s
+
+As can be seen in the data, the researchers have used proxies to replace missing information values. For example, the attribute `BACULA_LGTH` has all values associated with 'no data' as being `-9` (as was defined by the author). 
+
+We should fix this so that our data won't seem heavily skewed. 
+
+## BACULA_LGTH
+
+```{r bacula-lgth}
+seot %>% 
+  mutate(BACULA_LGTH = ifelse(BACULA_LGTH == "-9", "NA", )) %>% 
+  unique(BACULA_LGTH)
+
+```
 
 
 
