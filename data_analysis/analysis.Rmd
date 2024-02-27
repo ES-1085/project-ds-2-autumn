@@ -8,6 +8,7 @@ output: github_document
 ```{r loading-packages}
 library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
+library(RColorBrewer)
 ```
 
 ```{r reading-CSV}
@@ -84,7 +85,7 @@ ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   facet_grid(~SEX) + 
   xlim(2,13) + 
   theme_gray() + 
-  scale_fill_viridis_d(option = "turbo") + 
+  brewer.pal()
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
         x = "Canine Diameter (mm)", 
