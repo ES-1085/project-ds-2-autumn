@@ -24,11 +24,16 @@ First, let's look at the yearly observations for the sea otters. [add something 
 seot %>% 
   ggplot(aes(x = YEAR)) +
   geom_histogram(binwidth = 1) + 
-  scale_fill_viridis_d(option = "magma") +
   labs(title = "Count of Observations Per Year",
        x = "Year", 
        y = "Count")
 ```
+
+```{r counting-observations}
+seot %>% 
+  count(YEAR)
+```
+
 
 ## Age Diversity Among Sexes With Observations
 
@@ -193,12 +198,13 @@ seot %>%
   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
 ```
 
-# Creating Map
+# Spatial Analysis
 
 ## Introduction
 
 ```{r lat-long-glimpse}
 seot %>% 
+  filter(REGION == "west_aleutians") %>% 
   count(LOCATION)
 
 seot %>% 
@@ -206,6 +212,11 @@ seot %>%
 ```
 
 ```{r filtering-by-location}
-seot %>% 
-  filter(LOCATION == "adak")
+#creating a plot that visualizes the relationship between weight and tail length
+ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth)) + 
+  geom_point() + 
+  ylim(10, 50) + 
+  xlim(0, 50) + 
+  geom_smooth()
 ```
+
