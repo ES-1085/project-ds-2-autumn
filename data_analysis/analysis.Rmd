@@ -39,6 +39,27 @@ seot %>%
   count(YEAR)
 ```
 
+```{r heatmap-}
+#libraries
+#library(d3heatmap)
+
+seot_meanweights <- seot %>% 
+  filter(REGION == "alaskan_peninsula") %>% 
+  filter(WEIGHT > 0) %>% 
+  filter(FINAL_AGE > 6) %>% 
+  filter(BACULA_LGTH > 0) %>% 
+  filter(body_lgth > 0 ) %>% 
+  filter(mean_tail_lgth > 0) %>% 
+  mutate(mean_weight = mean(WEIGHT)) %>% 
+  mutate(mean_bacula = mean(BACULA_LGTH)) %>% 
+  mutate(mean_bodylgth = mean(body_lgth)) %>% 
+  mutate(mean_tail = mean(mean_tail_lgth)) %>% 
+  
+
+
+
+```
+
 
 ## Age Diversity Among Sexes With Observations
 
@@ -54,6 +75,34 @@ seot %>%
 # Statistical Analysis 
 ## Paw Width and Prey
 The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
+
+The `PAW` variable is the width of the front paw at the widest point, as measured in millimeters. 
+
+```{r paw-general}
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = PAW, y = REGION, color = REGION)) + 
+  geom_jitter()
+```
+
+### Statistical Difference in Paw Size Between Sexes
+```{r ANOVA-paw-size}
+seot_paw <- seot %>% 
+  filter(FINAL_AGE > 6)
+
+pawaov <- aov(PAW ~ SEX, data = seot)
+summary(pawaov)
+
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = PAW, fill = SEX)) +
+  geom_histogram() + 
+  facet_wrap(~SEX, ncol = 1)
+
+```
+
+
+
 
 ## Canine and Sexing
 The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
