@@ -4,4 +4,37 @@ author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
 
+```{r packages}
+library(tidyverse) ## For plotting and data wrangling.
+library(leaflet) ## For leaflet interactive maps
+library(sf) ## For spatial data
+library(RColorBrewer) ## For colour palettes
+library(htmltools) ## For html
+library(leafsync) ## For placing plots side by side
+library(stringr) ## For character string manipulation
+library(kableExtra)
+```
+
+```{r color-palette}
+# mapcolor <- c("alaskan_peninsula" = "#CC6677", "west_aleutians" = "#DDCC77", "kodiak" = "#117733", "prince_william_sound" = "#332288", "southeast_alaska" = "#AA4499", "east_aleutians" ="#44AA99", "lower_cook_inlet" = "#999933")
+# 
+# mapcolor2 <- c("#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", "#44AA99", "#999933")
+
+#I'm not sure it's possible to smilutaneously color code the individual points by region while also having them clustered...
+```
+
+```{r create-map-one}
+#map displaying all capture locations for all otters in study
+map1 <- leaflet(data = seot) %>%
+  addTiles () %>%
+  setView(lng = 179,
+          lat = 51,
+          zoom = 5) %>%
+  addCircleMarkers(lng = ~ LONG, lat = ~ LAT, popup = seot$OTTER.NO,
+                   clusterOptions = markerClusterOptions())
+```
+
+```{r create-animated-map}
+
+```
 
