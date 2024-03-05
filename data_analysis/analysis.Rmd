@@ -10,6 +10,10 @@ library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 library(RColorBrewer)
 library(stringr)
+#install.packages("plotly")
+library(plotly)
+#install.packages("gapminder")
+library(gapminder)
 ```
 
 ```{r reading-CSV}
@@ -63,16 +67,33 @@ Let's create a plot to visualize the distribution of the data. This will help us
 seot_sex <- seot %>% 
   mutate(CAN_DIA = as.numeric(CAN_DIA)) %>% 
   filter(SEX != "U") %>% 
-  filter(CAN_DIA > 0)
+  filter(CAN_DIA > 0) %>% 
+  filter(FINAL_AGE > 0)
 
 #scatterplot
-ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
   geom_jitter() + 
   ylim(2,12) + 
+  geom_smooth() +
+  facet_grid(~SEX) +
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
        y = "Diameter (mm)", 
        color = "Sex")
+
+#interactive scatterplot
+ggplotsex <- gapminder %>% 
+  ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
+  geom_jitter() + 
+  ylim(2,12) + 
+  geom_smooth() +
+  facet_grid(~SEX) +
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+
+ggplotly(ggplotsex)
 
 #boxplot
 ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
@@ -90,8 +111,6 @@ ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
   facet_grid(~SEX) + 
   xlim(2,13) + 
-  theme_gray() + 
-  brewer.pal()
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
         x = "Canine Diameter (mm)", 
@@ -265,16 +284,49 @@ seot %>%
 seot_pws_wa <- seot %>% 
   filter(REGION == "west_aleutians"|REGION == "prince_william_sound") %>% 
   filter(WEIGHT > 0) %>% 
-  filter(AGE_CATEGORY > -1)
+  filter(AGE_CATEGORY > -1) %>% 
+  filter(FINAL_AGE > -1)
 
-#mapping weight by age category between the two locations
+#mapping weight by age category between the two locations (histogram)
 seot_pws_wa %>% 
   filter(AGE_CATEGORY > -1) %>% 
+  filter(FINAL_AGE > -1) %>% 
   ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT)) + 
   geom_histogram() + 
-  facet_wrap(AGE_CATEGORY~REGION, ncol = 2)
+  facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
+  labs(title = "Weight by Location", 
+       x = "Weight (lbs)", 
+       y = "Count")
+
+#mapping weight by age category between the two locations (scatterplot)
+seot_pws_wa %>% 
+  filter(FINAL_AGE > -1) %>% 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT, y = FINAL_AGE, color = FINAL_AGE)) + 
+  geom_jitter() + 
+  facet_wrap(~REGION) +
+  labs(x = "Weight (lbs)", 
+       y = "Final Age", 
+       color = "Final Age")
 ```
 
+To statistically test this, we would want to perform an ANOVA test. 
 
+### Age Category = 7
+Let's compare the weight differences of otters that are in the age category of 5 between the different regions. 
 
+```{r spatial-analysis-ANOVA}
+#creating a dataset that includes only the age classes that we want (7)
+seot_adult <- seot %>% 
+  filter(FINAL_AGE > 6) %>% 
+  filter(WEIGHT > 0)
 
+#creating the ANOVA test
+aovspatial2 <- aov(WEIGHT~REGION, data = seot_adult)
+summary(aovspatial2)
+
+#Tukey HSD Test
+TukeyHSD(aovspatial2)
+```
+
+REPORT: 
+The Western Aleutian otters who were older than 6 years of age were significantly heavier than otters that were captured in the south east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472 = 43.37, P < 0.005). 
