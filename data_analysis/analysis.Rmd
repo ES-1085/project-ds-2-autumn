@@ -211,6 +211,16 @@ ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid)) +
 glance(seot_model_baculum)$adj.r.squared
 ```
 
+## Weight by Tail Length
+
+```{r weight-tail-length}
+#creating a plot that visualizes the relationship between weight and tail length
+ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth)) + 
+  geom_point() + 
+  ylim(10, 50) + 
+  xlim(0, 50) + 
+  geom_smooth()
+```
 
 ## Recapture Data 
 
@@ -236,8 +246,10 @@ seot %>%
 ```
 
 # Spatial Analysis
+We want to determine if there is a difference of morphometric measurements on a spatial scale.
 
 ## Introduction
+First, let's see if there is a size difference between Prince William's Sound and the Western Aleutians. 
 
 ```{r lat-long-glimpse}
 seot %>% 
@@ -248,14 +260,21 @@ seot %>%
   count(REGION)
 ```
 
-```{r filtering-by-location}
-#creating a plot that visualizes the relationship between weight and tail length
-ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth)) + 
-  geom_point() + 
-  ylim(10, 50) + 
-  xlim(0, 50) + 
-  geom_smooth()
+```{r spatial-difference-pws-wa}
+#creating a dataset that includes only the west aleutians and prince williams sound
+seot_pws_wa <- seot %>% 
+  filter(REGION == "west_aleutians"|REGION == "prince_william_sound") %>% 
+  filter(WEIGHT > 0) %>% 
+  filter(AGE_CATEGORY > -1)
+
+#mapping weight by age category between the two locations
+seot_pws_wa %>% 
+  filter(AGE_CATEGORY > -1) %>% 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT)) + 
+  geom_histogram() + 
+  facet_wrap(AGE_CATEGORY~REGION, ncol = 2)
 ```
+
 
 
 
