@@ -8,7 +8,18 @@ output: github_document
 ```{r loading-packages}
 library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
+library(RColorBrewer)
+library(stringr)
+#install.packages("plotly")
+library(plotly)
+#install.packages("gapminder")
+library(gapminder)
 ```
+
+```{r reading-CSV}
+seot = read.csv("/cloud/project/data/seot.csv", h = T)
+```
+
 
 # Glimpsing the Data
 ## Yearly Observations
@@ -18,11 +29,37 @@ First, let's look at the yearly observations for the sea otters. [add something 
 seot %>% 
   ggplot(aes(x = YEAR)) +
   geom_histogram(binwidth = 1) + 
-  scale_fill_viridis_d(option = "magma") +
   labs(title = "Count of Observations Per Year",
        x = "Year", 
        y = "Count")
 ```
+
+```{r counting-observations}
+seot %>% 
+  count(YEAR)
+```
+
+```{r heatmap-}
+#libraries
+#library(d3heatmap)
+
+seot_meanweights <- seot %>% 
+  filter(REGION == "alaskan_peninsula") %>% 
+  filter(WEIGHT > 0) %>% 
+  filter(FINAL_AGE > 6) %>% 
+  filter(BACULA_LGTH > 0) %>% 
+  filter(body_lgth > 0 ) %>% 
+  filter(mean_tail_lgth > 0) %>% 
+  mutate(mean_weight = mean(WEIGHT)) %>% 
+  mutate(mean_bacula = mean(BACULA_LGTH)) %>% 
+  mutate(mean_bodylgth = mean(body_lgth)) %>% 
+  mutate(mean_tail = mean(mean_tail_lgth)) %>% 
+  
+
+
+
+```
+
 
 ## Age Diversity Among Sexes With Observations
 
@@ -39,6 +76,34 @@ seot %>%
 ## Paw Width and Prey
 The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
 
+The `PAW` variable is the width of the front paw at the widest point, as measured in millimeters. 
+
+```{r paw-general}
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = PAW, y = REGION, color = REGION)) + 
+  geom_jitter()
+```
+
+### Statistical Difference in Paw Size Between Sexes
+```{r ANOVA-paw-size}
+seot_paw <- seot %>% 
+  filter(FINAL_AGE > 6)
+
+pawaov <- aov(PAW ~ SEX, data = seot)
+summary(pawaov)
+
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = PAW, fill = SEX)) +
+  geom_histogram() + 
+  facet_wrap(~SEX, ncol = 1)
+
+```
+
+
+
+
 ## Canine and Sexing
 The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
 
@@ -51,16 +116,33 @@ Let's create a plot to visualize the distribution of the data. This will help us
 seot_sex <- seot %>% 
   mutate(CAN_DIA = as.numeric(CAN_DIA)) %>% 
   filter(SEX != "U") %>% 
-  filter(CAN_DIA > 0)
+  filter(CAN_DIA > 0) %>% 
+  filter(FINAL_AGE > 0)
 
 #scatterplot
-ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
   geom_jitter() + 
   ylim(2,12) + 
+  geom_smooth() +
+  facet_grid(~SEX) +
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
        y = "Diameter (mm)", 
        color = "Sex")
+
+#interactive scatterplot
+ggplotsex <- gapminder %>% 
+  ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
+  geom_jitter() + 
+  ylim(2,12) + 
+  geom_smooth() +
+  facet_grid(~SEX) +
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+
+ggplotly(ggplotsex)
 
 #boxplot
 ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
@@ -78,8 +160,6 @@ ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
   facet_grid(~SEX) + 
   xlim(2,13) + 
-  theme_gray() + 
-  scale_fill_viridis_d(option = "turbo") + 
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
         x = "Canine Diameter (mm)", 
@@ -164,6 +244,52 @@ TukeyHSD(aovbaculum2)
 
 The baculum length of individuals who are ages 1 - 7 are significantly different than one another (one-way ANOVA, F_2,457, = 112, P < 0.005). In a Tukey HSD post-hoc test, the baculum length of individuals who were from ages 7 to 13 did not differ significantly (refer to Tukey multiple comparisons of means). This would suggest that you could use the baculum length to estimate the age of individuals who were 7 years or younger, but not for individuals who are over 7 years old. 
 
+#Creating a Model of Baculum Length by Age
+
+```{r install-tidymodels}
+install.packages("tidymodels")
+library(tidymodels)
+```
+
+For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
+```{r model-baculum-vs-age}
+#first, we need to filter out the na values (that being -9.0)
+seot_bacula <- seot %>% 
+  filter(BACULA_LGTH > 0)
+
+#now, let's create the linear model comparing final age to baculum length
+seot_model_baculum <- linear_reg() %>%
+  set_engine("lm") %>% 
+  fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
+
+#let's tidy this model
+seot_model_baculum %>% tidy()
+```
+
+```{r graphical-diagnostics-baculum}
+#augmenting the baculum data
+seot_model_baculum_augment <- augment(seot_model_baculum$fit)
+
+ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid)) +
+  geom_jitter(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "gray", lty = "dashed") +
+  labs(x = "Predicted Age", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_model_baculum)$adj.r.squared
+```
+
+## Weight by Tail Length
+
+```{r weight-tail-length}
+#creating a plot that visualizes the relationship between weight and tail length
+ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth)) + 
+  geom_point() + 
+  ylim(10, 50) + 
+  xlim(0, 50) + 
+  geom_smooth()
+```
+
 ## Recapture Data 
 
 ```{r recaptured-otters}
@@ -187,19 +313,69 @@ seot %>%
   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
 ```
 
-# Creating Map
+# Spatial Analysis
+We want to determine if there is a difference of morphometric measurements on a spatial scale.
 
 ## Introduction
+First, let's see if there is a size difference between Prince William's Sound and the Western Aleutians. 
 
 ```{r lat-long-glimpse}
 seot %>% 
+  filter(REGION == "west_aleutians") %>% 
   count(LOCATION)
 
 seot %>% 
   count(REGION)
 ```
 
-```{r filtering-by-location}
-seot %>% 
-  filter(LOCATION == "adak")
+```{r spatial-difference-pws-wa}
+#creating a dataset that includes only the west aleutians and prince williams sound
+seot_pws_wa <- seot %>% 
+  filter(REGION == "west_aleutians"|REGION == "prince_william_sound") %>% 
+  filter(WEIGHT > 0) %>% 
+  filter(AGE_CATEGORY > -1) %>% 
+  filter(FINAL_AGE > -1)
+
+#mapping weight by age category between the two locations (histogram)
+seot_pws_wa %>% 
+  filter(AGE_CATEGORY > -1) %>% 
+  filter(FINAL_AGE > -1) %>% 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT)) + 
+  geom_histogram() + 
+  facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
+  labs(title = "Weight by Location", 
+       x = "Weight (lbs)", 
+       y = "Count")
+
+#mapping weight by age category between the two locations (scatterplot)
+seot_pws_wa %>% 
+  filter(FINAL_AGE > -1) %>% 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT, y = FINAL_AGE, color = FINAL_AGE)) + 
+  geom_jitter() + 
+  facet_wrap(~REGION) +
+  labs(x = "Weight (lbs)", 
+       y = "Final Age", 
+       color = "Final Age")
 ```
+
+To statistically test this, we would want to perform an ANOVA test. 
+
+### Age Category = 7
+Let's compare the weight differences of otters that are in the age category of 5 between the different regions. 
+
+```{r spatial-analysis-ANOVA}
+#creating a dataset that includes only the age classes that we want (7)
+seot_adult <- seot %>% 
+  filter(FINAL_AGE > 6) %>% 
+  filter(WEIGHT > 0)
+
+#creating the ANOVA test
+aovspatial2 <- aov(WEIGHT~REGION, data = seot_adult)
+summary(aovspatial2)
+
+#Tukey HSD Test
+TukeyHSD(aovspatial2)
+```
+
+REPORT: 
+The Western Aleutian otters who were older than 6 years of age were significantly heavier than otters that were captured in the south east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472 = 43.37, P < 0.005). 
