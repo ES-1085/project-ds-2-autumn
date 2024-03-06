@@ -23,7 +23,9 @@ seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 # Glimpsing the Data
 ## Yearly Observations
-First, let's look at the yearly observations for the sea otters. [add something here about the gap between 1970 and 1985]. 
+First, let's look at the yearly observations for the sea otters. 
+
+[add something here about the gap between 1970 and 1985]. 
 
 ```{r glimpsing data}
 seot %>% 
@@ -38,28 +40,54 @@ seot %>%
 seot %>% 
   count(YEAR)
 ```
+### Heatmap
 
-```{r heatmap-}
+```{r heatmap-delete-maybe}
 #libraries
 #library(d3heatmap)
 
+#creating a dataframe that does not include NA values
 seot_meanweights <- seot %>% 
-  filter(REGION == "alaskan_peninsula") %>% 
+  select(AREA, WEIGHT, FINAL_AGE, BACULA_LGTH, body_lgth, mean_tail_lgth) %>% 
   filter(WEIGHT > 0) %>% 
   filter(FINAL_AGE > 6) %>% 
   filter(BACULA_LGTH > 0) %>% 
   filter(body_lgth > 0 ) %>% 
-  filter(mean_tail_lgth > 0) %>% 
+  filter(mean_tail_lgth > 0)
+
+#creating a dataframe that includes mean morphometric measurements
+seot_meanweights <- seot_meanweights %>%
+  group_by(AREA) %>% 
   mutate(mean_weight = mean(WEIGHT)) %>% 
   mutate(mean_bacula = mean(BACULA_LGTH)) %>% 
   mutate(mean_bodylgth = mean(body_lgth)) %>% 
   mutate(mean_tail = mean(mean_tail_lgth)) %>% 
-  
+  distinct(AREA, mean_tail, mean_bodylgth, mean_bacula, mean_weight)
 
+#
+seot_meanweights <- seot_meanweights %>% 
+  mutate(mean_tail = as.numeric(mean_tail)) %>% 
+  mutate(mean_bacula = as.numeric(mean_bacula)) %>% 
+  mutate(mean_bodylgth = as.numeric(mean_bodylgth)) %>% 
+  mutate(mean_weight = as.numeric(mean_weight))
 
-
+#trying to make a heatmap, ask laurie about this...
+seot_matrix_weights <- as.matrix(seot_meanweights)
+#heatmap(seot_matrix_weights)
 ```
+### Tail Length by Area
 
+
+```{r tail-length-by-area}
+#first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
+
+#boxplot of tail length by area
+seot %>% 
+  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, color = AREA)) +
+  geom_boxplot()
+
+#
+```
 
 ## Age Diversity Among Sexes With Observations
 
@@ -70,6 +98,7 @@ seot %>%
    geom_histogram(binwidth = 1) + 
   xlim(0,25) + 
   facet_grid(~SEX)
+
 ```
 
 # Statistical Analysis 
@@ -79,10 +108,12 @@ The paw width data was collected in an effort to study the estimates of prey siz
 The `PAW` variable is the width of the front paw at the widest point, as measured in millimeters. 
 
 ```{r paw-general}
+#can I reorder this by region? eastern to western?
 seot %>% 
   filter(PAW > 0) %>% 
-  ggplot(mapping = aes(x = PAW, y = REGION, color = REGION)) + 
-  geom_jitter()
+  ggplot(mapping = aes(x = REGION, y = PAW, color = REGION)) + 
+  geom_boxplot() + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3))
 ```
 
 ### Statistical Difference in Paw Size Between Sexes
