@@ -102,7 +102,9 @@ seot <- seot %>%
 #bacula length
   mutate(BACULA_LGTH = if_else(BACULA_LGTH < 0, NA, BACULA_LGTH)) %>% 
   #mean tail length
- mutate(mean_tail_lgth = if_else(mean_tail_lgth < 0, NA, mean_tail_lgth))
+ mutate(mean_tail_lgth = if_else(mean_tail_lgth < 0, NA, mean_tail_lgth)) %>% 
+#sex of otters
+mutate(SEX = if_else(SEX == "U", NA, SEX))
 ```
 
 #Writing CSV
