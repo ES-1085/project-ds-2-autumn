@@ -76,6 +76,35 @@ seot %>%
   arrange(desc(n))
 ```
 
+# Cleaning up NA values
+As shown in the codebook, the NA values found within this dataset are usually a negative integer. Let's change this so that the values are truly NA. 
+
+```{r making-na-values}
+#selecting the variables that we want to keep
+seot <- seot %>% 
+  select(OTTER.NO, recap, DATE, YEAR, LOCATION, STATE, REGION, AREA, LAT, LONG, SEX, WEIGHT, true_standard_lgth, mean_tail_lgth, body_lgth, mean_girth, PAW, W_PUP, PUP_NUMBER, PUP_SEX, PUP_WGHT, PUP_LGTH, PUP_CURVLGTH, FETUS_PRES, FETUS_NUM, FETUS_SEX, FETUS_WT, FETUS_LTH, FE_REP_CON, FE_REP_STA, PREGNANCY_STATUS, CAN_DIA, AGE_CATEGORY, FINAL_AGE, BACULA_LGTH, Cause_of_death_Capture_method)
+
+seot <- seot %>% 
+#weight of otter
+  mutate(WEIGHT = if_else(WEIGHT < 0, NA, WEIGHT)) %>% 
+#true standard length of total body
+  mutate(true_standard_lgth = if_else(true_standard_lgth < 0, NA, true_standard_lgth)) %>%
+#body length (true standard length - tail length)
+  mutate(body_lgth = if_else(body_lgth < 0, NA, body_lgth)) %>%
+#mean girth of body
+  mutate(mean_girth = if_else(mean_girth < 0, NA, mean_girth)) %>%
+#paw length  
+  mutate(PAW = if_else(PAW < 0, NA, PAW)) %>%
+#canine diameter
+  mutate(CAN_DIA = if_else(CAN_DIA < 0, NA, CAN_DIA)) %>%
+#final age
+  mutate(FINAL_AGE = if_else(FINAL_AGE < 0, NA, FINAL_AGE)) %>%
+#bacula length
+  mutate(BACULA_LGTH = if_else(BACULA_LGTH < 0, NA, BACULA_LGTH)) %>% 
+  #mean tail length
+ mutate(mean_tail_lgth = if_else(mean_tail_lgth < 0, NA, mean_tail_lgth))
+```
+
 #Writing CSV
 
 Now, we should write this new tidied dataset as a CSV so that it can be read across all the .Rmd files. 
