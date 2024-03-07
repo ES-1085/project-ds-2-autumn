@@ -145,6 +145,14 @@ mutate(SEX = if_else(SEX == "U", NA, SEX))
 
 Problem solved!
 
+## Dates to Date Format
+
+```{r date-to-date}
+seot <- seot %>% 
+  mutate(DATE = as.Date(DATE))
+```
+
+
 # Writing CSV
 
 Now, we should write this new tidied dataset as a CSV so that it can be read across all the .Rmd files. 
