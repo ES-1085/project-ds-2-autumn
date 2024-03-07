@@ -4,47 +4,229 @@ Autumn Pauly and Asher Panikian
 
 # Loading the Data
 
-``` r
-library(tidyverse)
-```
+First, we’ll want to load the appropriate packages and data for the
+analysis of this dataset.
+
+    ## Warning: package 'tidyverse' was built under R version 4.3.3
+
+    ## Warning: package 'ggplot2' was built under R version 4.3.2
 
     ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+    ## ✔ dplyr     1.1.3     ✔ readr     2.1.4
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
     ## ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+    ## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
     ## ✔ purrr     1.0.2     
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
     ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 
-``` r
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-``` r
-seot = read.csv("/cloud/project/data/seot.csv", h = T)
-```
-
 # Glimpsing the Data
 
 ## Yearly Observations
 
-First, let’s look at the yearly observations for the sea otters. \[add
-something here about the gap between 1970 and 1985\].
+First, let’s look at the yearly observations for the sea otters. As can
+be shown below, there is a gap in data collection starting from the year
+1970 through 1985. This will need to be accounted for if there is any
+analysis on temporal differences.
 
 ``` r
+#counting observations per year
 seot %>% 
-  ggplot(aes(x = YEAR)) +
-  geom_histogram(binwidth = 1) + 
-  scale_fill_viridis_d(option = "magma") +
+  count(YEAR)
+```
+
+    ##    YEAR   n
+    ## 1  1947   2
+    ## 2  1955  36
+    ## 3  1956  19
+    ## 4  1957  31
+    ## 5  1959  35
+    ## 6  1960  13
+    ## 7  1962 179
+    ## 8  1963 307
+    ## 9  1967 509
+    ## 10 1968 518
+    ## 11 1970 958
+    ## 12 1971  93
+    ## 13 1986  21
+    ## 14 1987  25
+    ## 15 1988  17
+    ## 16 1989  54
+    ## 17 1990 186
+    ## 18 1991 107
+    ## 19 1992 267
+    ## 20 1993  21
+    ## 21 1995  67
+    ## 22 1996  67
+    ## 23 1997 153
+    ## 24 1998  68
+    ## 25 1999  36
+    ## 26 2001  37
+    ## 27 2002  42
+    ## 28 2003  28
+    ## 29 2004  95
+    ## 30 2005  83
+    ## 31 2006  23
+    ## 32 2007  66
+    ## 33 2008  47
+    ## 34 2009  64
+    ## 35 2010  27
+    ## 36 2011  62
+    ## 37 2012  84
+    ## 38 2019  31
+
+``` r
+#visualizing the observation per year in a histogram
+seot %>% 
+  ggplot(aes(x = YEAR, fill = YEAR)) +
+  geom_histogram(binwidth = 1) +
+  theme_minimal() +
   labs(title = "Count of Observations Per Year",
        x = "Year", 
        y = "Count")
 ```
 
+    ## Warning: The following aesthetics were dropped during statistical transformation: fill
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
 ![](analysis_files/figure-gfm/glimpsing%20data-1.png)<!-- -->
+
+### Heatmap
+
+We can create a heatmap to display morphometric measurements on a
+spatial scale.
+
+``` r
+#libraries
+#library(d3heatmap)
+
+#creating a dataframe that does not include NA values
+seot_meanweights <- seot %>% 
+  select(AREA, WEIGHT, FINAL_AGE, BACULA_LGTH, body_lgth, mean_tail_lgth) %>% 
+  filter(WEIGHT > 0) %>% 
+  filter(FINAL_AGE > 6) %>% 
+  filter(BACULA_LGTH > 0) %>% 
+  filter(body_lgth > 0 ) %>% 
+  filter(mean_tail_lgth > 0)
+
+#creating a dataframe that includes mean morphometric measurements
+seot_meanweights <- seot_meanweights %>%
+  group_by(AREA) %>% 
+  mutate(mean_weight = mean(WEIGHT)) %>% 
+  mutate(mean_bacula = mean(BACULA_LGTH)) %>% 
+  mutate(mean_bodylgth = mean(body_lgth)) %>% 
+  mutate(mean_tail = mean(mean_tail_lgth)) %>% 
+  distinct(AREA, mean_tail, mean_bodylgth, mean_bacula, mean_weight)
+
+#
+seot_meanweights <- seot_meanweights %>% 
+  mutate(mean_tail = as.numeric(mean_tail)) %>% 
+  mutate(mean_bacula = as.numeric(mean_bacula)) %>% 
+  mutate(mean_bodylgth = as.numeric(mean_bodylgth)) %>% 
+  mutate(mean_weight = as.numeric(mean_weight))
+
+#trying to make a heatmap, ask laurie about this...
+seot_matrix_weights <- as.matrix(seot_meanweights)
+#heatmap(seot_matrix_weights)
+```
+
+## Tail Length Analysis
+
+### Tail Length by Sex
+
+We know that sea otter tail lengths are known to be morphometrically
+different by sex. Let’s see if this is true within this dataset. First,
+let’s create a histogram that displays the tail lengths of the male and
+female otters.
+
+We will want to compare the tail lengths of fully grown adult otters.
+According to the Alaska Department of Fish and Game, female sea otters
+become mature around four years of age and male sea otters become mature
+at age five (\[insert citation here\]). To account for the age
+differences within this dataset, we will need to filter the `FINAL_AGE`
+variable to be greater than or equal to `5`.
+
+``` r
+seot %>% 
+  filter(SEX == "M"|SEX == "F") %>% 
+  filter(FINAL_AGE > 4) %>% 
+  ggplot(mapping = aes(x = mean_tail_lgth, fill = SEX)) + 
+  scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
+  geom_density() + 
+  facet_wrap(~SEX, ncol = 1)
+```
+
+    ## Warning: Removed 1792 rows containing non-finite values (`stat_density()`).
+
+![](analysis_files/figure-gfm/tail-length-sex-histogram-1.png)<!-- -->
+
+``` r
+#creating data frame with only adult otters
+seot_tail <- seot %>% 
+  filter(FINAL_AGE > 4)
+
+#Welch's Two Sample t-test
+t.test(mean_tail_lgth ~ SEX, data = seot_tail)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  mean_tail_lgth by SEX
+    ## t = -2.5123, df = 106.21, p-value = 0.0135
+    ## alternative hypothesis: true difference in means between group F and group M is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -1.4564782 -0.1716543
+    ## sample estimates:
+    ## mean in group F mean in group M 
+    ##        30.75315        31.56721
+
+Report: The tail length of mature male otters (ages 5 and above) is
+significantly longer than that of mature female otters (Welch Two Sample
+t-test, t = -2.5123, df = 106.21, p-value = 0.0135).
+
+\*\* we need to check and see if there are any interactions within this
+statistic… I still don’t trust it.
+
+### Tail Length by Area
+
+To break down the morphometric differences between the otters, let’s
+begin by looking at the tail lengths of the individuals. \*\* should we
+bootstrap the data so that all of them have an equal representation?
+we’ll see…
+
+``` r
+#first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
+seot_taillength <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
+  mutate(AREA = fct_relevel(AREA, c("andreanof_islands", "western_alaskan_peninsula", "southern_southeast_alaska", "northern_southeast_alaska", "eastern_alaskan_peninsula", "kachemak_bay", "western_prince_william_sound")))
+
+#boxplot of tail length by area
+seot_taillength %>% 
+  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, color = AREA)) +
+  geom_boxplot() + 
+  theme(axis.text.x = element_blank()) +
+  scale_fill_viridis_d()+
+  scale_x_discrete(guide = guide_axis(n.dodge = 4))
+```
+
+    ## Warning: Removed 3524 rows containing non-finite values (`stat_boxplot()`).
+
+![](analysis_files/figure-gfm/tail-length-by-area-1.png)<!-- -->
+
+``` r
+seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
+  ggplot(mapping = aes(x = LAT, y = LONG, color = AREA)) + 
+  geom_point()
+```
+
+![](analysis_files/figure-gfm/determining%20which%20is%20eastern%20vs.%20western-1.png)<!-- -->
 
 ## Age Diversity Among Sexes With Observations
 
@@ -52,7 +234,7 @@ seot %>%
 seot %>% 
   filter(SEX != "U") %>% 
   ggplot(aes(x=FINAL_AGE, fill = SEX)) + 
-   geom_histogram(binwidth = 1) + 
+   geom_histogram(binwidth = 1) +
   xlim(0,25) + 
   facet_grid(~SEX)
 ```
@@ -71,6 +253,61 @@ The paw width data was collected in an effort to study the estimates of
 prey size in relation to paw size for sea otter foraging studies. If we
 are able to find the appropriate datasets, it would be interesting to
 study the relationship between paw size and prey size.
+
+The `PAW` variable is the width of the front paw at the widest point, as
+measured in millimeters.
+
+``` r
+#can I reorder this by region? eastern to western?
+seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
+
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = REGION, y = PAW, color = REGION)) + 
+  geom_boxplot() + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3))
+```
+
+![](analysis_files/figure-gfm/paw-general-1.png)<!-- -->
+
+``` r
+#seot %>% 
+  #filter(REGION == "alaskan_peninsula"|REGION == "east_aleutians"|REGION == "kodiak"|REGION == "lower_cook_inlet"|REGION == "prince_william_sound"|REGION == "southeast_alaska"|REGION == "west_aleutians") %>% 
+  #ggplot(mapping = aes(x = LAT, y = LONG, color = REGION)) + 
+  #geom_point()
+```
+
+### Statistical Difference in Paw Size Between Sexes
+
+``` r
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = PAW, fill = SEX)) +
+  geom_histogram() + 
+  facet_wrap(~SEX, ncol = 1) + 
+  labs(x = "Paw Width (mm)", 
+       y = "Count", 
+       fill = "Sex")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](analysis_files/figure-gfm/histogram-paw-1.png)<!-- -->
+
+``` r
+seot_paw <- seot %>% 
+  filter(FINAL_AGE > 6)
+
+pawaov <- aov(PAW ~ SEX, data = seot)
+summary(pawaov)
+```
+
+    ##              Df Sum Sq Mean Sq F value Pr(>F)    
+    ## SEX           1   2901  2901.5   192.3 <2e-16 ***
+    ## Residuals   781  11787    15.1                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 3695 observations deleted due to missingness
 
 ## Canine and Sexing
 
@@ -96,21 +333,10 @@ we’re interested in.
 seot_sex <- seot %>% 
   mutate(CAN_DIA = as.numeric(CAN_DIA)) %>% 
   filter(SEX != "U") %>% 
-  filter(CAN_DIA > 0)
+  filter(CAN_DIA > 0) %>% 
+  filter(FINAL_AGE > 0)
 
-#scatterplot
-ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
-  geom_jitter() + 
-  ylim(2,12) + 
-  labs(title = "Canine Diameter by Sex",
-       x = "Sex",
-       y = "Diameter (mm)", 
-       color = "Sex")
-```
 
-![](analysis_files/figure-gfm/glimpsing-canine-measurement-by-sex-1.png)<!-- -->
-
-``` r
 #boxplot
 ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
   geom_boxplot() + 
@@ -121,7 +347,41 @@ ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) +
        color = "Sex")
 ```
 
-![](analysis_files/figure-gfm/glimpsing-canine-measurement-by-sex-2.png)<!-- -->
+![](analysis_files/figure-gfm/glimpsing-canine-measurement-by-sex-1.png)<!-- -->
+
+``` r
+#scatterplot
+ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
+  geom_jitter() + 
+  ylim(2,12) + 
+  geom_smooth(color = "grey") +
+  facet_grid(~SEX) +
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+![](analysis_files/figure-gfm/scatterplot-canine-1.png)<!-- -->
+
+``` r
+#interactive scatterplot
+ggplotsex <- gapminder %>% 
+  ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
+  geom_jitter() + 
+  ylim(2,12) + 
+  scale_color_viridis_d(option = "inferno") +
+  geom_smooth(color = "firebrick4") +
+  facet_grid(~SEX) +
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+
+#ggplotly(ggplotsex)
+```
 
 ``` r
 #histogram
@@ -129,8 +389,6 @@ ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
   facet_grid(~SEX) + 
   xlim(2,13) + 
-  theme_gray() + 
-  scale_fill_viridis_d(option = "turbo") + 
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
         x = "Canine Diameter (mm)", 
@@ -158,13 +416,13 @@ t.test(CAN_DIA ~ SEX, data = seot_sex, var.equal = TRUE)
     ##  Two Sample t-test
     ## 
     ## data:  CAN_DIA by SEX
-    ## t = -19.164, df = 1132, p-value < 2.2e-16
+    ## t = -32.662, df = 1063, p-value < 2.2e-16
     ## alternative hypothesis: true difference in means between group F and group M is not equal to 0
     ## 95 percent confidence interval:
-    ##  -1.1519975 -0.9380158
+    ##  -1.349716 -1.196737
     ## sample estimates:
     ## mean in group F mean in group M 
-    ##        7.546934        8.591940
+    ##        7.604700        8.877926
 
 The diameter of the canine tooth for female sea otters is significantly
 smaller than that of the male otters (Two Sample t-test; t = -19.164, df
@@ -202,7 +460,8 @@ seot_baculum <- seot %>%
 
 ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
   geom_jitter() + 
-  geom_smooth() + 
+  scale_fill_viridis_c(option = "magma") +
+  geom_smooth(color = "firebrick") +
   labs(title = "Baculum Length by Age", 
        x = "Final Age", 
        y = "Bacula Length (cm)", 
@@ -210,12 +469,6 @@ ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color 
 ```
 
     ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
-
-    ## Warning: The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
 
 ![](analysis_files/figure-gfm/baculum-length-visualization-1.png)<!-- -->
 
@@ -761,472 +1014,7 @@ seot_baculum_2 <- seot %>%
 seot_baculum_2 <- seot_baculum_2 %>% 
   mutate(AGE_CATEGORY = as.factor(AGE_CATEGORY)) %>% 
   select(BACULA_LGTH, AGE_CATEGORY) 
-seot_baculum_2
-```
 
-    ##     BACULA_LGTH AGE_CATEGORY
-    ## 1          13.5            7
-    ## 2          14.0            7
-    ## 3          14.5            7
-    ## 4          11.2          1.5
-    ## 5          14.3            7
-    ## 6          13.8            7
-    ## 7          13.9            7
-    ## 8          14.1            7
-    ## 9          14.2            7
-    ## 10         14.2            7
-    ## 11         13.2            7
-    ## 12         16.3            7
-    ## 13         17.3            7
-    ## 14         15.0            7
-    ## 15         15.4            7
-    ## 16         15.6            7
-    ## 17         16.0            7
-    ## 18         11.7          1.5
-    ## 19         15.2            7
-    ## 20         14.8            7
-    ## 21         15.1            7
-    ## 22         16.2           13
-    ## 23         11.2          1.5
-    ## 24         16.0            7
-    ## 25         16.9            7
-    ## 26         15.3            7
-    ## 27         15.1            7
-    ## 28         16.4           13
-    ## 29         15.0            7
-    ## 30         16.8            7
-    ## 31         16.9           13
-    ## 32         15.3           13
-    ## 33         17.0            7
-    ## 34         13.4          1.5
-    ## 35         15.4           13
-    ## 36         13.1          1.5
-    ## 37         12.7          1.5
-    ## 38         13.8            7
-    ## 39         15.8           13
-    ## 40         15.9            7
-    ## 41         14.9            7
-    ## 42         15.0            7
-    ## 43         16.9            7
-    ## 44         15.9            7
-    ## 45         14.8            7
-    ## 46         15.8            7
-    ## 47         14.3            7
-    ## 48         15.9            7
-    ## 49         15.9            7
-    ## 50         14.9            7
-    ## 51         15.5            7
-    ## 52         16.2            7
-    ## 53         16.1            7
-    ## 54         14.4            7
-    ## 55         14.3            7
-    ## 56         11.4          1.5
-    ## 57         16.2            7
-    ## 58         16.2            7
-    ## 59         14.8            7
-    ## 60         14.9            7
-    ## 61         15.0            7
-    ## 62         16.1           13
-    ## 63         16.7            7
-    ## 64         15.9            7
-    ## 65         15.0            7
-    ## 66         16.2            7
-    ## 67         14.1            7
-    ## 68         15.8            7
-    ## 69         15.7            7
-    ## 70         15.3            7
-    ## 71         14.1            7
-    ## 72         15.2            7
-    ## 73         16.1            7
-    ## 74         14.9            7
-    ## 75         14.5            7
-    ## 76         14.2           13
-    ## 77         15.6            7
-    ## 78         15.3            7
-    ## 79         14.8            7
-    ## 80         13.5            7
-    ## 81         16.8            7
-    ## 82         16.3            7
-    ## 83         15.9            7
-    ## 84         15.8            7
-    ## 85         16.2            7
-    ## 86         16.1            7
-    ## 87         15.3            7
-    ## 88         15.8            7
-    ## 89         15.9            7
-    ## 90         16.4            7
-    ## 91         16.2            7
-    ## 92         15.8            7
-    ## 93         15.9            7
-    ## 94         16.1            7
-    ## 95         15.9           13
-    ## 96         16.2            7
-    ## 97         14.3            7
-    ## 98         14.8            7
-    ## 99         10.3          1.5
-    ## 100        15.2            7
-    ## 101        15.6           13
-    ## 102        15.8            7
-    ## 103        15.7            7
-    ## 104        15.1            7
-    ## 105        15.9            7
-    ## 106        13.4            7
-    ## 107        10.9          1.5
-    ## 108        15.5            7
-    ## 109         9.8          1.5
-    ## 110        15.2            7
-    ## 111        15.4            7
-    ## 112        10.2          1.5
-    ## 113        14.6            7
-    ## 114        16.1            7
-    ## 115        15.8            7
-    ## 116        15.7            7
-    ## 117        15.2           13
-    ## 118        16.4            7
-    ## 119        16.2            7
-    ## 120        16.0          1.5
-    ## 121        16.5          1.5
-    ## 122        18.0            7
-    ## 123        12.0          1.5
-    ## 124        21.6            7
-    ## 125        16.0            7
-    ## 126        21.6            7
-    ## 127        14.0          1.5
-    ## 128        15.0          1.5
-    ## 129        16.5            7
-    ## 130        15.0          1.5
-    ## 131        16.0          1.5
-    ## 132        14.6          1.5
-    ## 133        11.0          1.5
-    ## 134        21.0            7
-    ## 135        18.0          1.5
-    ## 136        12.1          1.5
-    ## 137        14.0          1.5
-    ## 138        15.2            7
-    ## 139        14.6            7
-    ## 140        16.8            7
-    ## 141        14.5            7
-    ## 142        15.0            7
-    ## 143        15.7            7
-    ## 144        17.0            7
-    ## 145        17.0           13
-    ## 146        18.0           13
-    ## 147        14.5            7
-    ## 148        21.0            7
-    ## 149        15.0            7
-    ## 150        15.0            7
-    ## 151        16.5            7
-    ## 152        16.5            7
-    ## 153        17.5            7
-    ## 154        16.0            7
-    ## 155        17.0            7
-    ## 156        17.0            7
-    ## 157        16.0            7
-    ## 158        15.0            7
-    ## 159        15.0            7
-    ## 160        17.0            7
-    ## 161        16.0            7
-    ## 162        15.0          1.5
-    ## 163        17.0            7
-    ## 164        17.0            7
-    ## 165        16.5            7
-    ## 166        16.5            7
-    ## 167        16.0            7
-    ## 168        12.0          1.5
-    ## 169        19.0            7
-    ## 170        14.0          1.5
-    ## 171        17.5            7
-    ## 172        16.5            7
-    ## 173        16.0            7
-    ## 174        17.0            7
-    ## 175        17.0            7
-    ## 176        19.5            7
-    ## 177        21.0           13
-    ## 178        17.0            7
-    ## 179        16.0            7
-    ## 180        17.0            7
-    ## 181        16.0            7
-    ## 182        17.0            7
-    ## 183        18.0            7
-    ## 184        16.5            7
-    ## 185        17.0            7
-    ## 186        16.5            7
-    ## 187        16.0            7
-    ## 188        16.5            7
-    ## 189        16.0            7
-    ## 190        17.0            7
-    ## 191        16.0            7
-    ## 192        18.0            7
-    ## 193        16.5            7
-    ## 194        18.0            7
-    ## 195        19.0            7
-    ## 196        16.0            7
-    ## 197        17.0            7
-    ## 198        17.0            7
-    ## 199        16.0            7
-    ## 200        18.0           13
-    ## 201        17.0           13
-    ## 202        14.0          1.5
-    ## 203        13.0          1.5
-    ## 204        18.0            7
-    ## 205        15.5            7
-    ## 206        15.5          1.5
-    ## 207        16.0            7
-    ## 208        18.0            7
-    ## 209        18.0            7
-    ## 210        16.0            7
-    ## 211        18.0            7
-    ## 212        17.0            7
-    ## 213        17.0           13
-    ## 214        17.0            7
-    ## 215        13.0          1.5
-    ## 216        16.0            7
-    ## 217        14.0            7
-    ## 218        15.0            7
-    ## 219        13.0          1.5
-    ## 220        15.0            7
-    ## 221        17.0            7
-    ## 222        15.0            7
-    ## 223        14.0            7
-    ## 224        14.0          1.5
-    ## 225        18.0          1.5
-    ## 226        15.5          1.5
-    ## 227        18.0            7
-    ## 228        15.0            7
-    ## 229        13.0          1.5
-    ## 230        17.0            7
-    ## 231        18.0           13
-    ## 232        16.5           13
-    ## 233        18.0            7
-    ## 234        17.0           13
-    ## 235        13.5          1.5
-    ## 236        16.0            7
-    ## 237        14.0          1.5
-    ## 238        17.0            7
-    ## 239        15.0            7
-    ## 240        13.0          1.5
-    ## 241        14.0            7
-    ## 242        15.0          1.5
-    ## 243        15.0            7
-    ## 244        13.0          1.5
-    ## 245        16.0            7
-    ## 246        13.0          1.5
-    ## 247        15.0          1.5
-    ## 248        17.0            7
-    ## 249        18.0            7
-    ## 250        16.0            7
-    ## 251        17.0            7
-    ## 252        17.5            7
-    ## 253        20.5            7
-    ## 254        17.0            7
-    ## 255        18.0            7
-    ## 256        17.0            7
-    ## 257        17.0            7
-    ## 258        17.0            7
-    ## 259        18.0            7
-    ## 260        19.0            7
-    ## 261        21.0            7
-    ## 262        18.0           13
-    ## 263        17.0            7
-    ## 264        15.0            7
-    ## 265        16.5            7
-    ## 266        16.0            7
-    ## 267        17.5            7
-    ## 268        18.5            7
-    ## 269        17.0            7
-    ## 270        17.5            7
-    ## 271        17.5            7
-    ## 272        16.0            7
-    ## 273        17.0            7
-    ## 274        18.0            7
-    ## 275        17.0            7
-    ## 276        18.0            7
-    ## 277        18.5            7
-    ## 278        18.0            7
-    ## 279        17.0            7
-    ## 280        17.0            7
-    ## 281        18.5            7
-    ## 282        17.5            7
-    ## 283        16.5            7
-    ## 284        18.0            7
-    ## 285        17.0            7
-    ## 286        18.0            7
-    ## 287        18.0            7
-    ## 288        17.5            7
-    ## 289        18.5            7
-    ## 290        20.0            7
-    ## 291        18.0            7
-    ## 292        18.0            7
-    ## 293        17.0            7
-    ## 294        16.0            7
-    ## 295        17.0            7
-    ## 296        17.0            7
-    ## 297        17.0            7
-    ## 298        18.0            7
-    ## 299        17.0            7
-    ## 300        16.0            7
-    ## 301        17.0            7
-    ## 302        18.0            7
-    ## 303        18.0            7
-    ## 304        21.0            7
-    ## 305        17.5            7
-    ## 306        17.0            7
-    ## 307        17.0           13
-    ## 308        17.5           13
-    ## 309        18.0           13
-    ## 310        17.0           13
-    ## 311        18.0            7
-    ## 312        18.0            7
-    ## 313        17.5            7
-    ## 314        18.5           13
-    ## 315        18.0           13
-    ## 316        18.0            7
-    ## 317        19.0            7
-    ## 318        16.0            7
-    ## 319        19.0            7
-    ## 320        19.0            7
-    ## 321        17.0          1.5
-    ## 322        18.0            7
-    ## 323        17.0          1.5
-    ## 324        18.0            7
-    ## 325        18.0            7
-    ## 326        18.0           13
-    ## 327        17.5            7
-    ## 328        13.0          1.5
-    ## 329        16.0            7
-    ## 330        17.0           13
-    ## 331        17.5            7
-    ## 332        18.0            7
-    ## 333        18.0            7
-    ## 334        17.5            7
-    ## 335        19.0            7
-    ## 336        18.0            7
-    ## 337        19.0            7
-    ## 338        16.0          1.5
-    ## 339        18.0            7
-    ## 340        17.0            7
-    ## 341        18.0            7
-    ## 342        17.0            7
-    ## 343        12.0          1.5
-    ## 344        17.0          1.5
-    ## 345        14.0          1.5
-    ## 346        14.0          1.5
-    ## 347        16.0          1.5
-    ## 348        15.0          1.5
-    ## 349        18.0            7
-    ## 350        15.0          1.5
-    ## 351        16.0            7
-    ## 352        18.3            7
-    ## 353        16.0          1.5
-    ## 354        19.0            7
-    ## 355        18.5            7
-    ## 356        15.6            7
-    ## 357        16.0            7
-    ## 358        17.5            7
-    ## 359        17.0            7
-    ## 360        17.0            7
-    ## 361        18.5            7
-    ## 362        17.0            7
-    ## 363        18.0            7
-    ## 364        19.0            7
-    ## 365        17.5            7
-    ## 366        17.0            7
-    ## 367        16.0            7
-    ## 368        17.5            7
-    ## 369        20.5            7
-    ## 370        21.5            7
-    ## 371        21.5            7
-    ## 372        16.5            7
-    ## 373        18.5            7
-    ## 374        17.0            7
-    ## 375        18.5            7
-    ## 376        17.0            7
-    ## 377        17.0            7
-    ## 378        17.0            7
-    ## 379        16.0            7
-    ## 380        16.5            7
-    ## 381        16.0          1.5
-    ## 382        18.0            7
-    ## 383        17.5            7
-    ## 384        18.0            7
-    ## 385        17.0            7
-    ## 386        19.0            7
-    ## 387        17.5            7
-    ## 388        18.0            7
-    ## 389        19.0            7
-    ## 390        17.5            7
-    ## 391        15.5            7
-    ## 392        16.5           13
-    ## 393        16.5            7
-    ## 394        12.0          1.5
-    ## 395        17.0            7
-    ## 396        16.0            7
-    ## 397        18.0            7
-    ## 398        18.0            7
-    ## 399        19.5            7
-    ## 400        18.5            7
-    ## 401        18.0            7
-    ## 402        18.5            7
-    ## 403        18.3            7
-    ## 404        11.7          1.5
-    ## 405        17.5            7
-    ## 406        17.7            7
-    ## 407        18.0            7
-    ## 408        17.0            7
-    ## 409        18.5            7
-    ## 410        12.5          1.5
-    ## 411        16.5            7
-    ## 412        10.2          1.5
-    ## 413        18.0            7
-    ## 414        18.0          1.5
-    ## 415         9.0          1.5
-    ## 416        11.0          1.5
-    ## 417        19.0            7
-    ## 418        10.5          1.5
-    ## 419        14.0          1.5
-    ## 420        16.0            7
-    ## 421        17.0            7
-    ## 422        18.0            7
-    ## 423        16.5            7
-    ## 424        14.0          1.5
-    ## 425        16.5            7
-    ## 426        17.5           13
-    ## 427        18.2            7
-    ## 428        13.0          1.5
-    ## 429        17.0            7
-    ## 430        17.5          1.5
-    ## 431        15.0          1.5
-    ## 432        18.5            7
-    ## 433        19.0           13
-    ## 434        11.4          1.5
-    ## 435        18.0            7
-    ## 436        15.5          1.5
-    ## 437        13.0          1.5
-    ## 438        17.0            7
-    ## 439        18.0            7
-    ## 440        17.5            7
-    ## 441        17.5            7
-    ## 442        18.5            7
-    ## 443        16.0            7
-    ## 444        17.0            7
-    ## 445        16.5            7
-    ## 446        17.5            7
-    ## 447        18.0            7
-    ## 448        18.0            7
-    ## 449        19.5            7
-    ## 450        17.0            7
-    ## 451        14.0          1.5
-    ## 452        15.5          1.5
-    ## 453        12.5          1.5
-    ## 454        12.0          1.5
-    ## 455        13.7          1.5
-    ## 456        18.0          1.5
-    ## 457        15.0          1.5
-    ## 458        17.0            7
-    ## 459        15.0          1.5
-    ## 460        14.7          1.5
-
-``` r
 #creating the ANOVA test
 aovbaculum2 <- aov(BACULA_LGTH~AGE_CATEGORY, data = seot_baculum_2)
 summary(aovbaculum2)
@@ -1254,22 +1042,111 @@ TukeyHSD(aovbaculum2)
     ## 13-1.5 3.2243750  2.4249551 4.0237949 0.0000000
     ## 13-7   0.2593032 -0.4467105 0.9653168 0.6635316
 
-The baculum length of individuals who are ages 1 - 7 are significantly
-different than one another (one-way ANOVA, F_2,457, = 112, P \< 0.005).
-In a Tukey HSD post-hoc test, the baculum length of individuals who were
-from ages 7 to 13 did not differ significantly (refer to Tukey multiple
-comparisons of means). This would suggest that you could use the baculum
-length to estimate the age of individuals who were 7 years or younger,
-but not for individuals who are over 7 years old.
+REPORT: The baculum length of individuals who are ages 1 - 7 are
+significantly different than one another (one-way ANOVA, F_2,457, = 112,
+P \< 0.005). In a Tukey HSD post-hoc test, the baculum length of
+individuals who were from ages 7 to 13 did not differ significantly
+(refer to Tukey multiple comparisons of means). This would suggest that
+you could use the baculum length to estimate the age of individuals who
+were 7 years or younger, but not for individuals who are over 7 years
+old.
 
-## Recapture Data
+# Creating a Model of Baculum Length by Age
 
 ``` r
-seot %>% 
-  mutate(OTTER.NO = as.factor(OTTER.NO)) %>% 
-  count(OTTER.NO) %>% 
-  arrange(desc(n))
+#install.packages("tidymodels")
+#library(tidymodels)
 ```
+
+For each additional year, the male otter’s baculum is expected to grow
+by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is
+expected to be 14.33 cm.
+
+``` r
+#first, we need to filter out the na values (that being -9.0)
+seot_bacula <- seot %>% 
+  filter(BACULA_LGTH > 0)
+
+#now, let's create the linear model comparing final age to baculum length
+#seot_model_baculum <- linear_reg() %>%
+  #set_engine("lm") %>% 
+  #fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
+
+#let's tidy this model
+#seot_model_baculum %>% tidy()
+```
+
+``` r
+#augmenting the baculum data
+#seot_model_baculum_augment <- augment(seot_model_baculum$fit)
+
+#ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid)) +
+  #geom_jitter(alpha = 0.75) +
+  #geom_smooth(color = "black") +
+  #labs(x = "Predicted Age", y = "Residuals")
+
+#assessing the r-squared value
+#glance(seot_model_baculum)$adj.r.squared
+```
+
+## Weight by Tail Length
+
+``` r
+#creating a plot that visualizes the relationship between weight and tail length
+ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT)) + 
+  geom_point(alpha = 0.75) +
+  scale_fill_viridis_c("magma") +
+  ylim(15, 40) + 
+  xlim(0, 45) + 
+  geom_smooth(color = "black") + 
+  labs(x = "Weight (kg)", 
+       y = "Mean Tail Length (cm)", 
+       color = "Weight")
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+
+![](analysis_files/figure-gfm/weight-tail-length-1.png)<!-- -->
+
+With the tail length and the weight of the otter being both quantitative
+variables, we should use a simple regression statistical test to
+determine if there is a statistical significance.
+
+``` r
+#creating the linear model
+weight.tail.lm <- lm(mean_tail_lgth ~ WEIGHT, data = seot)
+
+summary(weight.tail.lm)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = mean_tail_lgth ~ WEIGHT, data = seot)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -9.7535 -1.3674  0.0441  1.4192  7.8818 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 24.41433    0.38995   62.61   <2e-16 ***
+    ## WEIGHT       0.23309    0.01483   15.72   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 2.141 on 398 degrees of freedom
+    ##   (4078 observations deleted due to missingness)
+    ## Multiple R-squared:  0.383,  Adjusted R-squared:  0.3814 
+    ## F-statistic:   247 on 1 and 398 DF,  p-value: < 2.2e-16
+
+REPORT: There is a significant relationship (p \< 0.001) between tail
+length and weight of adult otters (R2 = 2.14 ± 0.014), with a 0.23-mm
+increase in reported tail length for every year increase in the otter’s
+age.
+
+The regression equation is: tail length = 24.41 + 0.23(weight) ± 0.014.
+
+## Recapture Data
 
     ##         OTTER.NO n
     ## 1       SO-01-28 4
@@ -5611,35 +5488,17 @@ seot %>%
     ## 4337    SO-98-53 1
     ## 4338      SW-155 1
 
-``` r
-seot %>% 
-  filter(OTTER.NO == "SO-01-28") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
-```
+    ##   YEAR OTTER.NO FINAL_AGE SEX WEIGHT
+    ## 1 2001 SO-01-28         5   M   28.6
+    ## 2 2002 SO-01-28         6   M   32.2
+    ## 3 2005 SO-01-28         9   M   34.5
+    ## 4 2008 SO-01-28        12   M   33.1
 
-    ##   YEAR OTTER.NO FINAL_AGE SEX
-    ## 1 2001 SO-01-28         5   M
-    ## 2 2002 SO-01-28         6   M
-    ## 3 2005 SO-01-28         9   M
-    ## 4 2008 SO-01-28        12   M
-
-``` r
-seot %>% 
-  filter(OTTER.NO == "SO-02-07") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
-```
-
-    ##   YEAR OTTER.NO FINAL_AGE SEX
-    ## 1 2002 SO-02-07         3   F
-    ## 2 2004 SO-02-07         5   F
-    ## 3 2005 SO-02-07         6   F
-    ## 4 2012 SO-02-07        13   F
-
-``` r
-seot %>% 
-  filter(FINAL_AGE > 0) %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
-```
+    ##   YEAR OTTER.NO FINAL_AGE SEX WEIGHT
+    ## 1 2002 SO-02-07         3   F   24.0
+    ## 2 2004 SO-02-07         5   F   26.3
+    ## 3 2005 SO-02-07         6   F   25.4
+    ## 4 2012 SO-02-07        13   F   32.4
 
     ##      YEAR    OTTER.NO FINAL_AGE SEX
     ## 1    1967       67001         7   F
@@ -8585,84 +8444,42 @@ seot %>%
     ## 2941 2019    K2019019         9   F
     ## 2942 2019    K2019020         3   F
 
-# Creating Map
+# Spatial Analysis
+
+We want to determine if there is a difference of morphometric
+measurements on a spatial scale.
 
 ## Introduction
 
+First, let’s see if there is a size difference between Prince William’s
+Sound and the Western Aleutians.
+
 ``` r
 seot %>% 
+  filter(REGION == "west_aleutians") %>% 
   count(LOCATION)
 ```
 
     ##               LOCATION    n
-    ## 1      PWS - whale bay    3
-    ## 2       SE - whale bay   32
-    ## 3                 adak  508
-    ## 4           adak - boi   20
-    ## 5   adak - clam lagoon   41
-    ## 6    adak - finger bay    9
-    ## 7    adak - gannet rks   12
-    ## 8     adak - kuluk bay   25
-    ## 9   adak - lucky point   11
-    ## 10 adak - sweeper cove   15
-    ## 11   adak - zeto point    7
-    ## 12         amak island    3
-    ## 13            amchitka 1240
-    ## 14                attu    2
-    ## 15   attu - casco cove    3
-    ## 16 attu - massacre bay   18
-    ## 17   bainbridge island    4
-    ## 18             chenega   32
-    ## 19           chichagof   20
-    ## 20         chiniak bay   14
-    ## 21        cohen Island   26
-    ## 22       danger island   20
-    ## 23            deep bay   39
-    ## 24      delarof island  144
-    ## 25      deranof island   20
-    ## 26         devils cove   30
-    ## 27       dolgoi island   22
-    ## 28        evans island   32
-    ## 29      fleming island    1
-    ## 30         fritz creek    1
-    ## 31        green island   56
-    ## 32         idaho inlet    8
-    ## 33           iktua bay   37
-    ## 34        kachemak bay   23
-    ## 35              kanaga  328
-    ## 36               kiska   14
-    ## 37   kuiu / coronation   15
-    ## 38     latouche island    3
-    ## 39      little koniuji    1
-    ## 40            montague  257
-    ## 41             mud bay    2
-    ## 42        naked island    9
-    ## 43          ne afognak    9
-    ## 44         neptune bay    3
-    ## 45       nitzki island    1
-    ## 46             nknight  236
-    ## 47        north island   34
-    ## 48          nw afognak   12
-    ## 49          orca inlet   30
-    ## 50        port althorp   99
-    ## 51           s afognak   72
-    ## 52            seldovia    2
-    ## 53         seldovia pt    9
-    ## 54       seldovia spit    4
-    ## 55           sheep bay   40
-    ## 56              shemya    8
-    ## 57             simenof    2
-    ## 58      simenof harbor    5
-    ## 59         simpson bay   64
-    ## 60        smith island    2
-    ## 61            surf bay    1
-    ## 62           sw shuyak    5
-    ## 63              tanaga  608
-    ## 64         unga island   15
-    ## 65       unimak island    3
-    ## 66            w kodiak   16
-    ## 67             wknight   86
-    ## 68        yukon island    5
+    ## 1                 adak  508
+    ## 2           adak - boi   20
+    ## 3   adak - clam lagoon   41
+    ## 4    adak - finger bay    9
+    ## 5    adak - gannet rks   12
+    ## 6     adak - kuluk bay   25
+    ## 7   adak - lucky point   11
+    ## 8  adak - sweeper cove   15
+    ## 9    adak - zeto point    7
+    ## 10            amchitka 1240
+    ## 11                attu    2
+    ## 12   attu - casco cove    3
+    ## 13 attu - massacre bay   18
+    ## 14      delarof island  144
+    ## 15              kanaga  328
+    ## 16               kiska   14
+    ## 17       nitzki island    1
+    ## 18              shemya    8
+    ## 19              tanaga  608
 
 ``` r
 seot %>% 
@@ -8670,4088 +8487,128 @@ seot %>%
 ```
 
     ##                 REGION    n
-    ## 1    alaskan_peninsula   81
+    ## 1       west_aleutians 3014
     ## 2       east_aleutians    1
-    ## 3               kodiak  148
-    ## 4     lower_cook_inlet   75
-    ## 5 prince_william_sound  985
-    ## 6     southeast_alaska  174
-    ## 7       west_aleutians 3014
+    ## 3    alaskan_peninsula   81
+    ## 4     southeast_alaska  174
+    ## 5               kodiak  148
+    ## 6 prince_william_sound  985
+    ## 7                 <NA>   75
 
 ``` r
-seot %>% 
-  filter(LOCATION == "adak")
+#creating a dataset that includes only the west aleutians and prince williams sound
+seot_pws_wa <- seot %>% 
+  filter(REGION == "west_aleutians"|REGION == "prince_william_sound") %>% 
+  filter(WEIGHT > 0) %>% 
+  filter(AGE_CATEGORY > -1) %>% 
+  filter(FINAL_AGE > -1)
+
+#mapping weight by age category between the two locations (histogram)
+seot_pws_wa %>% 
+  filter(AGE_CATEGORY > -1) %>% 
+  filter(FINAL_AGE > -1) %>% 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT), fill = REGION) + 
+  geom_histogram() + 
+  facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
+  labs(title = "Weight by Location", 
+       x = "Weight (lbs)", 
+       y = "Count")
 ```
 
-    ##      OTTER.NO recap       DATE YEAR LOCATION  STATE         REGION
-    ## 1    KWK-60-3     0 1960-01-05 1960     adak Alaska west_aleutians
-    ## 2       67001     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 3       67002     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 4       67003     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 5       67004     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 6       67005     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 7       67006     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 8       67007     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 9       67008     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 10      67009     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 11      67010     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 12      67011     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 13      67012     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 14      67013     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 15      67014     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 16      67015     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 17      67016     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 18      67017     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 19      67018     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 20      67019     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 21      67020     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 22      67021     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 23      67022     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 24      67023     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 25      67024     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 26      67025     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 27      67026     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 28      67027     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 29      67028     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 30      67029     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 31      67030     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 32      67031     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 33      67032     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 34      67033     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 35      67034     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 36      67035     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 37      67036     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 38      67037     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 39      67038     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 40      67039     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 41      67040     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 42      67041     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 43      67042     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 44      67043     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 45      67044     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 46      67045     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 47      67046     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 48      67047     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 49      67048     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 50      67049     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 51      67050     0 1967-09-10 1967     adak Alaska west_aleutians
-    ## 52      67051     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 53      67052     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 54      67053     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 55      67054     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 56      67055     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 57      67056     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 58      67057     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 59      67058     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 60      67059     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 61      67060     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 62      67061     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 63      67062     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 64      67063     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 65      67064     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 66      67065     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 67      67066     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 68      67067     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 69      67068     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 70      67069     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 71      67070     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 72      67071     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 73      67072     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 74      67073     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 75      67074     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 76      67075     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 77      67076     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 78      67077     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 79      67078     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 80      67079     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 81      67080     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 82      67081     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 83      67082     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 84      67083     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 85      67084     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 86      67085     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 87      67086     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 88      67087     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 89      67088     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 90      67089     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 91      67090     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 92      67091     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 93      67092     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 94      67093     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 95      67094     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 96      67095     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 97      67096     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 98      67097     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 99      67098     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 100     67099     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 101     67100     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 102     67101     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 103     67102     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 104     67103     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 105     67104     0 1967-09-11 1967     adak Alaska west_aleutians
-    ## 106     67105     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 107     67106     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 108     67107     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 109     67108     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 110     67109     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 111     67110     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 112     67111     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 113     67112     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 114     67113     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 115     67114     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 116     67115     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 117     67116     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 118     67117     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 119     67118     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 120     67119     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 121     67120     0 1967-09-12 1967     adak Alaska west_aleutians
-    ## 122     67121     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 123     67122     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 124     67123     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 125     67124     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 126     67125     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 127     67126     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 128     67127     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 129     67128     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 130     67129     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 131     67130     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 132     67131     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 133     67132     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 134     67133     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 135     67134     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 136     67135     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 137     67136     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 138     67137     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 139     67138     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 140     67138     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 141     67139     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 142     67140     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 143     67141     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 144     67142     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 145     67143     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 146     67144     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 147     67145     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 148     67146     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 149     67147     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 150     67148     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 151     67149     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 152     67150     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 153     67151     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 154     67152     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 155     67153     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 156     67154     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 157     67155     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 158     67156     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 159     67157     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 160     67158     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 161     67159     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 162     67160     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 163     67161     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 164     67162     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 165     67163     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 166     67164     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 167     67165     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 168     67166     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 169     67167     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 170     67168     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 171     67169     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 172     67170     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 173     67171     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 174     67172     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 175     67173     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 176     67174     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 177     67175     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 178     67176     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 179     67177     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 180     67178     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 181     67179     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 182     67180     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 183     67181     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 184     67182     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 185     67183     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 186     67184     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 187     67185     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 188     67186     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 189     67187     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 190     67188     0 1967-09-13 1967     adak Alaska west_aleutians
-    ## 191     67189     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 192     67190     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 193     67191     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 194     67192     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 195     67193     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 196     67194     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 197     67195     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 198     67196     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 199     67197     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 200     67198     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 201     67199     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 202     67200     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 203     67201     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 204     67201     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 205     67202     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 206     67203     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 207     67204     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 208     67205     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 209     67206     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 210     67207     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 211     67208     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 212     67209     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 213     67210     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 214     67211     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 215     67212     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 216     67213     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 217     67214     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 218     67215     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 219     67216     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 220     67217     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 221     67218     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 222     67219     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 223     67220     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 224     67221     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 225     67222     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 226     67223     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 227     67224     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 228     67225     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 229     67226     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 230     67227     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 231     67228     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 232     67229     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 233     67230     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 234     67231     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 235     67232     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 236     67233     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 237     67234     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 238     67235     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 239     67236     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 240     67237     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 241     67238     0 1967-09-14 1967     adak Alaska west_aleutians
-    ## 242     67239     0 1967-09-15 1967     adak Alaska west_aleutians
-    ## 243     67240     0 1967-09-15 1967     adak Alaska west_aleutians
-    ## 244     67241     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 245     67242     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 246     67243     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 247     67244     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 248     67245     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 249     67246     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 250     67247     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 251     67248     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 252     67249     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 253     67250     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 254     67251     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 255     67252     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 256     67253     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 257     67254     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 258     67255     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 259     67256     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 260     67257     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 261     67258     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 262     67259     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 263     67260     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 264     67261     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 265     67262     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 266     67263     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 267     67264     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 268     67265     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 269     67266     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 270     67267     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 271     67268     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 272     67269     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 273     67270     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 274     67271     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 275     67272     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 276     67273     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 277     67274     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 278     67275     0 1967-09-16 1967     adak Alaska west_aleutians
-    ## 279     67276     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 280     67277     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 281     67278     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 282     67279     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 283     67280     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 284     67281     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 285     67282     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 286     67283     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 287     67284     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 288     67285     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 289     67286     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 290     67287     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 291     67288     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 292     67289     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 293     67290     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 294     67291     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 295     67292     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 296     67293     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 297     67294     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 298     67295     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 299     67296     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 300     67297     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 301     67298     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 302     67299     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 303     67300     0 1967-09-17 1967     adak Alaska west_aleutians
-    ## 304     68459     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 305     68460     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 306     68461     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 307     68462     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 308     68463     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 309     68464     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 310     68465     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 311     68466     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 312     68467     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 313     68468     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 314     68469     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 315     68470     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 316     68471     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 317     68472     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 318     68473     0 1968-10-17 1968     adak Alaska west_aleutians
-    ## 319     68474     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 320     68475     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 321     68476     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 322     68477     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 323     68478     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 324     68479     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 325     68480     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 326     68481     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 327     68482     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 328     68483     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 329     68484     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 330     68485     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 331     68486     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 332     68487     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 333     68488     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 334     68489     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 335     68490     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 336     68491     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 337     68492     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 338     68493     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 339     68494     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 340     68495     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 341     68496     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 342     68497     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 343     68498     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 344     68499     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 345     68500     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 346     68501     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 347     68502     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 348     68503     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 349     68504     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 350     68505     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 351     68506     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 352     68507     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 353     68508     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 354     68509     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 355     68510     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 356     68511     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 357     68512     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 358     68513     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 359     68514     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 360     68515     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 361     68516     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 362     68517     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 363     68518     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 364     68519     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 365     68520     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 366     68521     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 367     68522     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 368     68523     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 369     68524     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 370     68525     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 371     68526     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 372     68527     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 373     68528     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 374     68529     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 375     68530     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 376     68531     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 377     68532     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 378     68533     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 379     68534     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 380     68535     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 381     68536     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 382     68537     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 383     68538     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 384     68539     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 385     68540     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 386     68541     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 387     68542     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 388     68543     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 389     68544     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 390     68545     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 391     68546     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 392     68547     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 393     68548     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 394     68549     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 395     68550     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 396     68551     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 397     68552     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 398     68553     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 399     68554     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 400     68555     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 401     68556     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 402     68557     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 403     68558     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 404     68559     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 405     68560     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 406     68561     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 407     68562     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 408     68563     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 409     68564     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 410     68565     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 411     68566     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 412     68567     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 413     68568     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 414     68569     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 415     68570     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 416     68571     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 417     68572     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 418     68573     0 1968-10-18 1968     adak Alaska west_aleutians
-    ## 419     68574     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 420     68575     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 421     68576     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 422     68577     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 423     68578     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 424     68579     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 425     68580     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 426     68581     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 427     68582     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 428     68583     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 429     68584     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 430     68585     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 431     68586     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 432     68587     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 433     68588     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 434     68589     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 435     68590     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 436     68591     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 437     68592     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 438     68593     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 439     68594     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 440     68595     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 441     68596     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 442     68597     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 443     68598     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 444     68599     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 445     68600     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 446     68601     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 447     68602     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 448     68603     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 449     68604     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 450     68605     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 451     68606     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 452     68607     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 453     68608     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 454     68609     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 455     68610     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 456     68611     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 457     68612     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 458     68613     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 459     68614     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 460     68615     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 461     68616     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 462     68617     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 463     68618     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 464     68619     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 465     68620     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 466     68621     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 467     68622     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 468     68623     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 469     68624     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 470     68625     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 471     68626     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 472     68627     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 473     68628     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 474     68629     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 475     68630     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 476     68631     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 477     68632     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 478     68633     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 479     68634     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 480     68635     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 481     68636     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 482     68637     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 483     68638     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 484     68639     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 485     68640     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 486     68641     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 487     68642     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 488     68643     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 489     68644     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 490     68645     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 491     68646     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 492     68647     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 493     68648     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 494     68649     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 495     68650     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 496     68651     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 497     68652     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 498     68653     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 499     68654     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 500     68655     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 501     68656     0 1968-10-20 1968     adak Alaska west_aleutians
-    ## 502 AIW-04-01     0 2004-08-10 2004     adak Alaska west_aleutians
-    ## 503 AIW-04-02     0 2004-08-11 2004     adak Alaska west_aleutians
-    ## 504 AIW-04-03     0 2004-08-11 2004     adak Alaska west_aleutians
-    ## 505 AIW-04-04     0 2004-08-12 2004     adak Alaska west_aleutians
-    ## 506 AIW-04-05     0 2004-08-12 2004     adak Alaska west_aleutians
-    ## 507 AIW-04-06     0 2004-08-12 2004     adak Alaska west_aleutians
-    ## 508 AIW-04-11     0 2004-08-21 2004     adak Alaska west_aleutians
-    ##                  AREA      LAT      LONG SEX WEIGHT TAIL_LGTH_1 TAIL_LGTH_2
-    ## 1   andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 2   andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 3   andreanof_islands 51.88845 -176.6589   M    9.5          -9          -9
-    ## 4   andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 5   andreanof_islands 51.88845 -176.6589   M   32.2          -9          -9
-    ## 6   andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 7   andreanof_islands 51.88845 -176.6589   M   35.8          -9          -9
-    ## 8   andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 9   andreanof_islands 51.88845 -176.6589   M   36.7          -9          -9
-    ## 10  andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 11  andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 12  andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 13  andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 14  andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 15  andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 16  andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 17  andreanof_islands 51.88845 -176.6589   M   35.4          -9          -9
-    ## 18  andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 19  andreanof_islands 51.88845 -176.6589   F   11.3          -9          -9
-    ## 20  andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 21  andreanof_islands 51.88845 -176.6589   M   30.4          -9          -9
-    ## 22  andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 23  andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 24  andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 25  andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 26  andreanof_islands 51.88845 -176.6589   M   36.3          -9          -9
-    ## 27  andreanof_islands 51.88845 -176.6589   M   40.4          -9          -9
-    ## 28  andreanof_islands 51.88845 -176.6589   M   28.6          -9          -9
-    ## 29  andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 30  andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 31  andreanof_islands 51.88845 -176.6589   M   39.5          -9          -9
-    ## 32  andreanof_islands 51.88845 -176.6589   F   13.2          -9          -9
-    ## 33  andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 34  andreanof_islands 51.88845 -176.6589   F   11.8          -9          -9
-    ## 35  andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 36  andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 37  andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 38  andreanof_islands 51.88845 -176.6589   M   31.8          -9          -9
-    ## 39  andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 40  andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 41  andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 42  andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 43  andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 44  andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 45  andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 46  andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 47  andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 48  andreanof_islands 51.88845 -176.6589   F   14.5          -9          -9
-    ## 49  andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 50  andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 51  andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 52  andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 53  andreanof_islands 51.88845 -176.6589   F   11.8          -9          -9
-    ## 54  andreanof_islands 51.88845 -176.6589   M   28.1          -9          -9
-    ## 55  andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 56  andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 57  andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 58  andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 59  andreanof_islands 51.88845 -176.6589   M   29.9          -9          -9
-    ## 60  andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 61  andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 62  andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 63  andreanof_islands 51.88845 -176.6589   M   30.4          -9          -9
-    ## 64  andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 65  andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 66  andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 67  andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 68  andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 69  andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 70  andreanof_islands 51.88845 -176.6589   M    5.4          -9          -9
-    ## 71  andreanof_islands 51.88845 -176.6589   M   26.8          -9          -9
-    ## 72  andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 73  andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 74  andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 75  andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 76  andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 77  andreanof_islands 51.88845 -176.6589   M   38.6          -9          -9
-    ## 78  andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 79  andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 80  andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 81  andreanof_islands 51.88845 -176.6589   M   32.2          -9          -9
-    ## 82  andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 83  andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 84  andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 85  andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 86  andreanof_islands 51.88845 -176.6589   M   31.3          -9          -9
-    ## 87  andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 88  andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 89  andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 90  andreanof_islands 51.88845 -176.6589   M   33.1          -9          -9
-    ## 91  andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 92  andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 93  andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 94  andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 95  andreanof_islands 51.88845 -176.6589   M   24.9          -9          -9
-    ## 96  andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 97  andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 98  andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 99  andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 100 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 101 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 102 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 103 andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 104 andreanof_islands 51.88845 -176.6589   M   30.8          -9          -9
-    ## 105 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 106 andreanof_islands 51.88845 -176.6589   M   16.8          -9          -9
-    ## 107 andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 108 andreanof_islands 51.88845 -176.6589   F   33.6          -9          -9
-    ## 109 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 110 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 111 andreanof_islands 51.88845 -176.6589   F    8.6          -9          -9
-    ## 112 andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 113 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 114 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 115 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 116 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 117 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 118 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 119 andreanof_islands 51.88845 -176.6589   F   25.4          -9          -9
-    ## 120 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 121 andreanof_islands 51.88845 -176.6589   M   35.8          -9          -9
-    ## 122 andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 123 andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 124 andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 125 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 126 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 127 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 128 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 129 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 130 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 131 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 132 andreanof_islands 51.88845 -176.6589   M   40.4          -9          -9
-    ## 133 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 134 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 135 andreanof_islands 51.88845 -176.6589   M   30.8          -9          -9
-    ## 136 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 137 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 138 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 139 andreanof_islands 51.88845 -176.6589   F   28.6          -9          -9
-    ## 140 andreanof_islands 51.88845 -176.6589   F   28.6          -9          -9
-    ## 141 andreanof_islands 51.88845 -176.6589   M   13.2          -9          -9
-    ## 142 andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 143 andreanof_islands 51.88845 -176.6589   M    9.1          -9          -9
-    ## 144 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 145 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 146 andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 147 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 148 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 149 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 150 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 151 andreanof_islands 51.88845 -176.6589   F   15.4          -9          -9
-    ## 152 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 153 andreanof_islands 51.88845 -176.6589   M   31.3          -9          -9
-    ## 154 andreanof_islands 51.88845 -176.6589   F   25.4          -9          -9
-    ## 155 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 156 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 157 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 158 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 159 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 160 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 161 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 162 andreanof_islands 51.88845 -176.6589   M   26.3          -9          -9
-    ## 163 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 164 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 165 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 166 andreanof_islands 51.88845 -176.6589   M   13.6          -9          -9
-    ## 167 andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 168 andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 169 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 170 andreanof_islands 51.88845 -176.6589   M   34.0          -9          -9
-    ## 171 andreanof_islands 51.88845 -176.6589   F    8.2          -9          -9
-    ## 172 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 173 andreanof_islands 51.88845 -176.6589   M   30.8          -9          -9
-    ## 174 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 175 andreanof_islands 51.88845 -176.6589   M   31.8          -9          -9
-    ## 176 andreanof_islands 51.88845 -176.6589   F   25.9          -9          -9
-    ## 177 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 178 andreanof_islands 51.88845 -176.6589   F   24.9          -9          -9
-    ## 179 andreanof_islands 51.88845 -176.6589   M   38.6          -9          -9
-    ## 180 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 181 andreanof_islands 51.88845 -176.6589   M   28.6          -9          -9
-    ## 182 andreanof_islands 51.88845 -176.6589   M   31.3          -9          -9
-    ## 183 andreanof_islands 51.88845 -176.6589   M   33.1          -9          -9
-    ## 184 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 185 andreanof_islands 51.88845 -176.6589   F   25.4          -9          -9
-    ## 186 andreanof_islands 51.88845 -176.6589   F    9.5          -9          -9
-    ## 187 andreanof_islands 51.88845 -176.6589   M   38.6          -9          -9
-    ## 188 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 189 andreanof_islands 51.88845 -176.6589   F   24.9          -9          -9
-    ## 190 andreanof_islands 51.88845 -176.6589   F   24.9          -9          -9
-    ## 191 andreanof_islands 51.88845 -176.6589   F   15.0          -9          -9
-    ## 192 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 193 andreanof_islands 51.88845 -176.6589   M   22.7          -9          -9
-    ## 194 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 195 andreanof_islands 51.88845 -176.6589   M   36.7          -9          -9
-    ## 196 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 197 andreanof_islands 51.88845 -176.6589   M   27.2          -9          -9
-    ## 198 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 199 andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 200 andreanof_islands 51.88845 -176.6589   M   29.9          -9          -9
-    ## 201 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 202 andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 203 andreanof_islands 51.88845 -176.6589   F   29.5          -9          -9
-    ## 204 andreanof_islands 51.88845 -176.6589   F   29.5          -9          -9
-    ## 205 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 206 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 207 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 208 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 209 andreanof_islands 51.88845 -176.6589   F   24.9          -9          -9
-    ## 210 andreanof_islands 51.88845 -176.6589   F    7.7          -9          -9
-    ## 211 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 212 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 213 andreanof_islands 51.88845 -176.6589   M   35.4          -9          -9
-    ## 214 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 215 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 216 andreanof_islands 51.88845 -176.6589   M   28.1          -9          -9
-    ## 217 andreanof_islands 51.88845 -176.6589   M   10.9          -9          -9
-    ## 218 andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 219 andreanof_islands 51.88845 -176.6589   M   29.5          -9          -9
-    ## 220 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 221 andreanof_islands 51.88845 -176.6589   M   29.0          -9          -9
-    ## 222 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 223 andreanof_islands 51.88845 -176.6589   F   15.4          -9          -9
-    ## 224 andreanof_islands 51.88845 -176.6589   M    9.5          -9          -9
-    ## 225 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 226 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 227 andreanof_islands 51.88845 -176.6589   M   31.3          -9          -9
-    ## 228 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 229 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 230 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 231 andreanof_islands 51.88845 -176.6589   M   28.6          -9          -9
-    ## 232 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 233 andreanof_islands 51.88845 -176.6589   M   30.8          -9          -9
-    ## 234 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 235 andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 236 andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 237 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 238 andreanof_islands 51.88845 -176.6589   F   25.9          -9          -9
-    ## 239 andreanof_islands 51.88845 -176.6589   F   27.2          -9          -9
-    ## 240 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 241 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 242 andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 243 andreanof_islands 51.88845 -176.6589   F    8.6          -9          -9
-    ## 244 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 245 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 246 andreanof_islands 51.88845 -176.6589   M   23.1          -9          -9
-    ## 247 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 248 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 249 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 250 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 251 andreanof_islands 51.88845 -176.6589   M   36.3          -9          -9
-    ## 252 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 253 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 254 andreanof_islands 51.88845 -176.6589   M   35.4          -9          -9
-    ## 255 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 256 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 257 andreanof_islands 51.88845 -176.6589   F   14.1          -9          -9
-    ## 258 andreanof_islands 51.88845 -176.6589   M   31.8          -9          -9
-    ## 259 andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 260 andreanof_islands 51.88845 -176.6589   M   26.8          -9          -9
-    ## 261 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 262 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 263 andreanof_islands 51.88845 -176.6589   M   29.9          -9          -9
-    ## 264 andreanof_islands 51.88845 -176.6589   M   29.5          -9          -9
-    ## 265 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 266 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 267 andreanof_islands 51.88845 -176.6589   M   32.2          -9          -9
-    ## 268 andreanof_islands 51.88845 -176.6589   F   14.5          -9          -9
-    ## 269 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 270 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 271 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 272 andreanof_islands 51.88845 -176.6589   F   14.1          -9          -9
-    ## 273 andreanof_islands 51.88845 -176.6589   M   15.9          -9          -9
-    ## 274 andreanof_islands 51.88845 -176.6589   F   16.3          -9          -9
-    ## 275 andreanof_islands 51.88845 -176.6589   M   28.1          -9          -9
-    ## 276 andreanof_islands 51.88845 -176.6589   M   11.3          -9          -9
-    ## 277 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 278 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 279 andreanof_islands 51.88845 -176.6589   M   35.4          -9          -9
-    ## 280 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 281 andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 282 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 283 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 284 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 285 andreanof_islands 51.88845 -176.6589   F   14.1          -9          -9
-    ## 286 andreanof_islands 51.88845 -176.6589   M   29.5          -9          -9
-    ## 287 andreanof_islands 51.88845 -176.6589   M   14.5          -9          -9
-    ## 288 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 289 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 290 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 291 andreanof_islands 51.88845 -176.6589   M   33.1          -9          -9
-    ## 292 andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 293 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 294 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 295 andreanof_islands 51.88845 -176.6589   M   30.4          -9          -9
-    ## 296 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 297 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 298 andreanof_islands 51.88845 -176.6589   M   32.7          -9          -9
-    ## 299 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 300 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 301 andreanof_islands 51.88845 -176.6589   F   15.4          -9          -9
-    ## 302 andreanof_islands 51.88845 -176.6589   M    8.2          -9          -9
-    ## 303 andreanof_islands 51.88845 -176.6589   M   32.2          -9          -9
-    ## 304 andreanof_islands 51.88845 -176.6589   M   38.1          -9          -9
-    ## 305 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 306 andreanof_islands 51.88845 -176.6589   F   17.2          -9          -9
-    ## 307 andreanof_islands 51.88845 -176.6589   F   26.3          -9          -9
-    ## 308 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 309 andreanof_islands 51.88845 -176.6589   F   16.8          -9          -9
-    ## 310 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 311 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 312 andreanof_islands 51.88845 -176.6589   F   15.4          -9          -9
-    ## 313 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 314 andreanof_islands 51.88845 -176.6589   F    4.5          -9          -9
-    ## 315 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 316 andreanof_islands 51.88845 -176.6589   M    8.6          -9          -9
-    ## 317 andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 318 andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 319 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 320 andreanof_islands 51.88845 -176.6589   M    5.0          -9          -9
-    ## 321 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 322 andreanof_islands 51.88845 -176.6589   M    2.2          -9          -9
-    ## 323 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 324 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 325 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 326 andreanof_islands 51.88845 -176.6589   F    9.5          -9          -9
-    ## 327 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 328 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 329 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 330 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 331 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 332 andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 333 andreanof_islands 51.88845 -176.6589   M   32.7          -9          -9
-    ## 334 andreanof_islands 51.88845 -176.6589   M   36.3          -9          -9
-    ## 335 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 336 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 337 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 338 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 339 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 340 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 341 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 342 andreanof_islands 51.88845 -176.6589   F   28.6          -9          -9
-    ## 343 andreanof_islands 51.88845 -176.6589   F   14.5          -9          -9
-    ## 344 andreanof_islands 51.88845 -176.6589   F   25.9          -9          -9
-    ## 345 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 346 andreanof_islands 51.88845 -176.6589   F   11.3          -9          -9
-    ## 347 andreanof_islands 51.88845 -176.6589   M    9.1          -9          -9
-    ## 348 andreanof_islands 51.88845 -176.6589   M    7.7          -9          -9
-    ## 349 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 350 andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 351 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 352 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 353 andreanof_islands 51.88845 -176.6589   M   28.6          -9          -9
-    ## 354 andreanof_islands 51.88845 -176.6589   M   25.9          -9          -9
-    ## 355 andreanof_islands 51.88845 -176.6589   F   27.2          -9          -9
-    ## 356 andreanof_islands 51.88845 -176.6589   F   28.1          -9          -9
-    ## 357 andreanof_islands 51.88845 -176.6589   F    8.6          -9          -9
-    ## 358 andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 359 andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 360 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 361 andreanof_islands 51.88845 -176.6589   F   26.3          -9          -9
-    ## 362 andreanof_islands 51.88845 -176.6589   M   12.7          -9          -9
-    ## 363 andreanof_islands 51.88845 -176.6589   F   14.5          -9          -9
-    ## 364 andreanof_islands 51.88845 -176.6589   F   25.4          -9          -9
-    ## 365 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 366 andreanof_islands 51.88845 -176.6589   M   26.3          -9          -9
-    ## 367 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 368 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 369 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 370 andreanof_islands 51.88845 -176.6589   F   15.0          -9          -9
-    ## 371 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 372 andreanof_islands 51.88845 -176.6589   F   14.1          -9          -9
-    ## 373 andreanof_islands 51.88845 -176.6589   M   37.2          -9          -9
-    ## 374 andreanof_islands 51.88845 -176.6589   F   10.0          -9          -9
-    ## 375 andreanof_islands 51.88845 -176.6589   M   33.1          -9          -9
-    ## 376 andreanof_islands 51.88845 -176.6589   M   28.1          -9          -9
-    ## 377 andreanof_islands 51.88845 -176.6589   M   11.3          -9          -9
-    ## 378 andreanof_islands 51.88845 -176.6589   M   29.9          -9          -9
-    ## 379 andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 380 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 381 andreanof_islands 51.88845 -176.6589   M   26.8          -9          -9
-    ## 382 andreanof_islands 51.88845 -176.6589   F   27.2          -9          -9
-    ## 383 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 384 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 385 andreanof_islands 51.88845 -176.6589   M    9.1          -9          -9
-    ## 386 andreanof_islands 51.88845 -176.6589   F   12.7          -9          -9
-    ## 387 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 388 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 389 andreanof_islands 51.88845 -176.6589   F    9.5          -9          -9
-    ## 390 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 391 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 392 andreanof_islands 51.88845 -176.6589   F   26.3          -9          -9
-    ## 393 andreanof_islands 51.88845 -176.6589   M   28.6          -9          -9
-    ## 394 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 395 andreanof_islands 51.88845 -176.6589   M   32.7          -9          -9
-    ## 396 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 397 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 398 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 399 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 400 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 401 andreanof_islands 51.88845 -176.6589   F   26.3          -9          -9
-    ## 402 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 403 andreanof_islands 51.88845 -176.6589   F   20.0          -9          -9
-    ## 404 andreanof_islands 51.88845 -176.6589   F   11.3          -9          -9
-    ## 405 andreanof_islands 51.88845 -176.6589   F   11.3          -9          -9
-    ## 406 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 407 andreanof_islands 51.88845 -176.6589   M   30.4          -9          -9
-    ## 408 andreanof_islands 51.88845 -176.6589   F   11.8          -9          -9
-    ## 409 andreanof_islands 51.88845 -176.6589   M   10.0          -9          -9
-    ## 410 andreanof_islands 51.88845 -176.6589   F   25.9          -9          -9
-    ## 411 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 412 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 413 andreanof_islands 51.88845 -176.6589   F   11.3          -9          -9
-    ## 414 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 415 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 416 andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 417 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 418 andreanof_islands 51.88845 -176.6589   M   38.6          -9          -9
-    ## 419 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 420 andreanof_islands 51.88845 -176.6589   F    5.1          -9          -9
-    ## 421 andreanof_islands 51.88845 -176.6589   M   35.4          -9          -9
-    ## 422 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 423 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 424 andreanof_islands 51.88845 -176.6589   M   11.3          -9          -9
-    ## 425 andreanof_islands 51.88845 -176.6589   M   32.2          -9          -9
-    ## 426 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 427 andreanof_islands 51.88845 -176.6589   F   27.7          -9          -9
-    ## 428 andreanof_islands 51.88845 -176.6589   F   11.3          -9          -9
-    ## 429 andreanof_islands 51.88845 -176.6589   F   11.8          -9          -9
-    ## 430 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 431 andreanof_islands 51.88845 -176.6589   F   15.4          -9          -9
-    ## 432 andreanof_islands 51.88845 -176.6589   M   15.0          -9          -9
-    ## 433 andreanof_islands 51.88845 -176.6589   F   25.9          -9          -9
-    ## 434 andreanof_islands 51.88845 -176.6589   F   26.3          -9          -9
-    ## 435 andreanof_islands 51.88845 -176.6589   M   39.0          -9          -9
-    ## 436 andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 437 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 438 andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 439 andreanof_islands 51.88845 -176.6589   F   23.6          -9          -9
-    ## 440 andreanof_islands 51.88845 -176.6589   F   15.9          -9          -9
-    ## 441 andreanof_islands 51.88845 -176.6589   F   13.6          -9          -9
-    ## 442 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 443 andreanof_islands 51.88845 -176.6589   F   14.1          -9          -9
-    ## 444 andreanof_islands 51.88845 -176.6589   F    9.5          -9          -9
-    ## 445 andreanof_islands 51.88845 -176.6589   F   24.9          -9          -9
-    ## 446 andreanof_islands 51.88845 -176.6589   M   39.9          -9          -9
-    ## 447 andreanof_islands 51.88845 -176.6589   F   19.5          -9          -9
-    ## 448 andreanof_islands 51.88845 -176.6589   M   10.9          -9          -9
-    ## 449 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 450 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 451 andreanof_islands 51.88845 -176.6589   M   37.6          -9          -9
-    ## 452 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 453 andreanof_islands 51.88845 -176.6589   M   15.4          -9          -9
-    ## 454 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 455 andreanof_islands 51.88845 -176.6589   M   39.5          -9          -9
-    ## 456 andreanof_islands 51.88845 -176.6589   F   25.4          -9          -9
-    ## 457 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 458 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 459 andreanof_islands 51.88845 -176.6589   M   39.9          -9          -9
-    ## 460 andreanof_islands 51.88845 -176.6589   M    7.3          -9          -9
-    ## 461 andreanof_islands 51.88845 -176.6589   F   17.7          -9          -9
-    ## 462 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 463 andreanof_islands 51.88845 -176.6589   F   22.2          -9          -9
-    ## 464 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 465 andreanof_islands 51.88845 -176.6589   M   13.2          -9          -9
-    ## 466 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 467 andreanof_islands 51.88845 -176.6589   F   18.6          -9          -9
-    ## 468 andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 469 andreanof_islands 51.88845 -176.6589   M   33.6          -9          -9
-    ## 470 andreanof_islands 51.88845 -176.6589   M   34.5          -9          -9
-    ## 471 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 472 andreanof_islands 51.88845 -176.6589   M   33.1          -9          -9
-    ## 473 andreanof_islands 51.88845 -176.6589   F   23.1          -9          -9
-    ## 474 andreanof_islands 51.88845 -176.6589   F   22.7          -9          -9
-    ## 475 andreanof_islands 51.88845 -176.6589   M   19.1          -9          -9
-    ## 476 andreanof_islands 51.88845 -176.6589   F   21.8          -9          -9
-    ## 477 andreanof_islands 51.88845 -176.6589   F   18.1          -9          -9
-    ## 478 andreanof_islands 51.88845 -176.6589   M   29.9          -9          -9
-    ## 479 andreanof_islands 51.88845 -176.6589   F   24.0          -9          -9
-    ## 480 andreanof_islands 51.88845 -176.6589   F   27.2          -9          -9
-    ## 481 andreanof_islands 51.88845 -176.6589   F   21.3          -9          -9
-    ## 482 andreanof_islands 51.88845 -176.6589   F   13.2          -9          -9
-    ## 483 andreanof_islands 51.88845 -176.6589   M   38.1          -9          -9
-    ## 484 andreanof_islands 51.88845 -176.6589   M   36.7          -9          -9
-    ## 485 andreanof_islands 51.88845 -176.6589   M   36.3          -9          -9
-    ## 486 andreanof_islands 51.88845 -176.6589   F   24.5          -9          -9
-    ## 487 andreanof_islands 51.88845 -176.6589   F   29.5          -9          -9
-    ## 488 andreanof_islands 51.88845 -176.6589   F   28.6          -9          -9
-    ## 489 andreanof_islands 51.88845 -176.6589   M   36.3          -9          -9
-    ## 490 andreanof_islands 51.88845 -176.6589   M   36.3          -9          -9
-    ## 491 andreanof_islands 51.88845 -176.6589   F   24.9          -9          -9
-    ## 492 andreanof_islands 51.88845 -176.6589   F   20.4          -9          -9
-    ## 493 andreanof_islands 51.88845 -176.6589   F   19.1          -9          -9
-    ## 494 andreanof_islands 51.88845 -176.6589   F   26.3          -9          -9
-    ## 495 andreanof_islands 51.88845 -176.6589   M   38.1          -9          -9
-    ## 496 andreanof_islands 51.88845 -176.6589   F   25.4          -9          -9
-    ## 497 andreanof_islands 51.88845 -176.6589   M   13.6          -9          -9
-    ## 498 andreanof_islands 51.88845 -176.6589   M   32.7          -9          -9
-    ## 499 andreanof_islands 51.88845 -176.6589   M   31.3          -9          -9
-    ## 500 andreanof_islands 51.88845 -176.6589   F   20.9          -9          -9
-    ## 501 andreanof_islands 51.88845 -176.6589   M   40.4          -9          -9
-    ## 502 andreanof_islands 51.87637 -176.6188   M   38.2          -9          -9
-    ## 503 andreanof_islands 51.89061 -176.7757   F   32.3          -9          -9
-    ## 504 andreanof_islands 51.82056 -176.8829   F   28.2          -9          -9
-    ## 505 andreanof_islands 51.74424 -176.4838   F   24.1          -9          -9
-    ## 506 andreanof_islands 51.74424 -176.4838   F   22.7          -9          -9
-    ## 507 andreanof_islands 51.75348 -176.4812   F   29.5          -9          -9
-    ## 508 andreanof_islands 51.74688 -176.4867   F   25.5          -9          -9
-    ##     TAIL_LGTH_3 mean_tail_lgth LGTH1 LGTH2 LGTH3 curvilinear_correction
-    ## 1            -9             -9 139.8  -9.0    -9                  1.000
-    ## 2            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 3            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 4            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 5            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 6            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 7            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 8            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 9            -9             -9  -9.0  -9.0    -9                  0.974
-    ## 10           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 11           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 12           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 13           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 14           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 15           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 16           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 17           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 18           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 19           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 20           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 21           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 22           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 23           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 24           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 25           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 26           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 27           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 28           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 29           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 30           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 31           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 32           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 33           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 34           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 35           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 36           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 37           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 38           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 39           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 40           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 41           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 42           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 43           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 44           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 45           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 46           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 47           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 48           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 49           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 50           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 51           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 52           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 53           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 54           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 55           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 56           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 57           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 58           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 59           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 60           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 61           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 62           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 63           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 64           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 65           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 66           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 67           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 68           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 69           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 70           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 71           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 72           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 73           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 74           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 75           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 76           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 77           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 78           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 79           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 80           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 81           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 82           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 83           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 84           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 85           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 86           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 87           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 88           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 89           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 90           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 91           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 92           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 93           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 94           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 95           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 96           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 97           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 98           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 99           -9             -9  -9.0  -9.0    -9                  0.974
-    ## 100          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 101          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 102          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 103          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 104          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 105          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 106          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 107          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 108          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 109          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 110          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 111          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 112          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 113          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 114          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 115          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 116          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 117          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 118          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 119          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 120          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 121          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 122          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 123          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 124          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 125          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 126          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 127          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 128          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 129          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 130          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 131          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 132          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 133          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 134          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 135          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 136          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 137          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 138          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 139          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 140          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 141          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 142          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 143          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 144          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 145          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 146          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 147          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 148          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 149          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 150          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 151          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 152          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 153          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 154          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 155          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 156          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 157          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 158          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 159          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 160          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 161          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 162          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 163          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 164          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 165          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 166          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 167          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 168          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 169          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 170          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 171          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 172          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 173          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 174          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 175          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 176          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 177          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 178          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 179          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 180          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 181          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 182          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 183          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 184          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 185          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 186          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 187          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 188          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 189          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 190          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 191          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 192          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 193          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 194          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 195          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 196          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 197          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 198          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 199          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 200          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 201          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 202          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 203          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 204          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 205          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 206          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 207          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 208          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 209          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 210          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 211          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 212          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 213          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 214          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 215          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 216          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 217          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 218          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 219          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 220          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 221          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 222          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 223          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 224          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 225          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 226          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 227          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 228          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 229          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 230          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 231          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 232          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 233          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 234          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 235          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 236          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 237          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 238          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 239          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 240          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 241          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 242          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 243          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 244          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 245          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 246          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 247          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 248          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 249          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 250          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 251          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 252          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 253          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 254          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 255          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 256          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 257          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 258          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 259          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 260          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 261          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 262          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 263          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 264          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 265          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 266          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 267          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 268          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 269          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 270          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 271          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 272          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 273          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 274          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 275          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 276          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 277          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 278          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 279          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 280          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 281          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 282          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 283          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 284          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 285          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 286          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 287          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 288          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 289          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 290          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 291          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 292          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 293          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 294          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 295          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 296          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 297          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 298          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 299          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 300          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 301          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 302          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 303          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 304          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 305          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 306          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 307          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 308          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 309          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 310          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 311          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 312          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 313          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 314          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 315          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 316          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 317          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 318          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 319          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 320          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 321          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 322          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 323          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 324          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 325          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 326          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 327          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 328          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 329          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 330          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 331          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 332          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 333          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 334          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 335          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 336          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 337          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 338          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 339          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 340          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 341          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 342          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 343          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 344          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 345          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 346          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 347          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 348          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 349          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 350          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 351          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 352          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 353          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 354          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 355          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 356          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 357          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 358          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 359          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 360          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 361          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 362          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 363          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 364          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 365          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 366          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 367          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 368          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 369          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 370          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 371          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 372          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 373          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 374          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 375          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 376          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 377          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 378          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 379          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 380          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 381          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 382          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 383          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 384          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 385          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 386          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 387          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 388          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 389          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 390          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 391          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 392          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 393          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 394          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 395          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 396          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 397          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 398          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 399          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 400          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 401          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 402          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 403          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 404          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 405          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 406          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 407          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 408          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 409          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 410          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 411          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 412          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 413          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 414          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 415          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 416          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 417          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 418          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 419          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 420          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 421          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 422          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 423          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 424          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 425          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 426          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 427          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 428          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 429          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 430          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 431          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 432          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 433          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 434          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 435          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 436          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 437          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 438          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 439          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 440          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 441          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 442          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 443          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 444          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 445          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 446          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 447          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 448          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 449          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 450          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 451          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 452          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 453          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 454          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 455          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 456          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 457          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 458          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 459          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 460          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 461          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 462          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 463          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 464          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 465          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 466          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 467          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 468          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 469          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 470          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 471          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 472          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 473          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 474          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 475          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 476          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 477          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 478          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 479          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 480          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 481          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 482          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 483          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 484          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 485          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 486          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 487          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 488          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 489          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 490          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 491          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 492          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 493          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 494          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 495          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 496          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 497          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 498          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 499          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 500          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 501          -9             -9  -9.0  -9.0    -9                  0.974
-    ## 502          -9             -9 136.0  -9.0    -9                  1.000
-    ## 503          -9             -9 129.0  -9.0    -9                  1.000
-    ## 504          -9             -9 128.0  -9.0    -9                  1.000
-    ## 505          -9             -9 128.0  -9.0    -9                  1.000
-    ## 506          -9             -9 122.5  -9.0    -9                  1.000
-    ## 507          -9             -9 133.0  -9.0    -9                  1.000
-    ## 508          -9             -9 132.5 133.5    -9                  1.000
-    ##     mean_lgth true_standard_lgth body_lgth CURVE_LGTH1 CURVE_LGTH2 GIRTH1
-    ## 1       139.8              139.8        -9          -9          -9   80.7
-    ## 2        -9.0              126.7        -9         130          -9   -9.0
-    ## 3        -9.0               93.5        -9          96          -9   -9.0
-    ## 4        -9.0              149.1        -9         153          -9   -9.0
-    ## 5        -9.0              143.2        -9         147          -9   -9.0
-    ## 6        -9.0              149.1        -9         153          -9   -9.0
-    ## 7        -9.0              147.1        -9         151          -9   -9.0
-    ## 8        -9.0              130.6        -9         134          -9   -9.0
-    ## 9        -9.0              142.3        -9         146          -9   -9.0
-    ## 10       -9.0              121.8        -9         125          -9   -9.0
-    ## 11       -9.0              127.6        -9         131          -9   -9.0
-    ## 12       -9.0              123.8        -9         127          -9   -9.0
-    ## 13       -9.0              124.7        -9         128          -9   -9.0
-    ## 14       -9.0              120.8        -9         124          -9   -9.0
-    ## 15       -9.0              126.7        -9         130          -9   -9.0
-    ## 16       -9.0              122.8        -9         126          -9   -9.0
-    ## 17       -9.0              147.1        -9         151          -9   -9.0
-    ## 18       -9.0              125.7        -9         129          -9   -9.0
-    ## 19       -9.0               99.4        -9         102          -9   -9.0
-    ## 20       -9.0              138.4        -9         142          -9   -9.0
-    ## 21       -9.0              138.4        -9         142          -9   -9.0
-    ## 22       -9.0              136.4        -9         140          -9   -9.0
-    ## 23       -9.0              127.6        -9         131          -9   -9.0
-    ## 24       -9.0              122.8        -9         126          -9   -9.0
-    ## 25       -9.0              108.2        -9         111          -9   -9.0
-    ## 26       -9.0              146.2        -9         150          -9   -9.0
-    ## 27       -9.0              147.1        -9         151          -9   -9.0
-    ## 28       -9.0              135.4        -9         139          -9   -9.0
-    ## 29       -9.0              131.5        -9         135          -9   -9.0
-    ## 30       -9.0              123.8        -9         127          -9   -9.0
-    ## 31       -9.0              140.3        -9         144          -9   -9.0
-    ## 32       -9.0              104.3        -9         107          -9   -9.0
-    ## 33       -9.0              127.6        -9         131          -9   -9.0
-    ## 34       -9.0               97.4        -9         100          -9   -9.0
-    ## 35       -9.0              123.8        -9         127          -9   -9.0
-    ## 36       -9.0              130.6        -9         134          -9   -9.0
-    ## 37       -9.0              117.9        -9         121          -9   -9.0
-    ## 38       -9.0              144.2        -9         148          -9   -9.0
-    ## 39       -9.0              115.0        -9         118          -9   -9.0
-    ## 40       -9.0              129.6        -9         133          -9   -9.0
-    ## 41       -9.0              116.0        -9         119          -9   -9.0
-    ## 42       -9.0              127.6        -9         131          -9   -9.0
-    ## 43       -9.0              128.6        -9         132          -9   -9.0
-    ## 44       -9.0              121.8        -9         125          -9   -9.0
-    ## 45       -9.0              128.6        -9         132          -9   -9.0
-    ## 46       -9.0              146.2        -9         150          -9   -9.0
-    ## 47       -9.0              138.4        -9         142          -9   -9.0
-    ## 48       -9.0              116.0        -9         119          -9   -9.0
-    ## 49       -9.0              128.6        -9         132          -9   -9.0
-    ## 50       -9.0              121.8        -9         125          -9   -9.0
-    ## 51       -9.0              136.4        -9         140          -9   -9.0
-    ## 52       -9.0              123.8        -9         127          -9   -9.0
-    ## 53       -9.0              104.3        -9         107          -9   -9.0
-    ## 54       -9.0              136.4        -9         140          -9   -9.0
-    ## 55       -9.0              133.5        -9         137          -9   -9.0
-    ## 56       -9.0              124.7        -9         128          -9   -9.0
-    ## 57       -9.0              135.4        -9         139          -9   -9.0
-    ## 58       -9.0              121.8        -9         125          -9   -9.0
-    ## 59       -9.0              139.3        -9         143          -9   -9.0
-    ## 60       -9.0              114.0        -9         117          -9   -9.0
-    ## 61       -9.0              124.7        -9         128          -9   -9.0
-    ## 62       -9.0              124.7        -9         128          -9   -9.0
-    ## 63       -9.0              135.4        -9         139          -9   -9.0
-    ## 64       -9.0              134.5        -9         138          -9   -9.0
-    ## 65       -9.0              131.5        -9         135          -9   -9.0
-    ## 66       -9.0              126.7        -9         130          -9   -9.0
-    ## 67       -9.0              130.6        -9         134          -9   -9.0
-    ## 68       -9.0              136.4        -9         140          -9   -9.0
-    ## 69       -9.0              128.6        -9         132          -9   -9.0
-    ## 70       -9.0               81.9        -9          84          -9   -9.0
-    ## 71       -9.0              146.2        -9         150          -9   -9.0
-    ## 72       -9.0              123.8        -9         127          -9   -9.0
-    ## 73       -9.0              119.9        -9         123          -9   -9.0
-    ## 74       -9.0              120.8        -9         124          -9   -9.0
-    ## 75       -9.0              125.7        -9         129          -9   -9.0
-    ## 76       -9.0              122.8        -9         126          -9   -9.0
-    ## 77       -9.0              143.2        -9         147          -9   -9.0
-    ## 78       -9.0              120.8        -9         124          -9   -9.0
-    ## 79       -9.0              124.7        -9         128          -9   -9.0
-    ## 80       -9.0              141.3        -9         145          -9   -9.0
-    ## 81       -9.0              141.3        -9         145          -9   -9.0
-    ## 82       -9.0              127.6        -9         131          -9   -9.0
-    ## 83       -9.0              123.8        -9         127          -9   -9.0
-    ## 84       -9.0              126.7        -9         130          -9   -9.0
-    ## 85       -9.0              128.6        -9         132          -9   -9.0
-    ## 86       -9.0              139.3        -9         143          -9   -9.0
-    ## 87       -9.0              123.8        -9         127          -9   -9.0
-    ## 88       -9.0              114.0        -9         117          -9   -9.0
-    ## 89       -9.0              123.8        -9         127          -9   -9.0
-    ## 90       -9.0              147.1        -9         151          -9   -9.0
-    ## 91       -9.0              122.8        -9         126          -9   -9.0
-    ## 92       -9.0              130.6        -9         134          -9   -9.0
-    ## 93       -9.0              129.6        -9         133          -9   -9.0
-    ## 94       -9.0              125.7        -9         129          -9   -9.0
-    ## 95       -9.0              127.6        -9         131          -9   -9.0
-    ## 96       -9.0              123.8        -9         127          -9   -9.0
-    ## 97       -9.0              122.8        -9         126          -9   -9.0
-    ## 98       -9.0              118.9        -9         122          -9   -9.0
-    ## 99       -9.0              123.8        -9         127          -9   -9.0
-    ## 100      -9.0              133.5        -9         137          -9   -9.0
-    ## 101      -9.0              123.8        -9         127          -9   -9.0
-    ## 102      -9.0              136.4        -9         140          -9   -9.0
-    ## 103      -9.0              148.1        -9         152          -9   -9.0
-    ## 104      -9.0              144.2        -9         148          -9   -9.0
-    ## 105      -9.0              127.6        -9         131          -9   -9.0
-    ## 106      -9.0              113.0        -9         116          -9   -9.0
-    ## 107      -9.0              143.2        -9         147          -9   -9.0
-    ## 108      -9.0              135.4        -9         139          -9   -9.0
-    ## 109      -9.0              121.8        -9         125          -9   -9.0
-    ## 110      -9.0              126.7        -9         130          -9   -9.0
-    ## 111      -9.0               96.5        -9          99          -9   -9.0
-    ## 112      -9.0              115.0        -9         118          -9   -9.0
-    ## 113      -9.0              133.5        -9         137          -9   -9.0
-    ## 114      -9.0              132.5        -9         136          -9   -9.0
-    ## 115      -9.0              128.6        -9         132          -9   -9.0
-    ## 116      -9.0              122.8        -9         126          -9   -9.0
-    ## 117      -9.0              130.6        -9         134          -9   -9.0
-    ## 118      -9.0              123.8        -9         127          -9   -9.0
-    ## 119      -9.0              141.3        -9         145          -9   -9.0
-    ## 120      -9.0              130.6        -9         134          -9   -9.0
-    ## 121      -9.0              148.1        -9         152          -9   -9.0
-    ## 122      -9.0              133.5        -9         137          -9   -9.0
-    ## 123      -9.0              119.9        -9         123          -9   -9.0
-    ## 124      -9.0              120.8        -9         124          -9   -9.0
-    ## 125      -9.0              118.9        -9         122          -9   -9.0
-    ## 126      -9.0              130.6        -9         134          -9   -9.0
-    ## 127      -9.0              119.9        -9         123          -9   -9.0
-    ## 128      -9.0              126.7        -9         130          -9   -9.0
-    ## 129      -9.0              120.8        -9         124          -9   -9.0
-    ## 130      -9.0              118.9        -9         122          -9   -9.0
-    ## 131      -9.0              124.7        -9         128          -9   -9.0
-    ## 132      -9.0              155.9        -9         160          -9   -9.0
-    ## 133      -9.0              125.7        -9         129          -9   -9.0
-    ## 134      -9.0              134.5        -9         138          -9   -9.0
-    ## 135      -9.0              140.3        -9         144          -9   -9.0
-    ## 136      -9.0              131.5        -9         135          -9   -9.0
-    ## 137      -9.0              122.8        -9         126          -9   -9.0
-    ## 138      -9.0              126.7        -9         130          -9   -9.0
-    ## 139      -9.0              133.5        -9         137          -9   -9.0
-    ## 140      -9.0              133.5        -9         137          -9   -9.0
-    ## 141      -9.0              103.3        -9         106          -9   -9.0
-    ## 142      -9.0              121.8        -9         125          -9   -9.0
-    ## 143      -9.0               98.4        -9         101          -9   -9.0
-    ## 144      -9.0              121.8        -9         125          -9   -9.0
-    ## 145      -9.0              129.6        -9         133          -9   -9.0
-    ## 146      -9.0              119.9        -9         123          -9   -9.0
-    ## 147      -9.0              126.7        -9         130          -9   -9.0
-    ## 148      -9.0              126.7        -9         130          -9   -9.0
-    ## 149      -9.0              127.6        -9         131          -9   -9.0
-    ## 150      -9.0              132.5        -9         136          -9   -9.0
-    ## 151      -9.0              112.1        -9         115          -9   -9.0
-    ## 152      -9.0              133.5        -9         137          -9   -9.0
-    ## 153      -9.0              146.2        -9         150          -9   -9.0
-    ## 154      -9.0              130.6        -9         134          -9   -9.0
-    ## 155      -9.0              122.8        -9         126          -9   -9.0
-    ## 156      -9.0              129.6        -9         133          -9   -9.0
-    ## 157      -9.0              133.5        -9         137          -9   -9.0
-    ## 158      -9.0              121.8        -9         125          -9   -9.0
-    ## 159      -9.0              132.5        -9         136          -9   -9.0
-    ## 160      -9.0              132.5        -9         136          -9   -9.0
-    ## 161      -9.0              124.7        -9         128          -9   -9.0
-    ## 162      -9.0              139.3        -9         143          -9   -9.0
-    ## 163      -9.0              130.6        -9         134          -9   -9.0
-    ## 164      -9.0              123.8        -9         127          -9   -9.0
-    ## 165      -9.0              131.5        -9         135          -9   -9.0
-    ## 166      -9.0              103.3        -9         106          -9   -9.0
-    ## 167      -9.0              142.3        -9         146          -9   -9.0
-    ## 168      -9.0              102.3        -9         105          -9   -9.0
-    ## 169      -9.0              127.6        -9         131          -9   -9.0
-    ## 170      -9.0              143.2        -9         147          -9   -9.0
-    ## 171      -9.0               94.5        -9          97          -9   -9.0
-    ## 172      -9.0              123.8        -9         127          -9   -9.0
-    ## 173      -9.0              138.4        -9         142          -9   -9.0
-    ## 174      -9.0              124.7        -9         128          -9   -9.0
-    ## 175      -9.0              136.4        -9         140          -9   -9.0
-    ## 176      -9.0              127.6        -9         131          -9   -9.0
-    ## 177      -9.0              120.8        -9         124          -9   -9.0
-    ## 178      -9.0              133.5        -9         137          -9   -9.0
-    ## 179      -9.0              138.4        -9         142          -9   -9.0
-    ## 180      -9.0              125.7        -9         129          -9   -9.0
-    ## 181      -9.0              137.4        -9         141          -9   -9.0
-    ## 182      -9.0              142.3        -9         146          -9   -9.0
-    ## 183      -9.0              139.3        -9         143          -9   -9.0
-    ## 184      -9.0              125.7        -9         129          -9   -9.0
-    ## 185      -9.0              136.4        -9         140          -9   -9.0
-    ## 186      -9.0               98.4        -9         101          -9   -9.0
-    ## 187      -9.0              147.1        -9         151          -9   -9.0
-    ## 188      -9.0              134.5        -9         138          -9   -9.0
-    ## 189      -9.0              137.4        -9         141          -9   -9.0
-    ## 190      -9.0              129.6        -9         133          -9   -9.0
-    ## 191      -9.0              116.0        -9         119          -9   -9.0
-    ## 192      -9.0              123.8        -9         127          -9   -9.0
-    ## 193      -9.0              135.4        -9         139          -9   -9.0
-    ## 194      -9.0              126.7        -9         130          -9   -9.0
-    ## 195      -9.0              144.2        -9         148          -9   -9.0
-    ## 196      -9.0              118.9        -9         122          -9   -9.0
-    ## 197      -9.0              131.5        -9         135          -9   -9.0
-    ## 198      -9.0              133.5        -9         137          -9   -9.0
-    ## 199      -9.0              117.9        -9         121          -9   -9.0
-    ## 200      -9.0              132.5        -9         136          -9   -9.0
-    ## 201      -9.0              130.6        -9         134          -9   -9.0
-    ## 202      -9.0              142.3        -9         146          -9   -9.0
-    ## 203      -9.0              131.5        -9         135          -9   -9.0
-    ## 204      -9.0              131.5        -9         135          -9   -9.0
-    ## 205      -9.0              130.6        -9         134          -9   -9.0
-    ## 206      -9.0              123.8        -9         127          -9   -9.0
-    ## 207      -9.0              123.8        -9         127          -9   -9.0
-    ## 208      -9.0              126.7        -9         130          -9   -9.0
-    ## 209      -9.0              128.6        -9         132          -9   -9.0
-    ## 210      -9.0               85.7        -9          88          -9   -9.0
-    ## 211      -9.0              124.7        -9         128          -9   -9.0
-    ## 212      -9.0              131.5        -9         135          -9   -9.0
-    ## 213      -9.0              141.3        -9         145          -9   -9.0
-    ## 214      -9.0              128.6        -9         132          -9   -9.0
-    ## 215      -9.0              118.9        -9         122          -9   -9.0
-    ## 216      -9.0              132.5        -9         136          -9   -9.0
-    ## 217      -9.0              103.3        -9         106          -9   -9.0
-    ## 218      -9.0              123.8        -9         127          -9   -9.0
-    ## 219      -9.0              134.5        -9         138          -9   -9.0
-    ## 220      -9.0              127.6        -9         131          -9   -9.0
-    ## 221      -9.0              138.4        -9         142          -9   -9.0
-    ## 222      -9.0              118.9        -9         122          -9   -9.0
-    ## 223      -9.0              116.0        -9         119          -9   -9.0
-    ## 224      -9.0              100.4        -9         103          -9   -9.0
-    ## 225      -9.0              133.5        -9         137          -9   -9.0
-    ## 226      -9.0              125.7        -9         129          -9   -9.0
-    ## 227      -9.0              135.4        -9         139          -9   -9.0
-    ## 228      -9.0              125.7        -9         129          -9   -9.0
-    ## 229      -9.0              126.7        -9         130          -9   -9.0
-    ## 230      -9.0              116.0        -9         119          -9   -9.0
-    ## 231      -9.0              142.3        -9         146          -9   -9.0
-    ## 232      -9.0              121.8        -9         125          -9   -9.0
-    ## 233      -9.0              137.4        -9         141          -9   -9.0
-    ## 234      -9.0              130.6        -9         134          -9   -9.0
-    ## 235      -9.0              119.9        -9         123          -9   -9.0
-    ## 236      -9.0              123.8        -9         127          -9   -9.0
-    ## 237      -9.0              133.5        -9         137          -9   -9.0
-    ## 238      -9.0              134.5        -9         138          -9   -9.0
-    ## 239      -9.0              133.5        -9         137          -9   -9.0
-    ## 240      -9.0              135.4        -9         139          -9   -9.0
-    ## 241      -9.0              129.6        -9         133          -9   -9.0
-    ## 242      -9.0              118.9        -9         122          -9   -9.0
-    ## 243      -9.0               92.6        -9          95          -9   -9.0
-    ## 244      -9.0              128.6        -9         132          -9   -9.0
-    ## 245      -9.0              130.6        -9         134          -9   -9.0
-    ## 246      -9.0              127.6        -9         131          -9   -9.0
-    ## 247      -9.0              125.7        -9         129          -9   -9.0
-    ## 248      -9.0              124.7        -9         128          -9   -9.0
-    ## 249      -9.0              134.5        -9         138          -9   -9.0
-    ## 250      -9.0              132.5        -9         136          -9   -9.0
-    ## 251      -9.0              149.1        -9         153          -9   -9.0
-    ## 252      -9.0              122.8        -9         126          -9   -9.0
-    ## 253      -9.0              124.7        -9         128          -9   -9.0
-    ## 254      -9.0              149.1        -9         153          -9   -9.0
-    ## 255      -9.0              130.6        -9         134          -9   -9.0
-    ## 256      -9.0              121.8        -9         125          -9   -9.0
-    ## 257      -9.0              111.1        -9         114          -9   -9.0
-    ## 258      -9.0              140.3        -9         144          -9   -9.0
-    ## 259      -9.0              109.1        -9         112          -9   -9.0
-    ## 260      -9.0              129.6        -9         133          -9   -9.0
-    ## 261      -9.0              132.5        -9         136          -9   -9.0
-    ## 262      -9.0              123.8        -9         127          -9   -9.0
-    ## 263      -9.0              136.4        -9         140          -9   -9.0
-    ## 264      -9.0              149.1        -9         153          -9   -9.0
-    ## 265      -9.0              132.5        -9         136          -9   -9.0
-    ## 266      -9.0              119.9        -9         123          -9   -9.0
-    ## 267      -9.0              137.4        -9         141          -9   -9.0
-    ## 268      -9.0              116.9        -9         120          -9   -9.0
-    ## 269      -9.0              125.7        -9         129          -9   -9.0
-    ## 270      -9.0              124.7        -9         128          -9   -9.0
-    ## 271      -9.0              133.5        -9         137          -9   -9.0
-    ## 272      -9.0              115.0        -9         118          -9   -9.0
-    ## 273      -9.0              112.1        -9         115          -9   -9.0
-    ## 274      -9.0              116.0        -9         119          -9   -9.0
-    ## 275      -9.0              133.5        -9         137          -9   -9.0
-    ## 276      -9.0              102.3        -9         105          -9   -9.0
-    ## 277      -9.0              121.8        -9         125          -9   -9.0
-    ## 278      -9.0              128.6        -9         132          -9   -9.0
-    ## 279      -9.0              145.2        -9         149          -9   -9.0
-    ## 280      -9.0              132.5        -9         136          -9   -9.0
-    ## 281      -9.0              115.0        -9         118          -9   -9.0
-    ## 282      -9.0              119.9        -9         123          -9   -9.0
-    ## 283      -9.0              138.4        -9         142          -9   -9.0
-    ## 284      -9.0              137.4        -9         141          -9   -9.0
-    ## 285      -9.0              114.0        -9         117          -9   -9.0
-    ## 286      -9.0              137.4        -9         141          -9   -9.0
-    ## 287      -9.0              109.1        -9         112          -9   -9.0
-    ## 288      -9.0              132.5        -9         136          -9   -9.0
-    ## 289      -9.0              131.5        -9         135          -9   -9.0
-    ## 290      -9.0              125.7        -9         129          -9   -9.0
-    ## 291      -9.0              150.1        -9         154          -9   -9.0
-    ## 292      -9.0              134.5        -9         138          -9   -9.0
-    ## 293      -9.0              131.5        -9         135          -9   -9.0
-    ## 294      -9.0              128.6        -9         132          -9   -9.0
-    ## 295      -9.0              146.2        -9         150          -9   -9.0
-    ## 296      -9.0              127.6        -9         131          -9   -9.0
-    ## 297      -9.0              135.4        -9         139          -9   -9.0
-    ## 298      -9.0              145.2        -9         149          -9   -9.0
-    ## 299      -9.0              132.5        -9         136          -9   -9.0
-    ## 300      -9.0              134.5        -9         138          -9   -9.0
-    ## 301      -9.0              126.7        -9         130          -9   -9.0
-    ## 302      -9.0               88.7        -9          91          -9   -9.0
-    ## 303      -9.0              139.3        -9         143          -9   -9.0
-    ## 304      -9.0              152.0        -9         156          -9   -9.0
-    ## 305      -9.0              130.6        -9         134          -9   -9.0
-    ## 306      -9.0              125.7        -9         129          -9   -9.0
-    ## 307      -9.0              138.4        -9         142          -9   -9.0
-    ## 308      -9.0              128.6        -9         132          -9   -9.0
-    ## 309      -9.0              117.9        -9         121          -9   -9.0
-    ## 310      -9.0              128.6        -9         132          -9   -9.0
-    ## 311      -9.0              136.4        -9         140          -9   -9.0
-    ## 312      -9.0              114.0        -9         117          -9   -9.0
-    ## 313      -9.0              130.6        -9         134          -9   -9.0
-    ## 314      -9.0               76.0        -9          78          -9   -9.0
-    ## 315      -9.0              123.8        -9         127          -9   -9.0
-    ## 316      -9.0               87.7        -9          90          -9   -9.0
-    ## 317      -9.0              146.2        -9         150          -9   -9.0
-    ## 318      -9.0              135.4        -9         139          -9   -9.0
-    ## 319      -9.0              127.6        -9         131          -9   -9.0
-    ## 320      -9.0               77.0        -9          79          -9   -9.0
-    ## 321      -9.0              122.8        -9         126          -9   -9.0
-    ## 322      -9.0               59.4        -9          61          -9   -9.0
-    ## 323      -9.0              127.6        -9         131          -9   -9.0
-    ## 324      -9.0              126.7        -9         130          -9   -9.0
-    ## 325      -9.0              135.4        -9         139          -9   -9.0
-    ## 326      -9.0              101.3        -9         104          -9   -9.0
-    ## 327      -9.0              123.8        -9         127          -9   -9.0
-    ## 328      -9.0              135.4        -9         139          -9   -9.0
-    ## 329      -9.0              126.7        -9         130          -9   -9.0
-    ## 330      -9.0              134.5        -9         138          -9   -9.0
-    ## 331      -9.0              126.7        -9         130          -9   -9.0
-    ## 332      -9.0              146.2        -9         150          -9   -9.0
-    ## 333      -9.0              144.2        -9         148          -9   -9.0
-    ## 334      -9.0              142.3        -9         146          -9   -9.0
-    ## 335      -9.0              120.8        -9         124          -9   -9.0
-    ## 336      -9.0              133.5        -9         137          -9   -9.0
-    ## 337      -9.0              120.8        -9         124          -9   -9.0
-    ## 338      -9.0              125.7        -9         129          -9   -9.0
-    ## 339      -9.0              128.6        -9         132          -9   -9.0
-    ## 340      -9.0              128.6        -9         132          -9   -9.0
-    ## 341      -9.0              127.6        -9         131          -9   -9.0
-    ## 342      -9.0              137.4        -9         141          -9   -9.0
-    ## 343      -9.0              109.1        -9         112          -9   -9.0
-    ## 344      -9.0              128.6        -9         132          -9   -9.0
-    ## 345      -9.0              127.6        -9         131          -9   -9.0
-    ## 346      -9.0               95.5        -9          98          -9   -9.0
-    ## 347      -9.0               93.5        -9          96          -9   -9.0
-    ## 348      -9.0               91.6        -9          94          -9   -9.0
-    ## 349      -9.0              123.8        -9         127          -9   -9.0
-    ## 350      -9.0              112.1        -9         115          -9   -9.0
-    ## 351      -9.0              126.7        -9         130          -9   -9.0
-    ## 352      -9.0              123.8        -9         127          -9   -9.0
-    ## 353      -9.0              136.4        -9         140          -9   -9.0
-    ## 354      -9.0              131.5        -9         135          -9   -9.0
-    ## 355      -9.0              127.6        -9         131          -9   -9.0
-    ## 356      -9.0              131.5        -9         135          -9   -9.0
-    ## 357      -9.0               87.7        -9          90          -9   -9.0
-    ## 358      -9.0              105.2        -9         108          -9   -9.0
-    ## 359      -9.0              111.1        -9         114          -9   -9.0
-    ## 360      -9.0              123.8        -9         127          -9   -9.0
-    ## 361      -9.0              132.5        -9         136          -9   -9.0
-    ## 362      -9.0              101.3        -9         104          -9   -9.0
-    ## 363      -9.0              111.1        -9         114          -9   -9.0
-    ## 364      -9.0              135.4        -9         139          -9   -9.0
-    ## 365      -9.0              129.6        -9         133          -9   -9.0
-    ## 366      -9.0              139.3        -9         143          -9   -9.0
-    ## 367      -9.0              117.9        -9         121          -9   -9.0
-    ## 368      -9.0              125.7        -9         129          -9   -9.0
-    ## 369      -9.0              126.7        -9         130          -9   -9.0
-    ## 370      -9.0              106.2        -9         109          -9   -9.0
-    ## 371      -9.0              124.7        -9         128          -9   -9.0
-    ## 372      -9.0              109.1        -9         112          -9   -9.0
-    ## 373      -9.0              134.5        -9         138          -9   -9.0
-    ## 374      -9.0               98.4        -9         101          -9   -9.0
-    ## 375      -9.0              132.5        -9         136          -9   -9.0
-    ## 376      -9.0              131.5        -9         135          -9   -9.0
-    ## 377      -9.0               98.4        -9         101          -9   -9.0
-    ## 378      -9.0              134.5        -9         138          -9   -9.0
-    ## 379      -9.0              110.1        -9         113          -9   -9.0
-    ## 380      -9.0              121.8        -9         125          -9   -9.0
-    ## 381      -9.0              133.5        -9         137          -9   -9.0
-    ## 382      -9.0              136.4        -9         140          -9   -9.0
-    ## 383      -9.0              126.7        -9         130          -9   -9.0
-    ## 384      -9.0              124.7        -9         128          -9   -9.0
-    ## 385      -9.0               91.6        -9          94          -9   -9.0
-    ## 386      -9.0              104.3        -9         107          -9   -9.0
-    ## 387      -9.0              125.7        -9         129          -9   -9.0
-    ## 388      -9.0              126.7        -9         130          -9   -9.0
-    ## 389      -9.0               90.6        -9          93          -9   -9.0
-    ## 390      -9.0              123.8        -9         127          -9   -9.0
-    ## 391      -9.0              127.6        -9         131          -9   -9.0
-    ## 392      -9.0              128.6        -9         132          -9   -9.0
-    ## 393      -9.0              135.4        -9         139          -9   -9.0
-    ## 394      -9.0              116.9        -9         120          -9   -9.0
-    ## 395      -9.0              138.4        -9         142          -9   -9.0
-    ## 396      -9.0              126.7        -9         130          -9   -9.0
-    ## 397      -9.0              131.5        -9         135          -9   -9.0
-    ## 398      -9.0              128.6        -9         132          -9   -9.0
-    ## 399      -9.0              130.6        -9         134          -9   -9.0
-    ## 400      -9.0              126.7        -9         130          -9   -9.0
-    ## 401      -9.0              132.5        -9         136          -9   -9.0
-    ## 402      -9.0              124.7        -9         128          -9   -9.0
-    ## 403      -9.0              132.5        -9         136          -9   -9.0
-    ## 404      -9.0               98.4        -9         101          -9   -9.0
-    ## 405      -9.0               97.4        -9         100          -9   -9.0
-    ## 406      -9.0              130.6        -9         134          -9   -9.0
-    ## 407      -9.0              149.1        -9         153          -9   -9.0
-    ## 408      -9.0               98.4        -9         101          -9   -9.0
-    ## 409      -9.0               94.5        -9          97          -9   -9.0
-    ## 410      -9.0              130.6        -9         134          -9   -9.0
-    ## 411      -9.0              123.8        -9         127          -9   -9.0
-    ## 412      -9.0              126.7        -9         130          -9   -9.0
-    ## 413      -9.0              100.4        -9         103          -9   -9.0
-    ## 414      -9.0              128.6        -9         132          -9   -9.0
-    ## 415      -9.0              130.6        -9         134          -9   -9.0
-    ## 416      -9.0              138.4        -9         142          -9   -9.0
-    ## 417      -9.0              129.6        -9         133          -9   -9.0
-    ## 418      -9.0              148.1        -9         152          -9   -9.0
-    ## 419      -9.0              136.4        -9         140          -9   -9.0
-    ## 420      -9.0               75.0        -9          77          -9   -9.0
-    ## 421      -9.0              145.2        -9         149          -9   -9.0
-    ## 422      -9.0              127.6        -9         131          -9   -9.0
-    ## 423      -9.0              131.5        -9         135          -9   -9.0
-    ## 424      -9.0               98.4        -9         101          -9   -9.0
-    ## 425      -9.0              144.2        -9         148          -9   -9.0
-    ## 426      -9.0              118.9        -9         122          -9   -9.0
-    ## 427      -9.0              139.3        -9         143          -9   -9.0
-    ## 428      -9.0              101.3        -9         104          -9   -9.0
-    ## 429      -9.0              103.3        -9         106          -9   -9.0
-    ## 430      -9.0              132.5        -9         136          -9   -9.0
-    ## 431      -9.0              115.0        -9         118          -9   -9.0
-    ## 432      -9.0              106.2        -9         109          -9   -9.0
-    ## 433      -9.0              134.5        -9         138          -9   -9.0
-    ## 434      -9.0              134.5        -9         138          -9   -9.0
-    ## 435      -9.0              146.2        -9         150          -9   -9.0
-    ## 436      -9.0              134.5        -9         138          -9   -9.0
-    ## 437      -9.0              129.6        -9         133          -9   -9.0
-    ## 438      -9.0              103.3        -9         106          -9   -9.0
-    ## 439      -9.0              132.5        -9         136          -9   -9.0
-    ## 440      -9.0              109.1        -9         112          -9   -9.0
-    ## 441      -9.0              114.0        -9         117          -9   -9.0
-    ## 442      -9.0              131.5        -9         135          -9   -9.0
-    ## 443      -9.0              110.1        -9         113          -9   -9.0
-    ## 444      -9.0               87.7        -9          90          -9   -9.0
-    ## 445      -9.0              133.5        -9         137          -9   -9.0
-    ## 446      -9.0              147.1        -9         151          -9   -9.0
-    ## 447      -9.0              128.6        -9         132          -9   -9.0
-    ## 448      -9.0               95.5        -9          98          -9   -9.0
-    ## 449      -9.0              128.6        -9         132          -9   -9.0
-    ## 450      -9.0              124.7        -9         128          -9   -9.0
-    ## 451      -9.0              141.3        -9         145          -9   -9.0
-    ## 452      -9.0              131.5        -9         135          -9   -9.0
-    ## 453      -9.0              108.2        -9         111          -9   -9.0
-    ## 454      -9.0              133.5        -9         137          -9   -9.0
-    ## 455      -9.0              143.2        -9         147          -9   -9.0
-    ## 456      -9.0              136.4        -9         140          -9   -9.0
-    ## 457      -9.0              127.6        -9         131          -9   -9.0
-    ## 458      -9.0              129.6        -9         133          -9   -9.0
-    ## 459      -9.0              149.1        -9         153          -9   -9.0
-    ## 460      -9.0               89.6        -9          92          -9   -9.0
-    ## 461      -9.0              108.2        -9         111          -9   -9.0
-    ## 462      -9.0              127.6        -9         131          -9   -9.0
-    ## 463      -9.0              121.8        -9         125          -9   -9.0
-    ## 464      -9.0              134.5        -9         138          -9   -9.0
-    ## 465      -9.0              104.3        -9         107          -9   -9.0
-    ## 466      -9.0              122.8        -9         126          -9   -9.0
-    ## 467      -9.0              119.9        -9         123          -9   -9.0
-    ## 468      -9.0              139.3        -9         143          -9   -9.0
-    ## 469      -9.0               -9.0        -9          -9          -9   -9.0
-    ## 470      -9.0              137.4        -9         141          -9   -9.0
-    ## 471      -9.0              132.5        -9         136          -9   -9.0
-    ## 472      -9.0              140.3        -9         144          -9   -9.0
-    ## 473      -9.0              132.5        -9         136          -9   -9.0
-    ## 474      -9.0              131.5        -9         135          -9   -9.0
-    ## 475      -9.0              112.1        -9         115          -9   -9.0
-    ## 476      -9.0              131.5        -9         135          -9   -9.0
-    ## 477      -9.0              112.1        -9         115          -9   -9.0
-    ## 478      -9.0              136.4        -9         140          -9   -9.0
-    ## 479      -9.0              138.4        -9         142          -9   -9.0
-    ## 480      -9.0              130.6        -9         134          -9   -9.0
-    ## 481      -9.0              125.7        -9         129          -9   -9.0
-    ## 482      -9.0              107.2        -9         110          -9   -9.0
-    ## 483      -9.0              145.2        -9         149          -9   -9.0
-    ## 484      -9.0              140.3        -9         144          -9   -9.0
-    ## 485      -9.0              141.3        -9         145          -9   -9.0
-    ## 486      -9.0              130.6        -9         134          -9   -9.0
-    ## 487      -9.0              138.4        -9         142          -9   -9.0
-    ## 488      -9.0              126.7        -9         130          -9   -9.0
-    ## 489      -9.0              140.3        -9         144          -9   -9.0
-    ## 490      -9.0              146.2        -9         150          -9   -9.0
-    ## 491      -9.0              130.6        -9         134          -9   -9.0
-    ## 492      -9.0              125.7        -9         129          -9   -9.0
-    ## 493      -9.0              122.8        -9         126          -9   -9.0
-    ## 494      -9.0              134.5        -9         138          -9   -9.0
-    ## 495      -9.0              142.3        -9         146          -9   -9.0
-    ## 496      -9.0              134.5        -9         138          -9   -9.0
-    ## 497      -9.0              101.3        -9         104          -9   -9.0
-    ## 498      -9.0              137.4        -9         141          -9   -9.0
-    ## 499      -9.0              142.3        -9         146          -9   -9.0
-    ## 500      -9.0              124.7        -9         128          -9   -9.0
-    ## 501      -9.0              146.2        -9         150          -9   -9.0
-    ## 502     136.0              136.0        -9          -9          -9   84.0
-    ## 503     129.0              129.0        -9          -9          -9   79.0
-    ## 504     128.0              128.0        -9          -9          -9   78.5
-    ## 505     128.0              128.0        -9          -9          -9   75.0
-    ## 506     122.5              122.5        -9          -9          -9   72.5
-    ## 507     133.0              133.0        -9          -9          -9   80.0
-    ## 508     133.0              133.0        -9          -9          -9   75.0
-    ##     GIRTH2 mean_girth  PAW W_PUP PUP_NUMBER PUP_SEX PUP_WGHT PUP_LGTH
-    ## 1       -9       80.7 -9.0     .          .       .     -9.0     -9.0
-    ## 2       -9       -9.0 -9.0     Y      67002       M      9.5     93.5
-    ## 3       -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 4       -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 5       -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 6       -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 7       -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 8       -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 9       -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 10      -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 11      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 12      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 13      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 14      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 15      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 16      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 17      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 18      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 19      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 20      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 21      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 22      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 23      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 24      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 25      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 26      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 27      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 28      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 29      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 30      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 31      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 32      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 33      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 34      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 35      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 36      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 37      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 38      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 39      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 40      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 41      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 42      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 43      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 44      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 45      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 46      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 47      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 48      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 49      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 50      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 51      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 52      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 53      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 54      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 55      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 56      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 57      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 58      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 59      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 60      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 61      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 62      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 63      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 64      -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 65      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 66      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 67      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 68      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 69      -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 70      -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 71      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 72      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 73      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 74      -9       -9.0 -9.0     Y      67069       M      5.4     81.9
-    ## 75      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 76      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 77      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 78      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 79      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 80      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 81      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 82      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 83      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 84      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 85      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 86      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 87      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 88      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 89      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 90      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 91      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 92      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 93      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 94      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 95      -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 96      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 97      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 98      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 99      -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 100     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 101     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 102     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 103     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 104     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 105     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 106     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 107     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 108     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 109     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 110     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 111     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 112     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 113     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 114     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 115     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 116     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 117     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 118     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 119     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 120     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 121     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 122     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 123     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 124     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 125     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 126     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 127     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 128     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 129     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 130     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 131     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 132     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 133     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 134     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 135     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 136     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 137     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 138     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 139     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 140     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 141     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 142     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 143     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 144     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 145     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 146     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 147     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 148     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 149     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 150     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 151     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 152     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 153     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 154     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 155     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 156     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 157     -9       -9.0 -9.0     Y      67139       M     13.2    103.3
-    ## 158     -9       -9.0 -9.0     Y      67141       M      9.1     98.4
-    ## 159     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 160     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 161     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 162     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 163     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 164     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 165     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 166     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 167     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 168     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 169     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 170     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 171     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 172     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 173     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 174     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 175     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 176     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 177     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 178     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 179     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 180     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 181     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 182     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 183     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 184     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 185     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 186     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 187     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 188     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 189     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 190     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 191     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 192     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 193     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 194     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 195     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 196     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 197     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 198     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 199     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 200     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 201     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 202     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 203     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 204     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 205     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 206     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 207     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 208     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 209     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 210     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 211     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 212     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 213     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 214     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 215     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 216     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 217     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 218     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 219     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 220     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 221     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 222     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 223     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 224     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 225     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 226     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 227     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 228     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 229     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 230     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 231     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 232     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 233     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 234     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 235     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 236     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 237     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 238     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 239     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 240     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 241     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 242     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 243     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 244     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 245     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 246     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 247     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 248     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 249     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 250     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 251     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 252     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 253     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 254     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 255     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 256     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 257     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 258     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 259     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 260     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 261     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 262     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 263     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 264     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 265     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 266     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 267     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 268     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 269     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 270     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 271     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 272     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 273     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 274     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 275     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 276     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 277     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 278     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 279     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 280     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 281     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 282     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 283     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 284     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 285     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 286     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 287     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 288     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 289     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 290     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 291     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 292     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 293     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 294     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 295     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 296     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 297     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 298     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 299     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 300     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 301     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 302     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 303     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 304     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 305     -9       -9.0 -9.0     Y      68469       F      4.5     76.0
-    ## 306     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 307     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 308     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 309     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 310     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 311     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 312     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 313     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 314     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 315     -9       -9.0 -9.0     Y      68471       M      8.6     87.7
-    ## 316     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 317     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 318     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 319     -9       -9.0 -9.0     Y      68475       M      5.0     77.0
-    ## 320     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 321     -9       -9.0 -9.0     Y      68477       M      2.2     59.4
-    ## 322     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 323     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 324     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 325     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 326     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 327     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 328     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 329     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 330     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 331     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 332     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 333     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 334     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 335     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 336     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 337     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 338     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 339     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 340     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 341     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 342     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 343     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 344     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 345     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 346     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 347     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 348     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 349     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 350     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 351     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 352     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 353     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 354     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 355     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 356     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 357     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 358     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 359     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 360     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 361     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 362     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 363     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 364     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 365     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 366     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 367     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 368     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 369     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 370     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 371     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 372     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 373     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 374     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 375     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 376     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 377     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 378     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 379     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 380     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 381     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 382     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 383     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 384     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 385     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 386     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 387     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 388     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 389     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 390     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 391     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 392     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 393     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 394     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 395     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 396     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 397     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 398     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 399     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 400     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 401     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 402     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 403     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 404     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 405     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 406     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 407     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 408     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 409     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 410     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 411     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 412     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 413     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 414     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 415     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 416     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 417     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 418     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 419     -9       -9.0 -9.0     Y      68575       F      5.1     75.0
-    ## 420     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 421     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 422     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 423     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 424     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 425     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 426     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 427     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 428     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 429     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 430     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 431     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 432     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 433     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 434     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 435     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 436     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 437     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 438     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 439     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 440     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 441     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 442     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 443     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 444     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 445     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 446     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 447     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 448     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 449     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 450     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 451     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 452     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 453     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 454     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 455     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 456     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 457     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 458     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 459     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 460     -9       -9.0 -9.0     D          .       .     -9.0     -9.0
-    ## 461     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 462     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 463     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 464     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 465     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 466     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 467     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 468     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 469     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 470     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 471     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 472     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 473     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 474     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 475     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 476     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 477     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 478     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 479     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 480     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 481     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 482     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 483     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 484     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 485     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 486     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 487     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 488     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 489     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 490     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 491     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 492     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 493     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 494     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 495     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 496     -9       -9.0 -9.0     U          .       .     -9.0     -9.0
-    ## 497     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 498     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 499     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 500     -9       -9.0 -9.0     Y          .       U     -9.0     -9.0
-    ## 501     -9       -9.0 -9.0     .          .       .     -9.0     -9.0
-    ## 502     -9       84.0 53.5     .          .       .     -9.0     -9.0
-    ## 503     -9       79.0 50.0     N          .       .     -9.0     -9.0
-    ## 504     -9       78.5 55.0     N          .       .     -9.0     -9.0
-    ## 505     -9       75.0 45.6     N          .       .     -9.0     -9.0
-    ## 506     -9       72.5 48.4     N          .       .     -9.0     -9.0
-    ## 507     -9       80.0 46.8     Y AIW-04-06a       M      2.2     -9.0
-    ## 508     -9       75.0 45.6     N          .       .     -9.0     -9.0
-    ##     PUP_CURVLGTH FETUS_PRES FETUS_NUM FETUS_SEX FETUS_WT FETUS_LTH FE_REP_CON
-    ## 1             -9          .        -9         .     -9.0      -9.0          .
-    ## 2             96          N         0         .     -9.0      -9.0        ANE
-    ## 3             -9          .        -9         .     -9.0      -9.0          .
-    ## 4             -9          .        -9         .     -9.0      -9.0          .
-    ## 5             -9          .        -9         .     -9.0      -9.0          .
-    ## 6             -9          .        -9         .     -9.0      -9.0          .
-    ## 7             -9          .        -9         .     -9.0      -9.0          .
-    ## 8             -9          N         0         .     -9.0      -9.0        UNI
-    ## 9             -9          .        -9         .     -9.0      -9.0          .
-    ## 10            -9          N         0         .     -9.0      -9.0        ANE
-    ## 11            -9          N         0         .     -9.0      -9.0        ANE
-    ## 12            -9          N         0         .     -9.0      -9.0        ANE
-    ## 13            -9          N         0         .     -9.0      -9.0        ANE
-    ## 14            -9          N         0         .     -9.0      -9.0        ANE
-    ## 15            -9          N         0         .     -9.0      -9.0        ANE
-    ## 16            -9          Y         1         M      9.4       8.9        IMP
-    ## 17            -9          .        -9         .     -9.0      -9.0          .
-    ## 18            -9          N         0         .     -9.0      -9.0        UNI
-    ## 19            -9          N         0         .     -9.0      -9.0        ANE
-    ## 20            -9          .        -9         .     -9.0      -9.0          .
-    ## 21            -9          .        -9         .     -9.0      -9.0          .
-    ## 22            -9          .        -9         .     -9.0      -9.0          .
-    ## 23            -9          N         0         .     -9.0      -9.0        POS
-    ## 24            -9          N         0         .     -9.0      -9.0        ANE
-    ## 25            -9          N         0         .     -9.0      -9.0        ANE
-    ## 26            -9          .        -9         .     -9.0      -9.0          .
-    ## 27            -9          .        -9         .     -9.0      -9.0          .
-    ## 28            -9          .        -9         .     -9.0      -9.0          .
-    ## 29            -9          N         0         .     -9.0      -9.0        ANE
-    ## 30            -9          Y         1         U     -9.0      -9.0        IMP
-    ## 31            -9          .        -9         .     -9.0      -9.0          .
-    ## 32            -9          N         0         .     -9.0      -9.0        ANE
-    ## 33            -9          N         0         .     -9.0      -9.0        UNI
-    ## 34            -9          N         0         .     -9.0      -9.0        ANE
-    ## 35            -9          N         0         .     -9.0      -9.0        ANE
-    ## 36            -9          Y         1         F     24.8      14.0        IMP
-    ## 37            -9          Y         1         F    399.0      48.0        IMP
-    ## 38            -9          .        -9         .     -9.0      -9.0          .
-    ## 39            -9          N         0         .     -9.0      -9.0        ANE
-    ## 40            -9          N         0         .     -9.0      -9.0        ANE
-    ## 41            -9          N         0         .     -9.0      -9.0        PRO
-    ## 42            -9          N         0         .     -9.0      -9.0        ANE
-    ## 43            -9          Y         1         F      4.7       7.2        IMP
-    ## 44            -9          N         0         .     -9.0      -9.0        ANE
-    ## 45            -9          N         0         .     -9.0      -9.0        UNI
-    ## 46            -9          .        -9         .     -9.0      -9.0          .
-    ## 47            -9          N         0         .     -9.0      -9.0        ANE
-    ## 48            -9          N         0         .     -9.0      -9.0        ANE
-    ## 49            -9          N         0         .     -9.0      -9.0        EST
-    ## 50            -9          N         0         .     -9.0      -9.0        ANE
-    ## 51            -9          N         0         .     -9.0      -9.0        UNI
-    ## 52            -9          N         0         .     -9.0      -9.0        ANE
-    ## 53            -9          N         0         .     -9.0      -9.0        ANE
-    ## 54            -9          .        -9         .     -9.0      -9.0          .
-    ## 55            -9          N         0         .     -9.0      -9.0        ANE
-    ## 56            -9          N         0         .     -9.0      -9.0        ANE
-    ## 57            -9          N         0         .     -9.0      -9.0        ANE
-    ## 58            -9          N         0         .     -9.0      -9.0        PRO
-    ## 59            -9          .        -9         .     -9.0      -9.0          .
-    ## 60            -9          N         0         .     -9.0      -9.0        ANE
-    ## 61            -9          Y         1         M   1524.0      58.0        IMP
-    ## 62            -9          N         0         .     -9.0      -9.0        UNI
-    ## 63            -9          .        -9         .     -9.0      -9.0          .
-    ## 64            -9          N         0         .     -9.0      -9.0        ANE
-    ## 65            -9          N         0         .     -9.0      -9.0        ANE
-    ## 66            -9          N         0         .     -9.0      -9.0        ANE
-    ## 67            -9          N         0         .     -9.0      -9.0        UNI
-    ## 68            -9          N         0         .     -9.0      -9.0        UNI
-    ## 69            -9          N         0         .     -9.0      -9.0        ANE
-    ## 70            -9          .        -9         .     -9.0      -9.0          .
-    ## 71            -9          .        -9         .     -9.0      -9.0          .
-    ## 72            -9          Y         1         F      1.6       6.5        IMP
-    ## 73            -9          N         0         .     -9.0      -9.0          .
-    ## 74            84          N         0         .     -9.0      -9.0        ANE
-    ## 75            -9          N         0         .     -9.0      -9.0        ANE
-    ## 76            -9          N         0         .     -9.0      -9.0        UNI
-    ## 77            -9          .        -9         .     -9.0      -9.0          .
-    ## 78            -9          N         0         .     -9.0      -9.0        ANE
-    ## 79            -9          N         0         .     -9.0      -9.0        ANE
-    ## 80            -9          N         0         .     -9.0      -9.0        ANE
-    ## 81            -9          .        -9         .     -9.0      -9.0          .
-    ## 82            -9          Y         1         F    216.4      28.0        IMP
-    ## 83            -9          N         0         .     -9.0      -9.0        ANE
-    ## 84            -9          N         0         .     -9.0      -9.0        ANE
-    ## 85            -9          N         0         .     -9.0      -9.0        EST
-    ## 86            -9          .        -9         .     -9.0      -9.0          .
-    ## 87            -9          N         0         .     -9.0      -9.0        ANE
-    ## 88            -9          N         0         .     -9.0      -9.0        UNI
-    ## 89            -9          N         0         .     -9.0      -9.0        UNI
-    ## 90            -9          .        -9         .     -9.0      -9.0          .
-    ## 91            -9          N         0         .     -9.0      -9.0        ANE
-    ## 92            -9          N         0         .     -9.0      -9.0        ANE
-    ## 93            -9          N         0         .     -9.0      -9.0        UNI
-    ## 94            -9          N         0         .     -9.0      -9.0        UNI
-    ## 95            -9          .        -9         .     -9.0      -9.0          .
-    ## 96            -9          Y         1         F     16.6      11.5        IMP
-    ## 97            -9          N         0         .     -9.0      -9.0        PRO
-    ## 98            -9          N         0         .     -9.0      -9.0        ANE
-    ## 99            -9          N         0         .     -9.0      -9.0        ANE
-    ## 100           -9          Y         1         M     43.0      14.6        IMP
-    ## 101           -9          N         0         .     -9.0      -9.0        ANE
-    ## 102           -9          N         0         .     -9.0      -9.0        ANE
-    ## 103           -9          .        -9         .     -9.0      -9.0          .
-    ## 104           -9          .        -9         .     -9.0      -9.0          .
-    ## 105           -9          N         0         .     -9.0      -9.0        PRO
-    ## 106           -9          .        -9         .     -9.0      -9.0          .
-    ## 107           -9          .        -9         .     -9.0      -9.0          .
-    ## 108           -9          Y         1         M   1778.0      59.0        IMP
-    ## 109           -9          N         0         .     -9.0      -9.0        ANE
-    ## 110           -9          N         0         .     -9.0      -9.0        PRO
-    ## 111           -9          N         0         .     -9.0      -9.0        ANE
-    ## 112           -9          N         0         .     -9.0      -9.0        ANE
-    ## 113           -9          Y         1         U      0.3      -9.0        IMP
-    ## 114           -9          N         0         .     -9.0      -9.0        ANE
-    ## 115           -9          Y         1         M    203.4      27.0        IMP
-    ## 116           -9          N         0         .     -9.0      -9.0        ANE
-    ## 117           -9          N         0         .     -9.0      -9.0        UNI
-    ## 118           -9          N         0         .     -9.0      -9.0        UNI
-    ## 119           -9          N         0         .     -9.0      -9.0        ANE
-    ## 120           -9          Y         1         U      0.7      -9.0        IMP
-    ## 121           -9          .        -9         .     -9.0      -9.0          .
-    ## 122           -9          Y         1         M    754.0      46.0        IMP
-    ## 123           -9          N         0         .     -9.0      -9.0        ANE
-    ## 124           -9          N         0         .     -9.0      -9.0        ANE
-    ## 125           -9          N         0         .     -9.0      -9.0        PRO
-    ## 126           -9          N         0         .     -9.0      -9.0        ANE
-    ## 127           -9          N         0         .     -9.0      -9.0        ANE
-    ## 128           -9          Y         1         F   1007.0      48.0        IMP
-    ## 129           -9          N         0         .     -9.0      -9.0        UNI
-    ## 130           -9          Y         1         F      3.4      -9.0        IMP
-    ## 131           -9          Y         1         F   1066.0      49.0        IMP
-    ## 132           -9          .        -9         .     -9.0      -9.0          .
-    ## 133           -9          N         0         .     -9.0      -9.0        ANE
-    ## 134           -9          Y         1         M   1138.0      52.0        IMP
-    ## 135           -9          .        -9         .     -9.0      -9.0          .
-    ## 136           -9          N         0         .     -9.0      -9.0        ANE
-    ## 137           -9          N         0         .     -9.0      -9.0        ANE
-    ## 138           -9          N         0         .     -9.0      -9.0        ANE
-    ## 139           -9          M         2         F   1822.0      61.5        IMP
-    ## 140           -9          M         1         M   1977.0      62.5        IMP
-    ## 141           -9          .        -9         .     -9.0      -9.0          .
-    ## 142           -9          N         0         .     -9.0      -9.0        ANE
-    ## 143           -9          .        -9         .     -9.0      -9.0          .
-    ## 144           -9          N         0         .     -9.0      -9.0        UNI
-    ## 145           -9          N         0         .     -9.0      -9.0        UNI
-    ## 146           -9          N         0         .     -9.0      -9.0        ANE
-    ## 147           -9          N         0         .     -9.0      -9.0        ANE
-    ## 148           -9          N         0         .     -9.0      -9.0        ANE
-    ## 149           -9          N         0         .     -9.0      -9.0        ANE
-    ## 150           -9          Y         1         M     67.9      18.0        IMP
-    ## 151           -9          N         0         .     -9.0      -9.0        ANE
-    ## 152           -9          N         0         .     -9.0      -9.0        ANE
-    ## 153           -9          .        -9         .     -9.0      -9.0          .
-    ## 154           -9          N         0         .     -9.0      -9.0        PRO
-    ## 155           -9          Y         1         F     10.2       9.7        IMP
-    ## 156           -9          N         0         .     -9.0      -9.0        POS
-    ## 157          106          N         0         .     -9.0      -9.0        ANE
-    ## 158          101          N         0         .     -9.0      -9.0          .
-    ## 159           -9          N         0         .     -9.0      -9.0        UNI
-    ## 160           -9          N         0         .     -9.0      -9.0        ANE
-    ## 161           -9          N         0         .     -9.0      -9.0        ANE
-    ## 162           -9          .        -9         .     -9.0      -9.0          .
-    ## 163           -9          N         0         .     -9.0      -9.0        UNI
-    ## 164           -9          N         0         .     -9.0      -9.0        PRO
-    ## 165           -9          N         0         .     -9.0      -9.0        PRO
-    ## 166           -9          .        -9         .     -9.0      -9.0          .
-    ## 167           -9          .        -9         .     -9.0      -9.0          .
-    ## 168           -9          N         0         .     -9.0      -9.0        ANE
-    ## 169           -9          N         0         .     -9.0      -9.0        POS
-    ## 170           -9          .        -9         .     -9.0      -9.0          .
-    ## 171           -9          N         0         .     -9.0      -9.0        ANE
-    ## 172           -9          N         0         .     -9.0      -9.0        UNI
-    ## 173           -9          .        -9         .     -9.0      -9.0          .
-    ## 174           -9          N         0         .     -9.0      -9.0        PRO
-    ## 175           -9          .        -9         .     -9.0      -9.0          .
-    ## 176           -9          Y         1         M   1066.0      51.2        IMP
-    ## 177           -9          N         0         .     -9.0      -9.0        ANE
-    ## 178           -9          N         0         .     -9.0      -9.0        UNI
-    ## 179           -9          .        -9         .     -9.0      -9.0          .
-    ## 180           -9          N         0         .     -9.0      -9.0        UNI
-    ## 181           -9          .        -9         .     -9.0      -9.0          .
-    ## 182           -9          .        -9         .     -9.0      -9.0          .
-    ## 183           -9          .        -9         .     -9.0      -9.0          .
-    ## 184           -9          N         0         .     -9.0      -9.0        ANE
-    ## 185           -9          Y         1         M     32.2      13.8        IMP
-    ## 186           -9          N         0         .     -9.0      -9.0          .
-    ## 187           -9          .        -9         .     -9.0      -9.0          .
-    ## 188           -9          N         0         .     -9.0      -9.0        UNI
-    ## 189           -9          Y         1         M   2112.0      65.0        IMP
-    ## 190           -9          Y         1         F     66.1      17.7        IMP
-    ## 191           -9          N         0         .     -9.0      -9.0        ANE
-    ## 192           -9          N         0         .     -9.0      -9.0        ANE
-    ## 193           -9          .        -9         .     -9.0      -9.0          .
-    ## 194           -9          Y         1         U      1.0      -9.0        IMP
-    ## 195           -9          .        -9         .     -9.0      -9.0          .
-    ## 196           -9          N         0         .     -9.0      -9.0        ANE
-    ## 197           -9          .        -9         .     -9.0      -9.0          .
-    ## 198           -9          N         0         .     -9.0      -9.0        UNI
-    ## 199           -9          N         0         .     -9.0      -9.0        ANE
-    ## 200           -9          .        -9         .     -9.0      -9.0          .
-    ## 201           -9          N         0         .     -9.0      -9.0        ANE
-    ## 202           -9          .        -9         .     -9.0      -9.0          .
-    ## 203           -9          M         1         M   1559.0      57.0        IMP
-    ## 204           -9          M         2         M   1363.0      58.0        IMP
-    ## 205           -9          N         0         .     -9.0      -9.0        PRO
-    ## 206           -9          N         0         .     -9.0      -9.0        ANE
-    ## 207           -9          N         0         .     -9.0      -9.0        ANE
-    ## 208           -9          N         0         .     -9.0      -9.0        ANE
-    ## 209           -9          N         0         .     -9.0      -9.0        EST
-    ## 210           -9          N         0         .     -9.0      -9.0        ANE
-    ## 211           -9          N         0         .     -9.0      -9.0        PRO
-    ## 212           -9          Y         1         M      4.9       7.5        IMP
-    ## 213           -9          .        -9         .     -9.0      -9.0          .
-    ## 214           -9          N         0         .     -9.0      -9.0        ANE
-    ## 215           -9          Y         1         F   1177.0      54.0        IMP
-    ## 216           -9          .        -9         .     -9.0      -9.0          .
-    ## 217           -9          .        -9         .     -9.0      -9.0          .
-    ## 218           -9          N         0         .     -9.0      -9.0        ANE
-    ## 219           -9          .        -9         .     -9.0      -9.0          .
-    ## 220           -9          N         0         .     -9.0      -9.0        ANE
-    ## 221           -9          .        -9         .     -9.0      -9.0          .
-    ## 222           -9          N         0         .     -9.0      -9.0        ANE
-    ## 223           -9          N         0         .     -9.0      -9.0        ANE
-    ## 224           -9          .        -9         .     -9.0      -9.0          .
-    ## 225           -9          N         0         .     -9.0      -9.0        PRO
-    ## 226           -9          N         0         .     -9.0      -9.0        PRO
-    ## 227           -9          .        -9         .     -9.0      -9.0          .
-    ## 228           -9          N         0         .     -9.0      -9.0        UNI
-    ## 229           -9          N         0         .     -9.0      -9.0        UNI
-    ## 230           -9          N         0         .     -9.0      -9.0        ANE
-    ## 231           -9          .        -9         .     -9.0      -9.0          .
-    ## 232           -9          N         0         .     -9.0      -9.0        ANE
-    ## 233           -9          .        -9         .     -9.0      -9.0          .
-    ## 234           -9          N         0         .     -9.0      -9.0        PRO
-    ## 235           -9          N         0         .     -9.0      -9.0        ANE
-    ## 236           -9          N         0         .     -9.0      -9.0        ANE
-    ## 237           -9          N         0         .     -9.0      -9.0        ANE
-    ## 238           -9          Y         1         F    808.0      43.0        IMP
-    ## 239           -9          Y         1         M   1667.0      58.0        IMP
-    ## 240           -9          N         0         .     -9.0      -9.0        EST
-    ## 241           -9          N         0         .     -9.0      -9.0        UNI
-    ## 242           -9          N         0         .     -9.0      -9.0        ANE
-    ## 243           -9          N         0         .     -9.0      -9.0        ANE
-    ## 244           -9          N         0         .     -9.0      -9.0        ANE
-    ## 245           -9          N         0         .     -9.0      -9.0        ANE
-    ## 246           -9          .        -9         .     -9.0      -9.0          .
-    ## 247           -9          N         0         .     -9.0      -9.0        ANE
-    ## 248           -9          Y         1         M    106.0      20.5        IMP
-    ## 249           -9          N         0         .     -9.0      -9.0        PRO
-    ## 250           -9          Y         1         M      3.9       7.5        IMP
-    ## 251           -9          .        -9         .     -9.0      -9.0          .
-    ## 252           -9          N         0         .     -9.0      -9.0        POS
-    ## 253           -9          N         0         .     -9.0      -9.0        ANE
-    ## 254           -9          .        -9         .     -9.0      -9.0          .
-    ## 255           -9          N         0         .     -9.0      -9.0        PRO
-    ## 256           -9          N         0         .     -9.0      -9.0        ANE
-    ## 257           -9          N         0         .     -9.0      -9.0        PRO
-    ## 258           -9          .        -9         .     -9.0      -9.0          .
-    ## 259           -9          N         0         .     -9.0      -9.0        ANE
-    ## 260           -9          .        -9         .     -9.0      -9.0          .
-    ## 261           -9          Y         1         M    348.0      33.5        IMP
-    ## 262           -9          N         0         .     -9.0      -9.0        ANE
-    ## 263           -9          .        -9         .     -9.0      -9.0          .
-    ## 264           -9          .        -9         .     -9.0      -9.0          .
-    ## 265           -9          N         0         .     -9.0      -9.0        ANE
-    ## 266           -9          N         0         .     -9.0      -9.0        ANE
-    ## 267           -9          .        -9         .     -9.0      -9.0          .
-    ## 268           -9          N         0         .     -9.0      -9.0        ANE
-    ## 269           -9          N         0         .     -9.0      -9.0        ANE
-    ## 270           -9          N         0         .     -9.0      -9.0        ANE
-    ## 271           -9          Y         1         U     -9.0      -9.0        IMP
-    ## 272           -9          N         0         .     -9.0      -9.0        ANE
-    ## 273           -9          .        -9         .     -9.0      -9.0          .
-    ## 274           -9          N         0         .     -9.0      -9.0        ANE
-    ## 275           -9          .        -9         .     -9.0      -9.0          .
-    ## 276           -9          .        -9         .     -9.0      -9.0          .
-    ## 277           -9          N         0         .     -9.0      -9.0        ANE
-    ## 278           -9          N         0         .     -9.0      -9.0        ANE
-    ## 279           -9          .        -9         .     -9.0      -9.0          .
-    ## 280           -9          N         0         .     -9.0      -9.0        PRO
-    ## 281           -9          N         0         .     -9.0      -9.0        ANE
-    ## 282           -9          N         0         .     -9.0      -9.0        ANE
-    ## 283           -9          N         0         .     -9.0      -9.0        ANE
-    ## 284           -9          N         0         .     -9.0      -9.0        ANE
-    ## 285           -9          N         0         .     -9.0      -9.0        ANE
-    ## 286           -9          .        -9         .     -9.0      -9.0          .
-    ## 287           -9          .        -9         .     -9.0      -9.0          .
-    ## 288           -9          N         0         .     -9.0      -9.0        ANE
-    ## 289           -9          N         0         .     -9.0      -9.0        ANE
-    ## 290           -9          Y         1         F    531.0      40.3        IMP
-    ## 291           -9          .        -9         .     -9.0      -9.0          .
-    ## 292           -9          Y         1         F    724.0      45.0        IMP
-    ## 293           -9          N         0         .     -9.0      -9.0        UNI
-    ## 294           -9          N         0         .     -9.0      -9.0        ANE
-    ## 295           -9          .        -9         .     -9.0      -9.0          .
-    ## 296           -9          N         0         .     -9.0      -9.0        POS
-    ## 297           -9          N         0         .     -9.0      -9.0        UNI
-    ## 298           -9          .        -9         .     -9.0      -9.0          .
-    ## 299           -9          Y         1         F     14.6      11.8        IMP
-    ## 300           -9          Y         1         U     -9.0      -9.0        IMP
-    ## 301           -9          N         0         .     -9.0      -9.0        ANE
-    ## 302           -9          .        -9         .     -9.0      -9.0          .
-    ## 303           -9          .        -9         .     -9.0      -9.0          .
-    ## 304           -9          .        -9         .     -9.0      -9.0          .
-    ## 305           78          N         0         .     -9.0      -9.0        ANE
-    ## 306           -9          N         0         .     -9.0      -9.0        ANE
-    ## 307           -9          N         0         .     -9.0      -9.0        PRO
-    ## 308           -9          N         0         .     -9.0      -9.0        ANE
-    ## 309           -9          N         0         .     -9.0      -9.0        ANE
-    ## 310           -9          N         0         .     -9.0      -9.0        ANE
-    ## 311           -9          N         0         .     -9.0      -9.0        ANE
-    ## 312           -9          N         0         .     -9.0      -9.0        ANE
-    ## 313           -9          N         0         .     -9.0      -9.0        ANE
-    ## 314           -9          .        -9         .     -9.0      -9.0          .
-    ## 315           90          N         0         .     -9.0      -9.0        ANE
-    ## 316           -9          .        -9         .     -9.0      -9.0          .
-    ## 317           -9          .        -9         .     -9.0      -9.0          .
-    ## 318           -9          N         0         .     -9.0      -9.0        UNI
-    ## 319           79          N         0         .     -9.0      -9.0        ANE
-    ## 320           -9          .        -9         .     -9.0      -9.0          .
-    ## 321           61          N         0         .     -9.0      -9.0        POS
-    ## 322           -9          .        -9         .     -9.0      -9.0          .
-    ## 323           -9          N         0         .     -9.0      -9.0        UNI
-    ## 324           -9          Y         1         M   1644.0      60.0        IMP
-    ## 325           -9          N         0         .     -9.0      -9.0        ANE
-    ## 326           -9          .        -9         .     -9.0      -9.0          .
-    ## 327           -9          N         0         .     -9.0      -9.0        EST
-    ## 328           -9          N         0         .     -9.0      -9.0        UNI
-    ## 329           -9          N         0         .     -9.0      -9.0        UNI
-    ## 330           -9          N         0         .     -9.0      -9.0        UNI
-    ## 331           -9          Y         1         M    839.0      48.0        IMP
-    ## 332           -9          .        -9         .     -9.0      -9.0          .
-    ## 333           -9          .        -9         .     -9.0      -9.0          .
-    ## 334           -9          .        -9         .     -9.0      -9.0          .
-    ## 335           -9          N         0         .     -9.0      -9.0        PRO
-    ## 336           -9          N         0         .     -9.0      -9.0        ANE
-    ## 337           -9          N         0         .     -9.0      -9.0        UNI
-    ## 338           -9          Y         1         F      3.0       6.6        IMP
-    ## 339           -9          N         0         .     -9.0      -9.0        ANE
-    ## 340           -9          N         0         .     -9.0      -9.0        EST
-    ## 341           -9          N         0         .     -9.0      -9.0        PRO
-    ## 342           -9          N         0         .     -9.0      -9.0        POS
-    ## 343           -9          N         0         .     -9.0      -9.0        ANE
-    ## 344           -9          N         0         .     -9.0      -9.0        UNI
-    ## 345           -9          N         0         .     -9.0      -9.0        POS
-    ## 346           -9          .        -9         .     -9.0      -9.0          .
-    ## 347           -9          .        -9         .     -9.0      -9.0          .
-    ## 348           -9          .        -9         .     -9.0      -9.0          .
-    ## 349           -9          N         0         .     -9.0      -9.0        ANE
-    ## 350           -9          N         0         .     -9.0      -9.0        ANE
-    ## 351           -9          N         0         .     -9.0      -9.0        ANE
-    ## 352           -9          N         0         .     -9.0      -9.0        ANE
-    ## 353           -9          .        -9         .     -9.0      -9.0          .
-    ## 354           -9          .        -9         .     -9.0      -9.0          .
-    ## 355           -9          Y         1         F   1730.0      59.5        IMP
-    ## 356           -9          N         0         .     -9.0      -9.0        UNI
-    ## 357           -9          .        -9         .     -9.0      -9.0          .
-    ## 358           -9          N         0         .     -9.0      -9.0        ANE
-    ## 359           -9          N         0         .     -9.0      -9.0        ANE
-    ## 360           -9          N         0         .     -9.0      -9.0        PRO
-    ## 361           -9          N         0         .     -9.0      -9.0        UNI
-    ## 362           -9          .        -9         .     -9.0      -9.0          .
-    ## 363           -9          N         0         .     -9.0      -9.0        ANE
-    ## 364           -9          N         0         .     -9.0      -9.0        PRO
-    ## 365           -9          N         0         .     -9.0      -9.0        UNI
-    ## 366           -9          .        -9         .     -9.0      -9.0          .
-    ## 367           -9          N         0         .     -9.0      -9.0        UNI
-    ## 368           -9          N         0         .     -9.0      -9.0        ANE
-    ## 369           -9          N         0         .     -9.0      -9.0        ANE
-    ## 370           -9          N         0         .     -9.0      -9.0        ANE
-    ## 371           -9          N         0         .     -9.0      -9.0        UNI
-    ## 372           -9          .        -9         .     -9.0      -9.0          .
-    ## 373           -9          .        -9         .     -9.0      -9.0          .
-    ## 374           -9          .        -9         .     -9.0      -9.0          .
-    ## 375           -9          .        -9         .     -9.0      -9.0          .
-    ## 376           -9          .        -9         .     -9.0      -9.0          .
-    ## 377           -9          .        -9         .     -9.0      -9.0          .
-    ## 378           -9          .        -9         .     -9.0      -9.0          .
-    ## 379           -9          .        -9         .     -9.0      -9.0          .
-    ## 380           -9          N         0         .     -9.0      -9.0        UNI
-    ## 381           -9          .        -9         .     -9.0      -9.0          .
-    ## 382           -9          N         0         .     -9.0      -9.0        ANE
-    ## 383           -9          N         0         .     -9.0      -9.0        PRO
-    ## 384           -9          N         0         .     -9.0      -9.0        UNI
-    ## 385           -9          .        -9         .     -9.0      -9.0          .
-    ## 386           -9          .        -9         .     -9.0      -9.0          .
-    ## 387           -9          N         0         .     -9.0      -9.0        UNI
-    ## 388           -9          Y         1         F      4.1      -9.0        IMP
-    ## 389           -9          .        -9         .     -9.0      -9.0          .
-    ## 390           -9          Y         1         M    282.0      31.0        IMP
-    ## 391           -9          N         0         .     -9.0      -9.0        ANE
-    ## 392           -9          Y         1         F    630.0      40.0        IMP
-    ## 393           -9          .        -9         .     -9.0      -9.0          .
-    ## 394           -9          N         0         .     -9.0      -9.0        ANE
-    ## 395           -9          .        -9         .     -9.0      -9.0          .
-    ## 396           -9          N         0         .     -9.0      -9.0        ANE
-    ## 397           -9          N         0         .     -9.0      -9.0        UNI
-    ## 398           -9          N         0         .     -9.0      -9.0        POS
-    ## 399           -9          N         0         .     -9.0      -9.0        ANE
-    ## 400           -9          N         0         .     -9.0      -9.0        EST
-    ## 401           -9          N         0         .     -9.0      -9.0        ANE
-    ## 402           -9          N         0         .     -9.0      -9.0        ANE
-    ## 403           -9          N         0         .     -9.0      -9.0        POS
-    ## 404           -9          .        -9         .     -9.0      -9.0          .
-    ## 405           -9          .        -9         .     -9.0      -9.0          .
-    ## 406           -9          N         0         .     -9.0      -9.0        ANE
-    ## 407           -9          .        -9         .     -9.0      -9.0          .
-    ## 408           -9          .        -9         .     -9.0      -9.0          .
-    ## 409           -9          .        -9         .     -9.0      -9.0          .
-    ## 410           -9          Y         1         M   1097.0      48.5        IMP
-    ## 411           -9          N         0         .     -9.0      -9.0        ANE
-    ## 412           -9          N         0         .     -9.0      -9.0        ANE
-    ## 413           -9          .        -9         .     -9.0      -9.0          .
-    ## 414           -9          N         0         .     -9.0      -9.0        ANE
-    ## 415           -9          N         0         .     -9.0      -9.0        UNI
-    ## 416           -9          .        -9         .     -9.0      -9.0          .
-    ## 417           -9          N         0         .     -9.0      -9.0        EST
-    ## 418           -9          .        -9         .     -9.0      -9.0          .
-    ## 419           77          N         0         .     -9.0      -9.0        POS
-    ## 420           -9          .        -9         .     -9.0      -9.0          .
-    ## 421           -9          .        -9         .     -9.0      -9.0          .
-    ## 422           -9          N         0         .     -9.0      -9.0        ANE
-    ## 423           -9          N         0         .     -9.0      -9.0        ANE
-    ## 424           -9          .        -9         .     -9.0      -9.0          .
-    ## 425           -9          .        -9         .     -9.0      -9.0          .
-    ## 426           -9          N         0         .     -9.0      -9.0        ANE
-    ## 427           -9          N         0         .     -9.0      -9.0        UNI
-    ## 428           -9          .        -9         .     -9.0      -9.0          .
-    ## 429           -9          .        -9         .     -9.0      -9.0          .
-    ## 430           -9          N         0         .     -9.0      -9.0        UNI
-    ## 431           -9          N         0         .     -9.0      -9.0        ANE
-    ## 432           -9          .        -9         .     -9.0      -9.0          .
-    ## 433           -9          N         0         .     -9.0      -9.0        ANE
-    ## 434           -9          N         0         .     -9.0      -9.0        UNI
-    ## 435           -9          .        -9         .     -9.0      -9.0          .
-    ## 436           -9          Y         1         F      9.9       9.7        IMP
-    ## 437           -9          N         0         .     -9.0      -9.0        PRO
-    ## 438           -9          .        -9         .     -9.0      -9.0          .
-    ## 439           -9          N         0         .     -9.0      -9.0        ANE
-    ## 440           -9          .        -9         .     -9.0      -9.0          .
-    ## 441           -9          .        -9         .     -9.0      -9.0          .
-    ## 442           -9          N         0         .     -9.0      -9.0        ANE
-    ## 443           -9          .        -9         .     -9.0      -9.0          .
-    ## 444           -9          .        -9         .     -9.0      -9.0          .
-    ## 445           -9          Y         1         U     -9.0      -9.0        IMP
-    ## 446           -9          .        -9         .     -9.0      -9.0          .
-    ## 447           -9          N         0         .     -9.0      -9.0        ANE
-    ## 448           -9          .        -9         .     -9.0      -9.0          .
-    ## 449           -9          N         0         .     -9.0      -9.0        ANE
-    ## 450           -9          N         0         .     -9.0      -9.0        PRO
-    ## 451           -9          .        -9         .     -9.0      -9.0          .
-    ## 452           -9          N         0         .     -9.0      -9.0        ANE
-    ## 453           -9          .        -9         .     -9.0      -9.0          .
-    ## 454           -9          N         0         .     -9.0      -9.0        ANE
-    ## 455           -9          .        -9         .     -9.0      -9.0          .
-    ## 456           -9          N         0         .     -9.0      -9.0        PRO
-    ## 457           -9          N         0         .     -9.0      -9.0        ANE
-    ## 458           -9          N         0         .     -9.0      -9.0        UNI
-    ## 459           -9          .        -9         .     -9.0      -9.0          .
-    ## 460           -9          .        -9         .     -9.0      -9.0          .
-    ## 461           -9          N         0         .     -9.0      -9.0        ANE
-    ## 462           -9          N         0         .     -9.0      -9.0        ANE
-    ## 463           -9          N         0         .     -9.0      -9.0        PRO
-    ## 464           -9          N         0         .     -9.0      -9.0        UNI
-    ## 465           -9          .        -9         .     -9.0      -9.0          .
-    ## 466           -9          N         0         .     -9.0      -9.0        ANE
-    ## 467           -9          N         0         .     -9.0      -9.0        ANE
-    ## 468           -9          N         0         .     -9.0      -9.0        ANE
-    ## 469           -9          .        -9         .     -9.0      -9.0          .
-    ## 470           -9          .        -9         .     -9.0      -9.0          .
-    ## 471           -9          N         0         .     -9.0      -9.0        ANE
-    ## 472           -9          .        -9         .     -9.0      -9.0          .
-    ## 473           -9          N         0         .     -9.0      -9.0        ANE
-    ## 474           -9          N         0         .     -9.0      -9.0        PRO
-    ## 475           -9          .        -9         .     -9.0      -9.0          .
-    ## 476           -9          N         0         .     -9.0      -9.0        ANE
-    ## 477           -9          .        -9         .     -9.0      -9.0          .
-    ## 478           -9          .        -9         .     -9.0      -9.0          .
-    ## 479           -9          N         0         .     -9.0      -9.0        ANE
-    ## 480           -9          Y         1         M    388.0      33.5        IMP
-    ## 481           -9          .        -9         .     -9.0      -9.0          .
-    ## 482           -9          N         0         .     -9.0      -9.0        ANE
-    ## 483           -9          .        -9         .     -9.0      -9.0          .
-    ## 484           -9          .        -9         .     -9.0      -9.0          .
-    ## 485           -9          .        -9         .     -9.0      -9.0          .
-    ## 486           -9          Y         1         U     -9.0      -9.0        IMP
-    ## 487           -9          N         0         .     -9.0      -9.0        UNI
-    ## 488           -9          Y         1         F   1126.0      53.0        IMP
-    ## 489           -9          .        -9         .     -9.0      -9.0          .
-    ## 490           -9          .        -9         .     -9.0      -9.0          .
-    ## 491           -9          N         0         .     -9.0      -9.0        ANE
-    ## 492           -9          N         0         .     -9.0      -9.0        EST
-    ## 493           -9          N         0         .     -9.0      -9.0        UNI
-    ## 494           -9          N         0         .     -9.0      -9.0        ANE
-    ## 495           -9          .        -9         .     -9.0      -9.0          .
-    ## 496           -9          N         0         .     -9.0      -9.0        PRO
-    ## 497           -9          .        -9         .     -9.0      -9.0          .
-    ## 498           -9          .        -9         .     -9.0      -9.0          .
-    ## 499           -9          .        -9         .     -9.0      -9.0          .
-    ## 500           -9          N         0         .     -9.0      -9.0        ANE
-    ## 501           -9          .        -9         .     -9.0      -9.0          .
-    ## 502           -9          .        -9         .     -9.0      -9.0          .
-    ## 503           -9          .        -9         .     -9.0      -9.0          .
-    ## 504           -9          .        -9         .     -9.0      -9.0          .
-    ## 505           -9          .        -9         .     -9.0      -9.0          .
-    ## 506           -9          .        -9         .     -9.0      -9.0          .
-    ## 507           -9          .        -9         .     -9.0      -9.0          .
-    ## 508           -9          .        -9         .     -9.0      -9.0          .
-    ##     FE_REP_STA PREGNANCY_STATUS CAN_DIA FINAL_AGE AGE_CATEGORY BACULA_LGTH
-    ## 1            .                .    -9.0        -9          7.0        -9.0
-    ## 2            M               NP    -9.0         7          7.0        -9.0
-    ## 3            .                .    -9.0         0          0.0        -9.0
-    ## 4            .                .    -9.0        11         13.0        15.8
-    ## 5            .                .    -9.0         7          7.0        -9.0
-    ## 6            .                .    -9.0         7          7.0        -9.0
-    ## 7            .                .    -9.0        10          7.0        15.9
-    ## 8            M               NP    -9.0         7          7.0        -9.0
-    ## 9            .                .    -9.0         7          7.0        -9.0
-    ## 10           M               NP    -9.0        -9          1.5        -9.0
-    ## 11           M               NP    -9.0        11         13.0        -9.0
-    ## 12           N               NP    -9.0        -9          1.5        -9.0
-    ## 13           N               NP    -9.0         4          7.0        -9.0
-    ## 14           P               NP    -9.0         5          7.0        -9.0
-    ## 15           P               NP    -9.0        -9          7.0        -9.0
-    ## 16           M                P    -9.0        -9          7.0        -9.0
-    ## 17           .                .    -9.0        -9          7.0        -9.0
-    ## 18           M               NP    -9.0         9          7.0        -9.0
-    ## 19           N               NP    -9.0        -9          1.5        -9.0
-    ## 20           .                .    -9.0        11         13.0        -9.0
-    ## 21           .                .    -9.0         6          7.0        14.9
-    ## 22           .                .    -9.0        -9          7.0        15.0
-    ## 23           M               NP    -9.0        -9          7.0        -9.0
-    ## 24           N               NP    -9.0         5          7.0        -9.0
-    ## 25           N               NP    -9.0         1          1.5        -9.0
-    ## 26           .                .    -9.0         8          7.0        -9.0
-    ## 27           .                .    -9.0         8          7.0        16.9
-    ## 28           .                .    -9.0         6          7.0        -9.0
-    ## 29           M               NP    -9.0         6          7.0        -9.0
-    ## 30           M                P    -9.0         5          7.0        -9.0
-    ## 31           .                .    -9.0         8          7.0        15.9
-    ## 32           N               NP    -9.0         1          1.5        -9.0
-    ## 33           M               NP    -9.0         6          7.0        -9.0
-    ## 34           N               NP    -9.0         1          1.5        -9.0
-    ## 35           M               NP    -9.0         5          7.0        -9.0
-    ## 36           M                P    -9.0         5          7.0        -9.0
-    ## 37           M                P    -9.0         5          7.0        -9.0
-    ## 38           .                .    -9.0        -9          7.0        -9.0
-    ## 39           N               NP    -9.0        -9          1.5        -9.0
-    ## 40           M               NP    -9.0         7          7.0        -9.0
-    ## 41           N               NP    -9.0         3          7.0        -9.0
-    ## 42           P               NP    -9.0         4          7.0        -9.0
-    ## 43           M                P    -9.0        -9          7.0        -9.0
-    ## 44           P               NP    -9.0         4          7.0        -9.0
-    ## 45           M               NP    -9.0         7          7.0        -9.0
-    ## 46           .                .    -9.0         8          7.0        -9.0
-    ## 47           M               NP    -9.0         8          7.0        -9.0
-    ## 48           N               NP    -9.0         1          1.5        -9.0
-    ## 49           M               NP    -9.0         5          7.0        -9.0
-    ## 50           N               NP    -9.0         2          1.5        -9.0
-    ## 51           M               NP    -9.0        -9          7.0        -9.0
-    ## 52           M               NP    -9.0         6          7.0        -9.0
-    ## 53           N               NP    -9.0         1          1.5        -9.0
-    ## 54           .                .    -9.0         7          7.0        14.8
-    ## 55           M               NP    -9.0        -9          7.0        -9.0
-    ## 56           M               NP    -9.0        10          7.0        -9.0
-    ## 57           M               NP    -9.0        -9          7.0        -9.0
-    ## 58           M               NP    -9.0        -9          7.0        -9.0
-    ## 59           .                .    -9.0         9          7.0        15.8
-    ## 60           N               NP    -9.0        -9          1.5        -9.0
-    ## 61           M                P    -9.0        -9          7.0        -9.0
-    ## 62           M               NP    -9.0         5          7.0        -9.0
-    ## 63           .                .    -9.0         7          7.0        14.3
-    ## 64           M               NP    -9.0        12         13.0        -9.0
-    ## 65           M               NP    -9.0        11         13.0        -9.0
-    ## 66           P               NP    -9.0        -9          7.0        -9.0
-    ## 67           M               NP    -9.0         7          7.0        -9.0
-    ## 68           M               NP    -9.0        -9          7.0        -9.0
-    ## 69           M               NP    -9.0        -9          7.0        -9.0
-    ## 70           .                .    -9.0         0          0.0         2.2
-    ## 71           .                .    -9.0         6          7.0        15.9
-    ## 72           M                P    -9.0         9          7.0        -9.0
-    ## 73           .               NP    -9.0         5          7.0        -9.0
-    ## 74           M               NP    -9.0         6          7.0        -9.0
-    ## 75           P               NP    -9.0         4          7.0        -9.0
-    ## 76           M               NP    -9.0         6          7.0        -9.0
-    ## 77           .                .    -9.0        -9          7.0        15.9
-    ## 78           N               NP    -9.0         2          1.5        -9.0
-    ## 79           M               NP    -9.0        -9          1.5        -9.0
-    ## 80           M               NP    -9.0        10          7.0        -9.0
-    ## 81           .                .    -9.0        -9          7.0        14.9
-    ## 82           M                P    -9.0         6          7.0        -9.0
-    ## 83           N               NP    -9.0        -9          7.0        -9.0
-    ## 84           M               NP    -9.0         5          7.0        -9.0
-    ## 85           P               NP    -9.0         4          7.0        -9.0
-    ## 86           .                .    -9.0        -9          7.0        15.5
-    ## 87           N               NP    -9.0         3          7.0        -9.0
-    ## 88           M               NP    -9.0         5          7.0        -9.0
-    ## 89           P               NP    -9.0         3          7.0        -9.0
-    ## 90           .                .    -9.0        -9          7.0        16.2
-    ## 91           M               NP    -9.0         6          7.0        -9.0
-    ## 92           P               NP    -9.0         4          7.0        -9.0
-    ## 93           M               NP    -9.0         5          7.0        -9.0
-    ## 94           M               NP    -9.0         5          7.0        -9.0
-    ## 95           .                .    -9.0        -9          7.0        16.1
-    ## 96           M                P    -9.0         5          7.0        -9.0
-    ## 97           M               NP    -9.0        -9          7.0        -9.0
-    ## 98           N               NP    -9.0         3          7.0        -9.0
-    ## 99           N               NP    -9.0        -9          7.0        -9.0
-    ## 100          M                P    -9.0         7          7.0        -9.0
-    ## 101          P               NP    -9.0         3          7.0        -9.0
-    ## 102          M               NP    -9.0         7          7.0        -9.0
-    ## 103          .                .    -9.0        -9          7.0        14.4
-    ## 104          .                .    -9.0         5          7.0        14.3
-    ## 105          M               NP    -9.0         9          7.0        -9.0
-    ## 106          .                .    -9.0         2          1.5        11.4
-    ## 107          .                .    -9.0        10          7.0        16.2
-    ## 108          M                P    -9.0         5          7.0        -9.0
-    ## 109          P               NP    -9.0         6          7.0        -9.0
-    ## 110          N               NP    -9.0         3          7.0        -9.0
-    ## 111          N               NP    -9.0         0          0.0        -9.0
-    ## 112          N               NP    -9.0        -9          1.5        -9.0
-    ## 113          P                P    -9.0         4          7.0        -9.0
-    ## 114          M               NP    -9.0         9          7.0        -9.0
-    ## 115          M                P    -9.0         8          7.0        -9.0
-    ## 116          P               NP    -9.0         7          7.0        -9.0
-    ## 117          M               NP    -9.0         7          7.0        -9.0
-    ## 118          M               NP    -9.0         5          7.0        -9.0
-    ## 119          M               NP    -9.0         8          7.0        -9.0
-    ## 120          M                P    -9.0         4          7.0        -9.0
-    ## 121          .                .    -9.0         7          7.0        16.2
-    ## 122          M                P    -9.0         8          7.0        -9.0
-    ## 123          N               NP    -9.0         2          1.5        -9.0
-    ## 124          N               NP    -9.0         3          7.0        -9.0
-    ## 125          N               NP    -9.0         4          7.0        -9.0
-    ## 126          P               NP    -9.0        -9          7.0        -9.0
-    ## 127          N               NP    -9.0         3          7.0        -9.0
-    ## 128          M                P    -9.0         5          7.0        -9.0
-    ## 129          M               NP    -9.0         5          7.0        -9.0
-    ## 130          M                P    -9.0         6          7.0        -9.0
-    ## 131          M                P    -9.0         7          7.0        -9.0
-    ## 132          .                .    -9.0         7          7.0        -9.0
-    ## 133          M               NP    -9.0         5          7.0        -9.0
-    ## 134          M                P    -9.0        -9          7.0        -9.0
-    ## 135          .                .    -9.0         7          7.0        14.8
-    ## 136          M               NP    -9.0        -9          7.0        -9.0
-    ## 137          P               NP    -9.0         6          7.0        -9.0
-    ## 138          P               NP    -9.0        -9          7.0        -9.0
-    ## 139          M                P    -9.0         7          7.0        -9.0
-    ## 140          M                P    -9.0         7          7.0        -9.0
-    ## 141          .                .    -9.0         0          0.0         6.5
-    ## 142          N               NP    -9.0         3          7.0        -9.0
-    ## 143          .                .    -9.0         0          0.0         5.6
-    ## 144          P               NP    -9.0         3          7.0        -9.0
-    ## 145          M               NP    -9.0         5          7.0        -9.0
-    ## 146          P               NP    -9.0         3          7.0        -9.0
-    ## 147          N               NP    -9.0         3          7.0        -9.0
-    ## 148          M               NP    -9.0         7          7.0        -9.0
-    ## 149          M               NP    -9.0         4          7.0        -9.0
-    ## 150          M                P    -9.0        -9          7.0        -9.0
-    ## 151          N               NP    -9.0         2          1.5        -9.0
-    ## 152          M               NP    -9.0         4          7.0        -9.0
-    ## 153          .                .    -9.0         6          7.0        14.9
-    ## 154          M               NP    -9.0         8          7.0        -9.0
-    ## 155          M                P    -9.0         5          7.0        -9.0
-    ## 156          M               NP    -9.0         4          7.0        -9.0
-    ## 157          P               NP    -9.0         4          7.0        -9.0
-    ## 158          .               NP    -9.0         4          7.0        -9.0
-    ## 159          P               NP    -9.0         6          7.0        -9.0
-    ## 160          M               NP    -9.0        11         13.0        -9.0
-    ## 161          N               NP    -9.0         3          7.0        -9.0
-    ## 162          .                .    -9.0         5          7.0        15.0
-    ## 163          M               NP    -9.0        -9          7.0        -9.0
-    ## 164          N               NP    -9.0         4          7.0        -9.0
-    ## 165          M               NP    -9.0        -9          7.0        -9.0
-    ## 166          .                .    -9.0        -9          0.0         7.7
-    ## 167          .                .    -9.0        11         13.0        16.1
-    ## 168          N               NP    -9.0         1          1.5        -9.0
-    ## 169          M               NP    -9.0        -9          7.0        -9.0
-    ## 170          .                .    -9.0         7          7.0        16.7
-    ## 171          N               NP    -9.0         0          0.0        -9.0
-    ## 172          M               NP    -9.0         8          7.0        -9.0
-    ## 173          .                .    -9.0         7          7.0        15.9
-    ## 174          P               NP    -9.0         4          7.0        -9.0
-    ## 175          .                .    -9.0         7          7.0        15.0
-    ## 176          M                P    -9.0         7          7.0        -9.0
-    ## 177          N               NP    -9.0         3          7.0        -9.0
-    ## 178          M               NP    -9.0         7          7.0        -9.0
-    ## 179          .                .    -9.0         8          7.0        16.2
-    ## 180          M               NP    -9.0         4          7.0        -9.0
-    ## 181          .                .    -9.0         6          7.0        14.1
-    ## 182          .                .    -9.0         9          7.0        15.8
-    ## 183          .                .    -9.0         7          7.0        15.7
-    ## 184          N               NP    -9.0         5          7.0        -9.0
-    ## 185          M                P    -9.0        -9          7.0        -9.0
-    ## 186          .               NP    -9.0         1          1.5        -9.0
-    ## 187          .                .    -9.0         8          7.0        15.3
-    ## 188          M               NP    -9.0         5          7.0        -9.0
-    ## 189          M                P    -9.0        -9          7.0        -9.0
-    ## 190          M                P    -9.0        11         13.0        -9.0
-    ## 191          N               NP    -9.0         2          1.5        -9.0
-    ## 192          M               NP    -9.0        -9          7.0        -9.0
-    ## 193          .                .    -9.0         5          7.0        14.1
-    ## 194          M                P    -9.0         6          7.0        -9.0
-    ## 195          .                .    -9.0         7          7.0        -9.0
-    ## 196          P               NP    -9.0         4          7.0        -9.0
-    ## 197          .                .    -9.0        -9          7.0        15.2
-    ## 198          M               NP    -9.0         9          7.0        -9.0
-    ## 199          N               NP    -9.0        -9          1.5        -9.0
-    ## 200          .                .    -9.0        -9          7.0        16.1
-    ## 201          .               NP    -9.0         8          7.0        -9.0
-    ## 202          .                .    -9.0         7          7.0        14.9
-    ## 203          M                P    -9.0         7          7.0        -9.0
-    ## 204          M                P    -9.0         7          7.0        -9.0
-    ## 205          M               NP    -9.0        -9          7.0        -9.0
-    ## 206          P               NP    -9.0         4          7.0        -9.0
-    ## 207          .               NP    -9.0         7          7.0        -9.0
-    ## 208          P               NP    -9.0        -9          7.0        -9.0
-    ## 209          M               NP    -9.0        10          7.0        -9.0
-    ## 210          N               NP    -9.0         0          0.0        -9.0
-    ## 211          .               NP    -9.0         6          7.0        -9.0
-    ## 212          M                P    -9.0        -9          7.0        -9.0
-    ## 213          .                .    -9.0        11         13.0        -9.0
-    ## 214          M               NP    -9.0        10          7.0        -9.0
-    ## 215          M                P    -9.0         4          7.0        -9.0
-    ## 216          .                .    -9.0         8          7.0        14.5
-    ## 217          .                .    -9.0         0          0.0         6.5
-    ## 218          P               NP    -9.0         4          7.0        -9.0
-    ## 219          .                .    -9.0        12         13.0        14.2
-    ## 220          M               NP    -9.0         7          7.0        -9.0
-    ## 221          .                .    -9.0         7          7.0        15.6
-    ## 222          N               NP    -9.0        -9          1.5        -9.0
-    ## 223          N               NP    -9.0        -9          1.5        -9.0
-    ## 224          .                .    -9.0         0          0.0         5.8
-    ## 225          M               NP    -9.0        10          7.0        -9.0
-    ## 226          M               NP    -9.0         9          7.0        -9.0
-    ## 227          .                .    -9.0         7          7.0        -9.0
-    ## 228          M               NP    -9.0         6          7.0        -9.0
-    ## 229          M               NP    -9.0         7          7.0        -9.0
-    ## 230          N               NP    -9.0        -9          1.5        -9.0
-    ## 231          .                .    -9.0        10          7.0        15.3
-    ## 232          N               NP    -9.0        -9          7.0        -9.0
-    ## 233          .                .    -9.0        -9          7.0        14.8
-    ## 234          M               NP    -9.0         7          7.0        -9.0
-    ## 235          N               NP    -9.0        -9          1.5        -9.0
-    ## 236          P               NP    -9.0         6          7.0        -9.0
-    ## 237          M               NP    -9.0         8          7.0        -9.0
-    ## 238          M                P    -9.0        -9          7.0        -9.0
-    ## 239          M                P    -9.0        -9          7.0        -9.0
-    ## 240          M               NP    -9.0         8          7.0        -9.0
-    ## 241          M               NP    -9.0         9          7.0        -9.0
-    ## 242          N               NP    -9.0         2          1.5        -9.0
-    ## 243          N               NP    -9.0         1          1.5        -9.0
-    ## 244          P               NP    -9.0         5          7.0        -9.0
-    ## 245          P               NP    -9.0         8          7.0        -9.0
-    ## 246          .                .    -9.0         6          7.0        13.5
-    ## 247          N               NP    -9.0        -9          7.0        -9.0
-    ## 248          M                P    -9.0         5          7.0        -9.0
-    ## 249          M               NP    -9.0         9          7.0        -9.0
-    ## 250          M                P    -9.0         9          7.0        -9.0
-    ## 251          .                .    -9.0        10          7.0        16.8
-    ## 252          M               NP    -9.0        15         13.0        -9.0
-    ## 253          N               NP    -9.0         7          7.0        -9.0
-    ## 254          .                .    -9.0         8          7.0        16.3
-    ## 255          M               NP    -9.0         8          7.0        -9.0
-    ## 256          P               NP    -9.0        -9          7.0        -9.0
-    ## 257          N               NP    -9.0         3          7.0        -9.0
-    ## 258          .                .    -9.0         6          7.0        15.9
-    ## 259          N               NP    -9.0         1          1.5        -9.0
-    ## 260          .                .    -9.0         6          7.0        15.8
-    ## 261          M                P    -9.0        -9          7.0        -9.0
-    ## 262          P               NP    -9.0        -9          7.0        -9.0
-    ## 263          .                .    -9.0         9          7.0        16.2
-    ## 264          .                .    -9.0         9          7.0        16.1
-    ## 265          M               NP    -9.0         7          7.0        -9.0
-    ## 266          P               NP    -9.0         5          7.0        -9.0
-    ## 267          .                .    -9.0         8          7.0        15.3
-    ## 268          N               NP    -9.0         2          1.5        -9.0
-    ## 269          M               NP    -9.0         8          7.0        -9.0
-    ## 270          N               NP    -9.0         3          7.0        -9.0
-    ## 271          P                P    -9.0         4          7.0        -9.0
-    ## 272          N               NP    -9.0        -9          1.5        -9.0
-    ## 273          .                .    -9.0         0          0.0         6.7
-    ## 274          N               NP    -9.0         2          1.5        -9.0
-    ## 275          .                .    -9.0         7          7.0        15.8
-    ## 276          .                .    -9.0         0          0.0         3.8
-    ## 277          M               NP    -9.0        -9          7.0        -9.0
-    ## 278          M               NP    -9.0         6          7.0        -9.0
-    ## 279          .                .    -9.0         8          7.0        15.9
-    ## 280          M               NP    -9.0        10          7.0        -9.0
-    ## 281          N               NP    -9.0         3          7.0        -9.0
-    ## 282          M               NP    -9.0        -9          7.0        -9.0
-    ## 283          M               NP    -9.0         9          7.0        -9.0
-    ## 284          M               NP    -9.0         7          7.0        -9.0
-    ## 285          N               NP    -9.0        -9          1.5        -9.0
-    ## 286          .                .    -9.0         5          7.0        16.4
-    ## 287          .                .    -9.0        -9          1.5        -9.0
-    ## 288          M               NP    -9.0        -9          7.0        -9.0
-    ## 289          M               NP    -9.0         7          7.0        -9.0
-    ## 290          M                P    -9.0        -9          7.0        -9.0
-    ## 291          .                .    -9.0         9          7.0        16.2
-    ## 292          M                P    -9.0         5          7.0        -9.0
-    ## 293          M               NP    -9.0        -9          7.0        -9.0
-    ## 294          M               NP    -9.0         6          7.0        -9.0
-    ## 295          .                .    -9.0         7          7.0        15.8
-    ## 296          M               NP    -9.0         8          7.0        -9.0
-    ## 297          M               NP    -9.0        11         13.0        -9.0
-    ## 298          .                .    -9.0         7          7.0        15.9
-    ## 299          M                P    -9.0        -9          7.0        -9.0
-    ## 300          M                P    -9.0         5          7.0        -9.0
-    ## 301          M               NP    -9.0         4          7.0        -9.0
-    ## 302          .                .    -9.0         0          0.0         4.6
-    ## 303          .                .    -9.0        -9          7.0        16.1
-    ## 304          .                .    -9.0        12         13.0        -9.0
-    ## 305          P               NP    -9.0        14         13.0        -9.0
-    ## 306          P               NP    -9.0         4          7.0        -9.0
-    ## 307          M               NP    -9.0        12         13.0        -9.0
-    ## 308          M               NP    -9.0        13         13.0        -9.0
-    ## 309          N               NP    -9.0         3          7.0        -9.0
-    ## 310          M               NP    -9.0         8          7.0        -9.0
-    ## 311          M               NP    -9.0        11         13.0        -9.0
-    ## 312          N               NP    -9.0         3          7.0        -9.0
-    ## 313          M               NP    -9.0        10          7.0        -9.0
-    ## 314          .               NP    -9.0         0          0.0        -9.0
-    ## 315          P               NP    -9.0        -9          7.0        -9.0
-    ## 316          .                .    -9.0         0          0.0        -9.0
-    ## 317          .                .    -9.0        12         13.0        -9.0
-    ## 318          M               NP    -9.0        11         13.0        -9.0
-    ## 319          M               NP    -9.0        10          7.0        -9.0
-    ## 320          .                .    -9.0         0          0.0        -9.0
-    ## 321          M               NP    -9.0         9          7.0        -9.0
-    ## 322          .                .    -9.0         0          0.0        -9.0
-    ## 323          M               NP    -9.0        -9          7.0        -9.0
-    ## 324          M                P    -9.0        11         13.0        -9.0
-    ## 325          M               NP    -9.0        10          7.0        -9.0
-    ## 326          .               NP    -9.0         0          0.0        -9.0
-    ## 327          M               NP    -9.0         5          7.0        -9.0
-    ## 328          M               NP    -9.0        12         13.0        -9.0
-    ## 329          M               NP    -9.0         8          7.0        -9.0
-    ## 330          M               NP    -9.0        12         13.0        -9.0
-    ## 331          M                P    -9.0        10          7.0        -9.0
-    ## 332          .                .    -9.0         8          7.0        -9.0
-    ## 333          .                .    -9.0        10          7.0        -9.0
-    ## 334          .                .    -9.0        12         13.0        -9.0
-    ## 335          N               NP    -9.0         3          7.0        -9.0
-    ## 336          M               NP    -9.0        10          7.0        -9.0
-    ## 337          P               NP    -9.0         2          1.5        -9.0
-    ## 338          M                P    -9.0         5          7.0        -9.0
-    ## 339          M               NP    -9.0        10          7.0        -9.0
-    ## 340          M               NP    -9.0         5          7.0        -9.0
-    ## 341          M               NP    -9.0         8          7.0        -9.0
-    ## 342          M               NP    -9.0        11         13.0        -9.0
-    ## 343          N               NP    -9.0         1          1.5        -9.0
-    ## 344          M               NP    -9.0         8          7.0        -9.0
-    ## 345          M               NP    -9.0         9          7.0        -9.0
-    ## 346          .               NP    -9.0         0          0.0        -9.0
-    ## 347          .                .    -9.0         0          0.0        -9.0
-    ## 348          .                .    -9.0         0          0.0        -9.0
-    ## 349          P               NP    -9.0         5          7.0        -9.0
-    ## 350          N               NP    -9.0         1          1.5        -9.0
-    ## 351          P               NP    -9.0         5          7.0        -9.0
-    ## 352          P               NP    -9.0         7          7.0        -9.0
-    ## 353          .                .    -9.0        14         13.0        -9.0
-    ## 354          .                .    -9.0         8          7.0        -9.0
-    ## 355          M                P    -9.0        10          7.0        -9.0
-    ## 356          M               NP    -9.0         8          7.0        -9.0
-    ## 357          .               NP    -9.0         0          0.0        -9.0
-    ## 358          N               NP    -9.0         1          1.5        -9.0
-    ## 359          N               NP    -9.0         2          1.5        -9.0
-    ## 360          N               NP    -9.0         3          7.0        -9.0
-    ## 361          M               NP    -9.0         7          7.0        -9.0
-    ## 362          .                .    -9.0         0          0.0        -9.0
-    ## 363          N               NP    -9.0         1          1.5        -9.0
-    ## 364          M               NP    -9.0        11         13.0        -9.0
-    ## 365          M               NP    -9.0         7          7.0        -9.0
-    ## 366          .                .    -9.0         6          7.0        -9.0
-    ## 367          M               NP    -9.0         7          7.0        -9.0
-    ## 368          M               NP    -9.0        -9          7.0        -9.0
-    ## 369          M               NP    -9.0        10          7.0        -9.0
-    ## 370          N               NP    -9.0         1          1.5        -9.0
-    ## 371          P               NP    -9.0         3          7.0        -9.0
-    ## 372          .               NP    -9.0         1          1.5        -9.0
-    ## 373          .                .    -9.0         7          7.0        -9.0
-    ## 374          .               NP    -9.0         1          1.5        -9.0
-    ## 375          .                .    -9.0        11         13.0        -9.0
-    ## 376          .                .    -9.0        12         13.0        -9.0
-    ## 377          .                .    -9.0         0          0.0        -9.0
-    ## 378          .                .    -9.0        11         13.0        -9.0
-    ## 379          .               NP    -9.0         1          1.5        -9.0
-    ## 380          P               NP    -9.0         9          7.0        -9.0
-    ## 381          .                .    -9.0         7          7.0        -9.0
-    ## 382          M               NP    -9.0        11         13.0        -9.0
-    ## 383          M               NP    -9.0        10          7.0        -9.0
-    ## 384          P               NP    -9.0         5          7.0        -9.0
-    ## 385          .                .    -9.0         0          0.0        -9.0
-    ## 386          .               NP    -9.0         0          0.0        -9.0
-    ## 387          M               NP    -9.0         6          7.0        -9.0
-    ## 388          M                P    -9.0         6          7.0        -9.0
-    ## 389          .               NP    -9.0         0          0.0        -9.0
-    ## 390          M                P    -9.0         9          7.0        -9.0
-    ## 391          P               NP    -9.0         8          7.0        -9.0
-    ## 392          M                P    -9.0         9          7.0        -9.0
-    ## 393          .                .    -9.0         8          7.0        -9.0
-    ## 394          N               NP    -9.0         4          7.0        -9.0
-    ## 395          .                .    -9.0         8          7.0        -9.0
-    ## 396          M               NP    -9.0         7          7.0        -9.0
-    ## 397          M               NP    -9.0        12         13.0        -9.0
-    ## 398          M               NP    -9.0         4          7.0        -9.0
-    ## 399          M               NP    -9.0        15         13.0        -9.0
-    ## 400          M               NP    -9.0         7          7.0        -9.0
-    ## 401          M               NP    -9.0        13         13.0        -9.0
-    ## 402          M               NP    -9.0         8          7.0        -9.0
-    ## 403          M               NP    -9.0        15         13.0        -9.0
-    ## 404          .               NP    -9.0         0          0.0        -9.0
-    ## 405          .               NP    -9.0         0          0.0        -9.0
-    ## 406          M               NP    -9.0         4          7.0        -9.0
-    ## 407          .                .    -9.0         9          7.0        -9.0
-    ## 408          .               NP    -9.0         0          0.0        -9.0
-    ## 409          .                .    -9.0         0          0.0        -9.0
-    ## 410          M                P    -9.0        13         13.0        -9.0
-    ## 411          M               NP    -9.0        10          7.0        -9.0
-    ## 412          P               NP    -9.0        10          7.0        -9.0
-    ## 413          .               NP    -9.0         0          0.0        -9.0
-    ## 414          M               NP    -9.0        12         13.0        -9.0
-    ## 415          M               NP    -9.0         9          7.0        -9.0
-    ## 416          .                .    -9.0        10          7.0        -9.0
-    ## 417          M               NP    -9.0         6          7.0        -9.0
-    ## 418          .                .    -9.0        11         13.0        -9.0
-    ## 419          M               NP    -9.0        14         13.0        -9.0
-    ## 420          .               NP    -9.0         0          0.0        -9.0
-    ## 421          .                .    -9.0        10          7.0        -9.0
-    ## 422          M               NP    -9.0        10          7.0        -9.0
-    ## 423          M               NP    -9.0        10          7.0        -9.0
-    ## 424          .                .    -9.0         0          0.0        -9.0
-    ## 425          .                .    -9.0         7          7.0        -9.0
-    ## 426          N               NP    -9.0         2          1.5        -9.0
-    ## 427          M               NP    -9.0        15         13.0        -9.0
-    ## 428          .               NP    -9.0         0          0.0        -9.0
-    ## 429          .               NP    -9.0         0          0.0        -9.0
-    ## 430          M               NP    -9.0         4          7.0        -9.0
-    ## 431          N               NP    -9.0         1          1.5        -9.0
-    ## 432          .                .    -9.0         0          0.0        -9.0
-    ## 433          M               NP    -9.0         5          7.0        -9.0
-    ## 434          P               NP    -9.0         2          1.5        -9.0
-    ## 435          .                .    -9.0        11         13.0        -9.0
-    ## 436          M                P    -9.0         9          7.0        -9.0
-    ## 437          M               NP    -9.0        11         13.0        -9.0
-    ## 438          .               NP    -9.0         0          0.0        -9.0
-    ## 439          M               NP    -9.0        13         13.0        -9.0
-    ## 440          .               NP    -9.0         0          0.0        -9.0
-    ## 441          .               NP    -9.0         0          0.0        -9.0
-    ## 442          M               NP    -9.0        12         13.0        -9.0
-    ## 443          .               NP    -9.0         0          0.0        -9.0
-    ## 444          .               NP    -9.0         0          0.0        -9.0
-    ## 445          M                P    -9.0         5          7.0        -9.0
-    ## 446          .                .    -9.0         9          7.0        -9.0
-    ## 447          M               NP    -9.0        13         13.0        -9.0
-    ## 448          .                .    -9.0         0          0.0        -9.0
-    ## 449          M               NP    -9.0         6          7.0        -9.0
-    ## 450          N               NP    -9.0         3          7.0        -9.0
-    ## 451          .                .    -9.0        10          7.0        -9.0
-    ## 452          P               NP    -9.0         4          7.0        -9.0
-    ## 453          .                .    -9.0         1          1.5        -9.0
-    ## 454          M               NP    -9.0         9          7.0        -9.0
-    ## 455          .                .    -9.0         9          7.0        -9.0
-    ## 456          P               NP    -9.0         3          7.0        -9.0
-    ## 457          M               NP    -9.0        12         13.0        -9.0
-    ## 458          M               NP    -9.0        15         13.0        -9.0
-    ## 459          .                .    -9.0        13         13.0        -9.0
-    ## 460          .                .    -9.0         0          0.0        -9.0
-    ## 461          N               NP    -9.0         1          1.5        -9.0
-    ## 462          M               NP    -9.0        11         13.0        -9.0
-    ## 463          M               NP    -9.0        18         13.0        -9.0
-    ## 464          M               NP    -9.0        12         13.0        -9.0
-    ## 465          .                .    -9.0         0          0.0        -9.0
-    ## 466          N               NP    -9.0         2          1.5        -9.0
-    ## 467          N               NP    -9.0         2          1.5        -9.0
-    ## 468          M               NP    -9.0        -9          7.0        -9.0
-    ## 469          .                .    -9.0         8          7.0        -9.0
-    ## 470          .                .    -9.0         7          7.0        -9.0
-    ## 471          M               NP    -9.0         8          7.0        -9.0
-    ## 472          .                .    -9.0         8          7.0        -9.0
-    ## 473          M               NP    -9.0        17         13.0        -9.0
-    ## 474          M               NP    -9.0        13         13.0        -9.0
-    ## 475          .                .    -9.0         0          0.0        -9.0
-    ## 476          M               NP    -9.0        13         13.0        -9.0
-    ## 477          .               NP    -9.0         0          0.0        -9.0
-    ## 478          .                .    -9.0        10          7.0        -9.0
-    ## 479          M               NP    -9.0        10          7.0        -9.0
-    ## 480          M                P    -9.0         8          7.0        -9.0
-    ## 481          .               NP    -9.0         2          1.5        -9.0
-    ## 482          N               NP    -9.0         0          0.0        -9.0
-    ## 483          .                .    -9.0        13         13.0        -9.0
-    ## 484          .                .    -9.0        10          7.0        -9.0
-    ## 485          .                .    -9.0         6          7.0        -9.0
-    ## 486          M                P    -9.0         8          7.0        -9.0
-    ## 487          M               NP    -9.0        11         13.0        -9.0
-    ## 488          M                P    -9.0         6          7.0        -9.0
-    ## 489          .                .    -9.0        12         13.0        -9.0
-    ## 490          .                .    -9.0         8          7.0        -9.0
-    ## 491          M               NP    -9.0         9          7.0        -9.0
-    ## 492          P               NP    -9.0         3          7.0        -9.0
-    ## 493          M               NP    -9.0         7          7.0        -9.0
-    ## 494          M               NP    -9.0        10          7.0        -9.0
-    ## 495          .                .    -9.0         7          7.0        -9.0
-    ## 496          N               NP    -9.0         3          7.0        -9.0
-    ## 497          .                .    -9.0        -9          1.5        -9.0
-    ## 498          .                .    -9.0         8          7.0        -9.0
-    ## 499          .                .    -9.0         8          7.0        -9.0
-    ## 500          M               NP    -9.0        15         13.0        -9.0
-    ## 501          .                .    -9.0        10          7.0        -9.0
-    ## 502          .                .     8.8         5          7.0        17.5
-    ## 503          .               PP     8.0        12         13.0        -9.0
-    ## 504          .              NPP     7.9         8          7.0        -9.0
-    ## 505          .               NP     7.2         2          1.5        -9.0
-    ## 506          .               NP     7.2         2          1.5        -9.0
-    ## 507          .               NP     7.7         6          7.0        -9.0
-    ## 508          .              NPP     7.2         4          7.0        -9.0
-    ##     comments Cause_of_death_Capture_method
-    ## 1          .                             1
-    ## 2          .                             1
-    ## 3          .                             1
-    ## 4          .                             1
-    ## 5          .                             1
-    ## 6          .                             1
-    ## 7          .                             1
-    ## 8          .                             1
-    ## 9          .                             1
-    ## 10         .                             1
-    ## 11         .                             1
-    ## 12         .                             1
-    ## 13         .                             1
-    ## 14         .                             1
-    ## 15         .                             1
-    ## 16         .                             1
-    ## 17         .                             1
-    ## 18         .                             1
-    ## 19         .                             1
-    ## 20         .                             1
-    ## 21         .                             1
-    ## 22         .                             1
-    ## 23         .                             1
-    ## 24         .                             1
-    ## 25         .                             1
-    ## 26         .                             1
-    ## 27         .                             1
-    ## 28         .                             1
-    ## 29         .                             1
-    ## 30         .                             1
-    ## 31         .                             1
-    ## 32         .                             1
-    ## 33         .                             1
-    ## 34         .                             1
-    ## 35         .                             1
-    ## 36         .                             1
-    ## 37         .                             1
-    ## 38         .                             1
-    ## 39         .                             1
-    ## 40         .                             1
-    ## 41         .                             1
-    ## 42         .                             1
-    ## 43         .                             1
-    ## 44         .                             1
-    ## 45         .                             1
-    ## 46         .                             1
-    ## 47         .                             1
-    ## 48         .                             1
-    ## 49         .                             1
-    ## 50         .                             1
-    ## 51         .                             1
-    ## 52         .                             1
-    ## 53         .                             1
-    ## 54         .                             1
-    ## 55         .                             1
-    ## 56         .                             1
-    ## 57         .                             1
-    ## 58         .                             1
-    ## 59         .                             1
-    ## 60         .                             1
-    ## 61         .                             1
-    ## 62         .                             1
-    ## 63         .                             1
-    ## 64         .                             1
-    ## 65         .                             1
-    ## 66         .                             1
-    ## 67         .                             1
-    ## 68         .                             1
-    ## 69         .                             1
-    ## 70         .                             1
-    ## 71         .                             1
-    ## 72         .                             1
-    ## 73         .                             1
-    ## 74         .                             1
-    ## 75         .                             1
-    ## 76         .                             1
-    ## 77         .                             1
-    ## 78         .                             1
-    ## 79         .                             1
-    ## 80         .                             1
-    ## 81         .                             1
-    ## 82         .                             1
-    ## 83         .                             1
-    ## 84         .                             1
-    ## 85         .                             1
-    ## 86         .                             1
-    ## 87         .                             1
-    ## 88         .                             1
-    ## 89         .                             1
-    ## 90         .                             1
-    ## 91         .                             1
-    ## 92         .                             1
-    ## 93         .                             1
-    ## 94         .                             1
-    ## 95         .                             1
-    ## 96         .                             1
-    ## 97         .                             1
-    ## 98         .                             1
-    ## 99         .                             1
-    ## 100        .                             1
-    ## 101        .                             1
-    ## 102        .                             1
-    ## 103        .                             1
-    ## 104        .                             1
-    ## 105        .                             1
-    ## 106        .                             1
-    ## 107        .                             1
-    ## 108        .                             1
-    ## 109        .                             1
-    ## 110        .                             1
-    ## 111        .                             1
-    ## 112        .                             1
-    ## 113        .                             1
-    ## 114        .                             1
-    ## 115        .                             1
-    ## 116        .                             1
-    ## 117        .                             1
-    ## 118        .                             1
-    ## 119        .                             1
-    ## 120        .                             1
-    ## 121        .                             1
-    ## 122        .                             1
-    ## 123        .                             1
-    ## 124        .                             1
-    ## 125        .                             1
-    ## 126        .                             1
-    ## 127        .                             1
-    ## 128        .                             1
-    ## 129        .                             1
-    ## 130        .                             1
-    ## 131        .                             1
-    ## 132        .                             1
-    ## 133        .                             1
-    ## 134        .                             1
-    ## 135        .                             1
-    ## 136        .                             1
-    ## 137        .                             1
-    ## 138        .                             1
-    ## 139        .                             1
-    ## 140        .                             1
-    ## 141        .                             1
-    ## 142        .                             1
-    ## 143        .                             1
-    ## 144        .                             1
-    ## 145        .                             1
-    ## 146        .                             1
-    ## 147        .                             1
-    ## 148        .                             1
-    ## 149        .                             1
-    ## 150        .                             1
-    ## 151        .                             1
-    ## 152        .                             1
-    ## 153        .                             1
-    ## 154        .                             1
-    ## 155        .                             1
-    ## 156        .                             1
-    ## 157        .                             1
-    ## 158        .                             1
-    ## 159        .                             1
-    ## 160        .                             1
-    ## 161        .                             1
-    ## 162        .                             1
-    ## 163        .                             1
-    ## 164        .                             1
-    ## 165        .                             1
-    ## 166        .                             1
-    ## 167        .                             1
-    ## 168        .                             1
-    ## 169        .                             1
-    ## 170        .                             1
-    ## 171        .                             1
-    ## 172        .                             1
-    ## 173        .                             1
-    ## 174        .                             1
-    ## 175        .                             1
-    ## 176        .                             1
-    ## 177        .                             1
-    ## 178        .                             1
-    ## 179        .                             1
-    ## 180        .                             1
-    ## 181        .                             1
-    ## 182        .                             1
-    ## 183        .                             1
-    ## 184        .                             1
-    ## 185        .                             1
-    ## 186        .                             1
-    ## 187        .                             1
-    ## 188        .                             1
-    ## 189        .                             1
-    ## 190        .                             1
-    ## 191        .                             1
-    ## 192        .                             1
-    ## 193        .                             1
-    ## 194        .                             1
-    ## 195        .                             1
-    ## 196        .                             1
-    ## 197        .                             1
-    ## 198        .                             1
-    ## 199        .                             1
-    ## 200        .                             1
-    ## 201        .                             1
-    ## 202        .                             1
-    ## 203        .                             1
-    ## 204        .                             1
-    ## 205        .                             1
-    ## 206        .                             1
-    ## 207        .                             1
-    ## 208        .                             1
-    ## 209        .                             1
-    ## 210        .                             1
-    ## 211        .                             1
-    ## 212        .                             1
-    ## 213        .                             1
-    ## 214        .                             1
-    ## 215        .                             1
-    ## 216        .                             1
-    ## 217        .                             1
-    ## 218        .                             1
-    ## 219        .                             1
-    ## 220        .                             1
-    ## 221        .                             1
-    ## 222        .                             1
-    ## 223        .                             1
-    ## 224        .                             1
-    ## 225        .                             1
-    ## 226        .                             1
-    ## 227        .                             1
-    ## 228        .                             1
-    ## 229        .                             1
-    ## 230        .                             1
-    ## 231        .                             1
-    ## 232        .                             1
-    ## 233        .                             1
-    ## 234        .                             1
-    ## 235        .                             1
-    ## 236        .                             1
-    ## 237        .                             1
-    ## 238        .                             1
-    ## 239        .                             1
-    ## 240        .                             1
-    ## 241        .                             1
-    ## 242        .                             1
-    ## 243        .                             1
-    ## 244        .                             1
-    ## 245        .                             1
-    ## 246        .                             1
-    ## 247        .                             1
-    ## 248        .                             1
-    ## 249        .                             1
-    ## 250        .                             1
-    ## 251        .                             1
-    ## 252        .                             1
-    ## 253        .                             1
-    ## 254        .                             1
-    ## 255        .                             1
-    ## 256        .                             1
-    ## 257        .                             1
-    ## 258        .                             1
-    ## 259        .                             1
-    ## 260        .                             1
-    ## 261        .                             1
-    ## 262        .                             1
-    ## 263        .                             1
-    ## 264        .                             1
-    ## 265        .                             1
-    ## 266        .                             1
-    ## 267        .                             1
-    ## 268        .                             1
-    ## 269        .                             1
-    ## 270        .                             1
-    ## 271        .                             1
-    ## 272        .                             1
-    ## 273        .                             1
-    ## 274        .                             1
-    ## 275        .                             1
-    ## 276        .                             1
-    ## 277        .                             1
-    ## 278        .                             1
-    ## 279        .                             1
-    ## 280        .                             1
-    ## 281        .                             1
-    ## 282        .                             1
-    ## 283        .                             1
-    ## 284        .                             1
-    ## 285        .                             1
-    ## 286        .                             1
-    ## 287        .                             1
-    ## 288        .                             1
-    ## 289        .                             1
-    ## 290        .                             1
-    ## 291        .                             1
-    ## 292        .                             1
-    ## 293        .                             1
-    ## 294        .                             1
-    ## 295        .                             1
-    ## 296        .                             1
-    ## 297        .                             1
-    ## 298        .                             1
-    ## 299        .                             1
-    ## 300        .                             1
-    ## 301        .                             1
-    ## 302        .                             1
-    ## 303        .                             1
-    ## 304        .                             1
-    ## 305        .                             1
-    ## 306        .                             1
-    ## 307        .                             1
-    ## 308        .                             1
-    ## 309        .                             1
-    ## 310        .                             1
-    ## 311        .                             1
-    ## 312        .                             1
-    ## 313        .                             1
-    ## 314        .                             1
-    ## 315        .                             1
-    ## 316        .                             1
-    ## 317        .                             1
-    ## 318        .                             1
-    ## 319        .                             1
-    ## 320        .                             1
-    ## 321        .                             1
-    ## 322        .                             1
-    ## 323        .                             1
-    ## 324        .                             1
-    ## 325        .                             1
-    ## 326        .                             1
-    ## 327        .                             1
-    ## 328        .                             1
-    ## 329        .                             1
-    ## 330        .                             1
-    ## 331        .                             1
-    ## 332        .                             1
-    ## 333        .                             1
-    ## 334        .                             1
-    ## 335        .                             1
-    ## 336        .                             1
-    ## 337        .                             1
-    ## 338        .                             1
-    ## 339        .                             1
-    ## 340        .                             1
-    ## 341        .                             1
-    ## 342        .                             1
-    ## 343        .                             1
-    ## 344        .                             1
-    ## 345        .                             1
-    ## 346        .                             1
-    ## 347        .                             1
-    ## 348        .                             1
-    ## 349        .                             1
-    ## 350        .                             1
-    ## 351        .                             1
-    ## 352        .                             1
-    ## 353        .                             1
-    ## 354        .                             1
-    ## 355        .                             1
-    ## 356        .                             1
-    ## 357        .                             1
-    ## 358        .                             1
-    ## 359        .                             1
-    ## 360        .                             1
-    ## 361        .                             1
-    ## 362        .                             1
-    ## 363        .                             1
-    ## 364        .                             1
-    ## 365        .                             1
-    ## 366        .                             1
-    ## 367        .                             1
-    ## 368        .                             1
-    ## 369        .                             1
-    ## 370        .                             1
-    ## 371        .                             1
-    ## 372        .                             1
-    ## 373        .                             1
-    ## 374        .                             1
-    ## 375        .                             1
-    ## 376        .                             1
-    ## 377        .                             1
-    ## 378        .                             1
-    ## 379        .                             1
-    ## 380        .                             1
-    ## 381        .                             1
-    ## 382        .                             1
-    ## 383        .                             1
-    ## 384        .                             1
-    ## 385        .                             1
-    ## 386        .                             1
-    ## 387        .                             1
-    ## 388        .                             1
-    ## 389        .                             1
-    ## 390        .                             1
-    ## 391        .                             1
-    ## 392        .                             1
-    ## 393        .                             1
-    ## 394        .                             1
-    ## 395        .                             1
-    ## 396        .                             1
-    ## 397        .                             1
-    ## 398        .                             1
-    ## 399        .                             1
-    ## 400        .                             1
-    ## 401        .                             1
-    ## 402        .                             1
-    ## 403        .                             1
-    ## 404        .                             1
-    ## 405        .                             1
-    ## 406        .                             1
-    ## 407        .                             1
-    ## 408        .                             1
-    ## 409        .                             1
-    ## 410        .                             1
-    ## 411        .                             1
-    ## 412        .                             1
-    ## 413        .                             1
-    ## 414        .                             1
-    ## 415        .                             1
-    ## 416        .                             1
-    ## 417        .                             1
-    ## 418        .                             1
-    ## 419        .                             1
-    ## 420        .                             1
-    ## 421        .                             1
-    ## 422        .                             1
-    ## 423        .                             1
-    ## 424        .                             1
-    ## 425        .                             1
-    ## 426        .                             1
-    ## 427        .                             1
-    ## 428        .                             1
-    ## 429        .                             1
-    ## 430        .                             1
-    ## 431        .                             1
-    ## 432        .                             1
-    ## 433        .                             1
-    ## 434        .                             1
-    ## 435        .                             1
-    ## 436        .                             1
-    ## 437        .                             1
-    ## 438        .                             1
-    ## 439        .                             1
-    ## 440        .                             1
-    ## 441        .                             1
-    ## 442        .                             1
-    ## 443        .                             1
-    ## 444        .                             1
-    ## 445        .                             1
-    ## 446        .                             1
-    ## 447        .                             1
-    ## 448        .                             1
-    ## 449        .                             1
-    ## 450        .                             1
-    ## 451        .                             1
-    ## 452        .                             1
-    ## 453        .                             1
-    ## 454        .                             1
-    ## 455        .                             1
-    ## 456        .                             1
-    ## 457        .                             1
-    ## 458        .                             1
-    ## 459        .                             1
-    ## 460        .                             1
-    ## 461        .                             1
-    ## 462        .                             1
-    ## 463        .                             1
-    ## 464        .                             1
-    ## 465        .                             1
-    ## 466        .                             1
-    ## 467        .                             1
-    ## 468        .                             1
-    ## 469        .                             1
-    ## 470        .                             1
-    ## 471        .                             1
-    ## 472        .                             1
-    ## 473        .                             1
-    ## 474        .                             1
-    ## 475        .                             1
-    ## 476        .                             1
-    ## 477        .                             1
-    ## 478        .                             1
-    ## 479        .                             1
-    ## 480        .                             1
-    ## 481        .                             1
-    ## 482        .                             1
-    ## 483        .                             1
-    ## 484        .                             1
-    ## 485        .                             1
-    ## 486        .                             1
-    ## 487        .                             1
-    ## 488        .                             1
-    ## 489        .                             1
-    ## 490        .                             1
-    ## 491        .                             1
-    ## 492        .                             1
-    ## 493        .                             1
-    ## 494        .                             1
-    ## 495        .                             1
-    ## 496        .                             1
-    ## 497        .                             1
-    ## 498        .                             1
-    ## 499        .                             1
-    ## 500        .                             1
-    ## 501        .                             1
-    ## 502        .                             0
-    ## 503        .                             0
-    ## 504        .                             0
-    ## 505        .                             0
-    ## 506        .                             0
-    ## 507        .                             0
-    ## 508        .                             0
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](analysis_files/figure-gfm/spatial-difference-pws-wa-1.png)<!-- -->
+
+``` r
+#mapping weight by age category between the two locations (scatterplot)
+#how do I color this differently???
+seot_pws_wa %>% 
+  filter(FINAL_AGE > -1) %>% 
+  ggplot(data = seot_pws_wa, mapping = aes(x = FINAL_AGE, y = WEIGHT, color = FINAL_AGE)) + 
+  geom_jitter() +
+  scale_fill_brewer(palette = "Set3") +
+  facet_wrap(~REGION) +
+  geom_smooth(color = "firebrick") +
+  labs(x = "Final Age", 
+       y = "Weight (lbs)", 
+       color = "Final Age")
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+
+![](analysis_files/figure-gfm/jitter-weight-final-age-region-1.png)<!-- -->
+
+To statistically test this, we would want to perform an ANOVA test.
+
+### Age Category = 7
+
+Let’s compare the weight differences of otters that are in the age
+category of 5 between the different regions.
+
+``` r
+#creating a dataset that includes only the age classes that we want (7)
+seot_adult <- seot %>% 
+  filter(FINAL_AGE > 4) %>% 
+  filter(WEIGHT > 0)
+
+#creating the ANOVA test
+aovspatial2 <- aov(WEIGHT~REGION, data = seot_adult)
+summary(aovspatial2)
+```
+
+    ##               Df Sum Sq Mean Sq F value Pr(>F)    
+    ## REGION         5   9809  1961.8   74.94 <2e-16 ***
+    ## Residuals   1941  50809    26.2                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 47 observations deleted due to missingness
+
+``` r
+#Tukey HSD Test
+TukeyHSD(aovspatial2)
+```
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = WEIGHT ~ REGION, data = seot_adult)
+    ## 
+    ## $REGION
+    ##                                              diff        lwr       upr
+    ## east_aleutians-west_aleutians           9.1302121  -5.469668 23.730092
+    ## alaskan_peninsula-west_aleutians        7.9656960   5.314884 10.616508
+    ## southeast_alaska-west_aleutians         7.0851572   5.505131  8.665183
+    ## kodiak-west_aleutians                   7.2968788   5.010558  9.583199
+    ## prince_william_sound-west_aleutians     3.2037061   2.385739  4.021674
+    ## alaskan_peninsula-east_aleutians       -1.1645161 -15.992586 13.663554
+    ## southeast_alaska-east_aleutians        -2.0450549 -16.719568 12.629458
+    ## kodiak-east_aleutians                  -1.8333333 -16.600598 12.933932
+    ## prince_william_sound-east_aleutians    -5.9265060 -20.538622  8.685610
+    ## southeast_alaska-alaskan_peninsula     -0.8805388  -3.915610  2.154532
+    ## kodiak-alaskan_peninsula               -0.6688172  -4.124600  2.786965
+    ## prince_william_sound-alaskan_peninsula -4.7619899  -7.479386 -2.044593
+    ## kodiak-southeast_alaska                 0.2117216  -2.510798  2.934241
+    ## prince_william_sound-southeast_alaska  -3.8814511  -5.570806 -2.192096
+    ## prince_william_sound-kodiak            -4.0931727  -6.456370 -1.729976
+    ##                                            p adj
+    ## east_aleutians-west_aleutians          0.4764345
+    ## alaskan_peninsula-west_aleutians       0.0000000
+    ## southeast_alaska-west_aleutians        0.0000000
+    ## kodiak-west_aleutians                  0.0000000
+    ## prince_william_sound-west_aleutians    0.0000000
+    ## alaskan_peninsula-east_aleutians       0.9999230
+    ## southeast_alaska-east_aleutians        0.9987238
+    ## kodiak-east_aleutians                  0.9992710
+    ## prince_william_sound-east_aleutians    0.8571062
+    ## southeast_alaska-alaskan_peninsula     0.9624668
+    ## kodiak-alaskan_peninsula               0.9939175
+    ## prince_william_sound-alaskan_peninsula 0.0000093
+    ## kodiak-southeast_alaska                0.9999267
+    ## prince_william_sound-southeast_alaska  0.0000000
+    ## prince_william_sound-kodiak            0.0000125
+
+REPORT: The Western Aleutian otters who were older than 6 years of age
+were significantly heavier than otters that were captured in the south
+east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince
+William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472
+= 43.37, P \< 0.005).
