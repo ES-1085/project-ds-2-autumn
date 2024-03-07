@@ -189,7 +189,7 @@ seot_sex <- seot %>%
 ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
   geom_jitter() + 
   ylim(2,12) + 
-  geom_smooth() +
+  geom_smooth(color = "grey") +
   facet_grid(~SEX) +
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
@@ -260,7 +260,8 @@ seot_baculum <- seot %>%
 
 ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
   geom_jitter() + 
-  geom_smooth() + 
+  scale_fill_viridis_c(option = "magma") +
+  geom_smooth(color = "firebrick") +
   labs(title = "Baculum Length by Age", 
        x = "Final Age", 
        y = "Bacula Length (cm)", 
@@ -337,8 +338,8 @@ seot_model_baculum %>% tidy()
 seot_model_baculum_augment <- augment(seot_model_baculum$fit)
 
 ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.5) +
-  geom_hline(yintercept = 0, color = "gray", lty = "dashed") +
+  geom_jitter(alpha = 0.75) +
+  geom_smooth(color = "black") +
   labs(x = "Predicted Age", y = "Residuals")
 
 #assessing the r-squared value
@@ -349,14 +350,15 @@ glance(seot_model_baculum)$adj.r.squared
 
 ```{r weight-tail-length}
 #creating a plot that visualizes the relationship between weight and tail length
-ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, fill = WEIGHT)) + 
-  geom_point() +
-  scale_fill_viridis_c() +
-  ylim(10, 50) + 
-  xlim(0, 50) + 
-  geom_smooth() + 
+ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT)) + 
+  geom_point(alpha = 0.75) +
+  scale_fill_viridis_c("magma") +
+  ylim(15, 40) + 
+  xlim(0, 45) + 
+  geom_smooth(color = "black") + 
   labs(x = "Weight (kg)", 
-       y = "Mean Tail Length (cm)")
+       y = "Mean Tail Length (cm)", 
+       color = "Weight")
 ```
 
 ## Recapture Data 
@@ -409,19 +411,24 @@ seot_pws_wa <- seot %>%
 seot_pws_wa %>% 
   filter(AGE_CATEGORY > -1) %>% 
   filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT)) + 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT), fill = REGION) + 
   geom_histogram() + 
   facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
   labs(title = "Weight by Location", 
        x = "Weight (lbs)", 
        y = "Count")
+```
 
+```{r jitter-weight-final-age-region}
 #mapping weight by age category between the two locations (scatterplot)
+#how do I color this differently???
 seot_pws_wa %>% 
   filter(FINAL_AGE > -1) %>% 
   ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT, y = FINAL_AGE, color = FINAL_AGE)) + 
-  geom_jitter() + 
+  geom_jitter() +
+  scale_fill_brewer(palette = "Set3") +
   facet_wrap(~REGION) +
+  geom_smooth(color = "firebrick") +
   labs(x = "Weight (lbs)", 
        y = "Final Age", 
        color = "Final Age")
@@ -435,7 +442,7 @@ Let's compare the weight differences of otters that are in the age category of 5
 ```{r spatial-analysis-ANOVA}
 #creating a dataset that includes only the age classes that we want (7)
 seot_adult <- seot %>% 
-  filter(FINAL_AGE > 6) %>% 
+  filter(FINAL_AGE > 4) %>% 
   filter(WEIGHT > 0)
 
 #creating the ANOVA test
@@ -448,3 +455,4 @@ TukeyHSD(aovspatial2)
 
 REPORT: 
 The Western Aleutian otters who were older than 6 years of age were significantly heavier than otters that were captured in the south east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472 = 43.37, P < 0.005). 
+
