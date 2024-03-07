@@ -5,9 +5,9 @@ output: github_document
 ---
 
 # Loading the Data
-First, we'll want to load the appropriate packages and data for the analysis of this dataset. 
+First, we'll want to load the appropriate packages and data for the analysis of this dataset.
 
-```{r loading-packages}
+```{r loading-packages, echo = FALSE}
 library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 library(RColorBrewer)
@@ -18,7 +18,7 @@ library(plotly)
 library(gapminder)
 ```
 
-```{r reading-CSV}
+```{r reading-CSV, echo = FALSE}
 seot = read.csv("/cloud/project/data/seot.csv", h = T)
 ```
 
@@ -131,7 +131,7 @@ seot_taillength %>%
 andreanof_islands, western_alaskan_peninsula, southern_southeast_alaska, northern_southeast_alaska, eastern_alaskan_peninsula, kachemak_bay, western_prince_william_sound
 
 
-```{r}
+```{r determining which is eastern vs. western}
 seot %>% 
   filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
   ggplot(mapping = aes(x = LAT, y = LONG, color = AREA)) + 
@@ -148,7 +148,6 @@ seot %>%
    geom_histogram(binwidth = 1) + 
   xlim(0,25) + 
   facet_grid(~SEX)
-
 ```
 
 # Statistical Analysis 
@@ -159,11 +158,20 @@ The `PAW` variable is the width of the front paw at the widest point, as measure
 
 ```{r paw-general}
 #can I reorder this by region? eastern to western?
+seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
+
 seot %>% 
   filter(PAW > 0) %>% 
   ggplot(mapping = aes(x = REGION, y = PAW, color = REGION)) + 
   geom_boxplot() + 
   scale_x_discrete(guide = guide_axis(n.dodge = 3))
+```
+
+```{r determining which is eastern vs. western}
+seot %>% 
+  filter(REGION == "alaskan_peninsula"|REGION == "east_aleutians"|REGION == "kodiak"|REGION == "lower_cook_inlet"|REGION == "prince_william_sound"|REGION == "southeast_alaska"|REGION == "west_aleutians") %>% 
+  ggplot(mapping = aes(x = LAT, y = LONG, color = REGION)) + 
+  geom_point()
 ```
 
 ### Statistical Difference in Paw Size Between Sexes
