@@ -1,10 +1,11 @@
 ---
 title: "Data Tidying"
-author: "Autumn Pauly"
+author: "Asher Panikian and Autumn Pauly"
 output: github_document
+date:
 ---
 
-#Loading Data
+# Loading Data
 ```{r loading-packages}
 library(tidyverse)
 ```
@@ -17,10 +18,28 @@ seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv
 
 # Glimpsing Data
 ```{r glimpsing data}
-glimpse(seot$REGION)
+glimpse(seot)
 ```
 
-# Changing Regional Names
+A lot of the variables that are included in this dataset will not be used for analysis - a variety of these variables are used to determine the value of another variable (i.e. how `LGTH_1` is used to determine ``body_lgth`) and as such we will not need them in our analysis. We need to then select out which variables we will want to keep. 
+
+```{r selecting-variables}
+#selecting the variables that we want to keep
+seot <- seot %>% 
+  select(OTTER.NO, recap, DATE, YEAR, LOCATION, STATE, REGION, AREA, LAT, LONG, SEX, WEIGHT, true_standard_lgth, mean_tail_lgth, body_lgth, mean_girth, PAW, W_PUP, PUP_NUMBER, PUP_SEX, PUP_WGHT, PUP_LGTH, PUP_CURVLGTH, FETUS_PRES, FETUS_NUM, FETUS_SEX, FETUS_WT, FETUS_LTH, FE_REP_CON, FE_REP_STA, PREGNANCY_STATUS, CAN_DIA, AGE_CATEGORY, FINAL_AGE, BACULA_LGTH, Cause_of_death_Capture_method)
+```
+
+
+# Spatial Naming
+### Changing Regional Names
+A number of the regional names within this dataset are shortened, as you can see below. 
+
+```{r unique-regional-names}
+unique(seot$REGION)
+```
+
+We would like to rename these values so that the names are more intuitive yet still concise. This will help us with our data analysis and understanding, as neither of the project members are from Alaska nor are we familiar with what the areas the shortened names are referring to. 
+
 ```{r changing-region-names}
 #changing region variable to factor
 seot <- seot %>% 
@@ -37,13 +56,18 @@ seot <- seot %>%
                          "west aleutians" = "west_aleutians"))
 ```
 
+As we look at the number of observations per region, we can find that there is a large difference between the `west_aleutians` and the `east_aleutians`. This may prove to be an issue with spatial analysis, but further investigation into the locality of the otter capture will determine if any action is needed on the drastic difference in observations per region. 
+
 ```{r counting-region}
 seot %>% 
   count(REGION) %>% 
   arrange(desc(n))
 ```
 
-# Changing Area Names
+### Changing Area Names
+
+As was with the regional names, the area names are also shortened for ease of data entry. We will be changing these names to increase our subjective, intuitive analysis of this dataset. 
+
 ```{r changing-area-names}
 #changing area variable to factor
 seot <- seot %>% 
@@ -70,6 +94,8 @@ seot <- seot %>%
                           "shuyak" = "shuyak_island_kodiak" ))
 ```
 
+Much like the regional observations, there is a large difference between the number of observations per specific location. This will also need to be assessed to see if any further action will be needed for spatial analysis.
+
 ```{r counting-area}
 seot %>% 
   count(AREA) %>% 
@@ -77,13 +103,23 @@ seot %>%
 ```
 
 # Cleaning up NA values
-As shown in the codebook, the NA values found within this dataset are usually a negative integer. Let's change this so that the values are truly NA. 
+
+As shown in the codebook, the NA values found within this dataset are usually a negative integer. 
+
+```{r unique-negative-values}
+range(seot$WEIGHT)
+range(seot$true_standard_lgth)
+range(seot$mean_tail_lgth)
+range(seot$body_lgth)
+range(seot$mean_girth)
+range(seot$BACULA_LGTH)
+
+#and it goes on...
+```
+
+Let's change this so that the values are truly NA.
 
 ```{r making-na-values}
-#selecting the variables that we want to keep
-seot <- seot %>% 
-  select(OTTER.NO, recap, DATE, YEAR, LOCATION, STATE, REGION, AREA, LAT, LONG, SEX, WEIGHT, true_standard_lgth, mean_tail_lgth, body_lgth, mean_girth, PAW, W_PUP, PUP_NUMBER, PUP_SEX, PUP_WGHT, PUP_LGTH, PUP_CURVLGTH, FETUS_PRES, FETUS_NUM, FETUS_SEX, FETUS_WT, FETUS_LTH, FE_REP_CON, FE_REP_STA, PREGNANCY_STATUS, CAN_DIA, AGE_CATEGORY, FINAL_AGE, BACULA_LGTH, Cause_of_death_Capture_method)
-
 seot <- seot %>% 
 #weight of otter
   mutate(WEIGHT = if_else(WEIGHT < 0, NA, WEIGHT)) %>% 
@@ -107,25 +143,12 @@ seot <- seot %>%
 mutate(SEX = if_else(SEX == "U", NA, SEX))
 ```
 
-#Writing CSV
+Problem solved!
+
+# Writing CSV
 
 Now, we should write this new tidied dataset as a CSV so that it can be read across all the .Rmd files. 
+
 ```{r CSV-writing}
 write_csv(seot, "/cloud/project/data/seot.csv")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

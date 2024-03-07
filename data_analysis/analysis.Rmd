@@ -22,8 +22,8 @@ library(gapminder)
 seot = read.csv("/cloud/project/data/seot.csv", h = T)
 ```
 
-
 # Glimpsing the Data
+
 ## Yearly Observations
 First, let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985. This will need to be accounted for if there is any analysis on temporal differences. 
 
@@ -34,12 +34,14 @@ seot %>%
 
 #visualizing the observation per year in a histogram
 seot %>% 
-  ggplot(aes(x = YEAR)) +
-  geom_histogram(binwidth = 1) + 
+  ggplot(aes(x = YEAR, fill = YEAR)) +
+  geom_histogram(binwidth = 1) +
+  theme_minimal() +
   labs(title = "Count of Observations Per Year",
        x = "Year", 
        y = "Count")
 ```
+
 ### Heatmap
 We can create a heatmap to display morphometric measurements on a spatial scale. 
 
@@ -109,8 +111,9 @@ Report: The tail length of mature male otters (ages 5 and above) is significantl
 ** we need to check and see if there are any interactions within this statistic... I still don't trust it. 
 
 ### Tail Length by Area
-To break down the morphometric differences between the otters, let's begin by looking at the tail lengths of the individuals. 
 
+To break down the morphometric differences between the otters, let's begin by looking at the tail lengths of the individuals. 
+** should we bootstrap the data so that all of them have an equal representation? we'll see...
 ```{r tail-length-by-area}
 #first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
 
@@ -346,11 +349,14 @@ glance(seot_model_baculum)$adj.r.squared
 
 ```{r weight-tail-length}
 #creating a plot that visualizes the relationship between weight and tail length
-ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth)) + 
-  geom_point() + 
+ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, fill = WEIGHT)) + 
+  geom_point() +
+  scale_fill_viridis_c() +
   ylim(10, 50) + 
   xlim(0, 50) + 
-  geom_smooth()
+  geom_smooth() + 
+  labs(x = "Weight (kg)", 
+       y = "Mean Tail Length (cm)")
 ```
 
 ## Recapture Data 
