@@ -116,13 +116,28 @@ To break down the morphometric differences between the otters, let's begin by lo
 ** should we bootstrap the data so that all of them have an equal representation? we'll see...
 ```{r tail-length-by-area}
 #first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
+seot_taillength <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
+  mutate(AREA = fct_relevel(AREA, c("andreanof_islands", "western_alaskan_peninsula", "southern_southeast_alaska", "northern_southeast_alaska", "eastern_alaskan_peninsula", "kachemak_bay", "western_prince_william_sound")))
 
 #boxplot of tail length by area
-seot %>% 
+seot_taillength %>% 
   ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, color = AREA)) +
   geom_boxplot() + 
-  scale_x_discrete(guide = guide_axis(n.dodge = 5))
+  scale_fill_viridis_d()+
+  scale_x_discrete(guide = guide_axis(n.dodge = 4))
 ```
+
+andreanof_islands, western_alaskan_peninsula, southern_southeast_alaska, northern_southeast_alaska, eastern_alaskan_peninsula, kachemak_bay, western_prince_william_sound
+
+
+```{r}
+seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
+  ggplot(mapping = aes(x = LAT, y = LONG, color = AREA)) + 
+  geom_point()
+```
+
 
 ## Age Diversity Among Sexes With Observations
 
