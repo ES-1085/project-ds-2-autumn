@@ -124,12 +124,10 @@ seot_taillength <- seot %>%
 seot_taillength %>% 
   ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, color = AREA)) +
   geom_boxplot() + 
+  theme(axis.text.x = element_blank()) +
   scale_fill_viridis_d()+
   scale_x_discrete(guide = guide_axis(n.dodge = 4))
 ```
-
-andreanof_islands, western_alaskan_peninsula, southern_southeast_alaska, northern_southeast_alaska, eastern_alaskan_peninsula, kachemak_bay, western_prince_william_sound
-
 
 ```{r determining which is eastern vs. western}
 seot %>% 
@@ -145,7 +143,7 @@ seot %>%
 seot %>% 
   filter(SEX != "U") %>% 
   ggplot(aes(x=FINAL_AGE, fill = SEX)) + 
-   geom_histogram(binwidth = 1) + 
+   geom_histogram(binwidth = 1) +
   xlim(0,25) + 
   facet_grid(~SEX)
 ```
@@ -168,26 +166,31 @@ seot %>%
 ```
 
 ```{r determining which is eastern vs. western}
-seot %>% 
-  filter(REGION == "alaskan_peninsula"|REGION == "east_aleutians"|REGION == "kodiak"|REGION == "lower_cook_inlet"|REGION == "prince_william_sound"|REGION == "southeast_alaska"|REGION == "west_aleutians") %>% 
-  ggplot(mapping = aes(x = LAT, y = LONG, color = REGION)) + 
-  geom_point()
+#seot %>% 
+  #filter(REGION == "alaskan_peninsula"|REGION == "east_aleutians"|REGION == "kodiak"|REGION == "lower_cook_inlet"|REGION == "prince_william_sound"|REGION == "southeast_alaska"|REGION == "west_aleutians") %>% 
+  #ggplot(mapping = aes(x = LAT, y = LONG, color = REGION)) + 
+  #geom_point()
 ```
 
 ### Statistical Difference in Paw Size Between Sexes
+
+```{r histogram-paw}
+seot %>% 
+  filter(PAW > 0) %>% 
+  ggplot(mapping = aes(x = PAW, fill = SEX)) +
+  geom_histogram() + 
+  facet_wrap(~SEX, ncol = 1) + 
+  labs(x = "Paw Width (mm)", 
+       y = "Count", 
+       fill = "Sex")
+```
+
 ```{r ANOVA-paw-size}
 seot_paw <- seot %>% 
   filter(FINAL_AGE > 6)
 
 pawaov <- aov(PAW ~ SEX, data = seot)
 summary(pawaov)
-
-seot %>% 
-  filter(PAW > 0) %>% 
-  ggplot(mapping = aes(x = PAW, fill = SEX)) +
-  geom_histogram() + 
-  facet_wrap(~SEX, ncol = 1)
-
 ```
 
 
@@ -208,6 +211,18 @@ seot_sex <- seot %>%
   filter(CAN_DIA > 0) %>% 
   filter(FINAL_AGE > 0)
 
+
+#boxplot
+ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+  geom_boxplot() + 
+  ylim(2,12) + 
+  labs(title = "Canine Diameter by Sex",
+       x = "Sex",
+       y = "Diameter (mm)", 
+       color = "Sex")
+```
+
+```{r scatterplot-canine}
 #scatterplot
 ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
   geom_jitter() + 
@@ -219,12 +234,16 @@ ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) 
        y = "Diameter (mm)", 
        color = "Sex")
 
+```
+
+```{r interactive-plot-sex}
 #interactive scatterplot
 ggplotsex <- gapminder %>% 
   ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
   geom_jitter() + 
   ylim(2,12) + 
-  geom_smooth() +
+  scale_color_viridis_d(option = "inferno") +
+  geom_smooth(color = "firebrick4") +
   facet_grid(~SEX) +
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
@@ -233,15 +252,9 @@ ggplotsex <- gapminder %>%
 
 ggplotly(ggplotsex)
 
-#boxplot
-ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
-  geom_boxplot() + 
-  ylim(2,12) + 
-  labs(title = "Canine Diameter by Sex",
-       x = "Sex",
-       y = "Diameter (mm)", 
-       color = "Sex")
 ```
+
+
 
 ```{r canine-histogram}
 #histogram
@@ -384,6 +397,21 @@ ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT
        color = "Weight")
 ```
 
+With the tail length and the weight of the otter being both quantitative variables, we should use a simple regression statistical test to determine if there is a statistical significance. 
+
+```{r linear-model-tail-weight}
+#creating the linear model
+weight.tail.lm <- lm(mean_tail_lgth ~ WEIGHT, data = seot)
+
+summary(weight.tail.lm)
+```
+
+REPORT: There is a significant relationship (p < 0.001) between tail length and weight of adult otters (R2 = 2.14 ± 0.014), with a 0.23-mm increase in reported tail length for every year increase in the otter's age.
+
+The regression equation is: 
+tail length = 24.41 + 0.23(weight) ± 0.014. 
+
+
 ## Recapture Data 
 
 ```{r recaptured-otters}
@@ -396,11 +424,11 @@ seot %>%
 ```{r recapture-data-again}
 seot %>% 
   filter(OTTER.NO == "SO-01-28") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+  select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
 
 seot %>% 
   filter(OTTER.NO == "SO-02-07") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+  select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
 
 seot %>% 
   filter(FINAL_AGE > 0) %>% 
@@ -447,13 +475,13 @@ seot_pws_wa %>%
 #how do I color this differently???
 seot_pws_wa %>% 
   filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT, y = FINAL_AGE, color = FINAL_AGE)) + 
+  ggplot(data = seot_pws_wa, mapping = aes(x = FINAL_AGE, y = WEIGHT, color = FINAL_AGE)) + 
   geom_jitter() +
   scale_fill_brewer(palette = "Set3") +
   facet_wrap(~REGION) +
   geom_smooth(color = "firebrick") +
-  labs(x = "Weight (lbs)", 
-       y = "Final Age", 
+  labs(x = "Final Age", 
+       y = "Weight (lbs)", 
        color = "Final Age")
 ```
 
