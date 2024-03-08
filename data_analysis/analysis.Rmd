@@ -4,6 +4,9 @@ author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
 
+# Background Information
+
+
 # Loading the Data
 First, we'll want to load the appropriate packages and data for the analysis of this dataset.
 
