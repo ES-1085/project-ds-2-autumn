@@ -310,12 +310,11 @@ ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color 
 
 The statistics that we find with the Tukey HSD test that we performed is a little convoluted, so let's tidy this up and group ages into categories and try again. 
 
-```{r tukeyhsd-baculumlength-finalage}
+```{r tukeyhsd-baculumlength-finalage, message=FALSE}
 #create dataframe that includes the variables we want
 seot_baculum <- seot_baculum %>% 
   mutate(FINAL_AGE = as.factor(FINAL_AGE)) %>% 
   select(BACULA_LGTH, FINAL_AGE) 
-seot_baculum
 
 #creating the ANOVA test
 aovbaculum <- aov(BACULA_LGTH~FINAL_AGE, data = seot_baculum)
@@ -419,9 +418,8 @@ tail length = 24.41 + 0.23(weight) ± 0.014.
 
 ```{r recaptured-otters, include=FALSE}
 seot_recapture <- seot %>% 
-  mutate(OTTER.NO = as.factor(OTTER.NO)) %>% 
-  count(OTTER.NO) %>% 
-  arrange(desc(n))
+  select(YEAR, OTTER.NO, FINAL_AGE, WEIGHT, SEX) %>%
+  mutate(OTTER.NO = as.factor(OTTER.NO))
 ```
 
 ```{r recapture-data-again, include=FALSE}
