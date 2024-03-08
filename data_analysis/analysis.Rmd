@@ -5,7 +5,7 @@ output: github_document
 ---
 
 # Background Information
-
+[Insert background information here?]
 
 # Loading the Data
 First, we'll want to load the appropriate packages and data for the analysis of this dataset.
@@ -29,10 +29,10 @@ library(stringr)
 seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
 
-# Glimpsing the Data
+# Analyzing the Data
 
 ## Yearly Observations
-First, let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985. This will need to be accounted for if there is any analysis on temporal differences. 
+Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985. This will need to be accounted for if there is any analysis on temporal differences. 
 
 ```{r glimpsing data}
 #counting observations per year
@@ -90,9 +90,10 @@ seot_matrix_weights <- as.matrix(seot_meanweights)
 ## Tail Length Analysis
 
 ### Tail Length by Sex
+#### Creating Plots
 We know that sea otter tail lengths are known to be morphometrically different by sex. Let's see if this is true within this dataset. First, let's create a histogram that displays the tail lengths of the male and female otters.
 
-We will want to compare the tail lengths of fully grown adult otters. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five ([insert citation here]). To account for the age differences within this dataset, we will need to filter the `FINAL_AGE` variable to be greater than or equal to `5`. 
+We will want to compare the tail lengths of fully grown adult otters. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five ([insert citation here]). 
 
 ```{r tail-length-sex-histogram}
 seot %>% 
@@ -103,6 +104,10 @@ seot %>%
   geom_density() + 
   facet_wrap(~SEX, ncol = 1)
 ```
+
+#### Statistical Analysis
+
+With the predictor variable (`SEX`) being categorical and the outcome variable (`mean_tail_length`) being quantitative, we will want to use a Welch's Two Sample t-test to determine if there is a difference in tail sizes between sexes.
 
 ```{r tail-length-sex-statistics}
 #creating data frame with only adult otters
@@ -155,7 +160,6 @@ seot %>%
   facet_grid(~SEX)
 ```
 
-# Statistical Analysis 
 ## Paw Width and Prey
 The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
 
@@ -276,6 +280,8 @@ ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
         fill = "Sex")
 ```
 
+### Statistical Analysis
+
 To truly determine if the measurement of the canine diameter at the gum line is an appropriate metric by which to sex a sea otter, statistical testing should be performed. As was seen above, the distribution of both sexes appears to conform to a normal distribution. This suggests that we can use a test that follows a two-sample t-test with equal variance. 
 
 ```{r stats-canine-ttest}
@@ -310,6 +316,8 @@ ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color 
        y = "Bacula Length (cm)", 
        color = "Age")
 ```
+
+### Statistical Analysis
 
 The statistics that we find with the Tukey HSD test that we performed is a little convoluted, so let's tidy this up and group ages into categories and try again. 
 
@@ -352,7 +360,7 @@ TukeyHSD(aovbaculum2)
 
 REPORT: The baculum length of individuals who are ages 1 - 7 are significantly different than one another (one-way ANOVA, F_2,457, = 112, P < 0.005). In a Tukey HSD post-hoc test, the baculum length of individuals who were from ages 7 to 13 did not differ significantly (refer to Tukey multiple comparisons of means). This would suggest that you could use the baculum length to estimate the age of individuals who were 7 years or younger, but not for individuals who are over 7 years old. 
 
-# Creating a Model of Baculum Length by Age
+## Creating a Model of Baculum Length by Age
 
 ```{r install-tidymodels}
 #install.packages("tidymodels")
@@ -388,7 +396,9 @@ seot_bacula <- seot %>%
 ```
 
 ## Weight by Tail Length
+[insert background information here]
 
+### Creating Plots
 ```{r weight-tail-length, warning=FALSE}
 #creating a plot that visualizes the relationship between weight and tail length
 ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT)) + 
@@ -401,6 +411,8 @@ ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT
        y = "Mean Tail Length (cm)", 
        color = "Weight")
 ```
+
+### Statistical Analysis
 
 With the tail length and the weight of the otter being both quantitative variables, we should use a simple regression statistical test to determine if there is a statistical significance. 
 
@@ -415,7 +427,6 @@ REPORT: There is a significant relationship (p < 0.001) between tail length and 
 
 The regression equation is: 
 tail length = 24.41 + 0.23(weight) ± 0.014. 
-
 
 ## Recapture Data 
 
@@ -439,10 +450,10 @@ seot_recapture %>%
   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
 ```
 
-# Spatial Analysis
+## Spatial Analysis
 We want to determine if there is a difference of morphometric measurements on a spatial scale.
 
-## Introduction
+### Introduction
 First, let's see if there is a size difference between Prince William's Sound and the Western Aleutians. 
 
 ```{r lat-long-glimpse}
