@@ -15,7 +15,7 @@ library(tidyverse)
 #seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 
 #for Autumn's computer directory
-#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
+seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 ```
 
 # Glimpsing Data
