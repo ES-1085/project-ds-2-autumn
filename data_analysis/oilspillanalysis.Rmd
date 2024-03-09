@@ -1,0 +1,83 @@
+---
+title: "Oil Spill Analysis"
+author: "Autumn Pauly and Asher Panikian"
+output: github_document
+---
+
+# Background Information
+These data within the USFWS and USGS dataset was collected primarily during experimental harvests primarily conducted in the 1960's and 1970's, or during sea otter captures related to USFWS and USGS sea otter sampling and tagging studies conducted from the late 1980's up to and including 2019, or recovered dead during the 1989 Exxon Valdez Oil spill (EVOS).
+
+We were interested to see what types of otters were found dead after the 1989 Exxon Valdez Oil spill (EVOS) and if there were any commonalities between these deceased individuals. 
+
+# Loading the Data
+First, we'll want to load the appropriate packages and data for the analysis of this dataset.
+
+```{r loading-packages, echo = FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+library(RColorBrewer)
+library(stringr)
+#install.packages("plotly")
+#library(plotly)
+#install.packages("gapminder")
+#library(gapminder)
+```
+
+```{r reading-CSV, echo = FALSE}
+#posit cloud
+seot = read.csv("/cloud/project/data/seot.csv", h = T)
+
+#computer
+#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+```
+
+# Analyzing the Data
+
+#### Yearly Observations
+Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985, which will affect our data ethics. This will need to be accounted for if there is any analysis on temporal differences. 
+
+```{r glimpsing data}
+#counting observations per year
+#seot %>% 
+  #count(YEAR)
+
+#visualizing the observation per year in a histogram
+seot %>% 
+  ggplot(aes(x = YEAR, fill = STATE)) +
+  geom_histogram(binwidth = 1) +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "plasma") +
+  labs(title = "Count of Observations Per Year",
+       x = "Year", 
+       y = "Count")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

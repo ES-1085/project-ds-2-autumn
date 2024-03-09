@@ -1,5 +1,5 @@
 ---
-title: "Analysis"
+title: "Morphometric Analysis"
 author: "Autumn Pauly and Asher Panikian"
 output: github_document
 ---
@@ -23,7 +23,7 @@ library(stringr)
 
 ```{r reading-CSV, echo = FALSE}
 #posit cloud
-#seot = read.csv("/cloud/project/data/seot.csv", h = T)
+seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 #computer
 #seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
@@ -138,7 +138,7 @@ Just as with tail lengths, the total lengths of otters have been reported to be 
 
 We will again want to filter for the ages of the otters to be representative of the adult population. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five ([insert citation here]). 
 
-```{r tail-length-sex-histogram}
+```{r body-length-sex-histogram}
 seot %>% 
   filter(SEX == "M"|SEX == "F") %>% 
   filter(FINAL_AGE > 4) %>% 
@@ -155,7 +155,7 @@ seot %>%
 
 With the predictor variable (`SEX`) being categorical and the outcome variable (`body_lgth`) being quantitative, we will want to use a Welch's Two Sample t-test to determine if there is a difference in total lengths between sexes.
 
-```{r tail-length-sex-statistics}
+```{r body-length-sex-statistics}
 #creating data frame with only adult otters
 seot_body <- seot %>% 
   filter(FINAL_AGE > 4)
