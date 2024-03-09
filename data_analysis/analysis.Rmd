@@ -120,33 +120,6 @@ t.test(mean_tail_lgth ~ SEX, data = seot_tail)
 
 Report: The tail length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -2.5123, df = 106.21, p-value = 0.0135). 
 
-### Tail Length by Area
-
-To break down the morphometric differences between the otters, let's begin by looking at the tail lengths of the individuals. 
-** should we bootstrap the data so that all of them have an equal representation? we'll see...
-```{r tail-length-by-area}
-#first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
-seot_taillength <- seot %>% 
-  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
-  mutate(AREA = fct_relevel(AREA, c("andreanof_islands", "western_alaskan_peninsula", "southern_southeast_alaska", "northern_southeast_alaska", "eastern_alaskan_peninsula", "kachemak_bay", "western_prince_william_sound")))
-
-#boxplot of tail length by area
-seot_taillength %>% 
-  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, color = AREA)) +
-  geom_boxplot() + 
-  theme(axis.text.x = element_blank()) +
-  scale_fill_viridis_d()+
-  scale_x_discrete(guide = guide_axis(n.dodge = 4))
-```
-
-```{r determining which is eastern vs. western}
-seot %>% 
-  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
-  ggplot(mapping = aes(x = LAT, y = LONG, color = AREA)) + 
-  geom_point()
-```
-
-
 ## Age Diversity Among Sexes With Observations
 
 ```{r age}
@@ -169,8 +142,9 @@ seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians"
 
 seot %>% 
   filter(PAW > 0) %>% 
-  ggplot(mapping = aes(x = REGION, y = PAW, color = REGION)) + 
+  ggplot(mapping = aes(x = REGION, y = PAW, fill = REGION)) + 
   geom_boxplot() + 
+  scale_fill_viridis_d(option = "magma") +
   scale_x_discrete(guide = guide_axis(n.dodge = 3))
 ```
 
@@ -189,6 +163,7 @@ seot %>%
   ggplot(mapping = aes(x = PAW, fill = SEX)) +
   geom_histogram() + 
   facet_wrap(~SEX, ncol = 1) + 
+  scale_fill_brewer(palette = "Set2") + 
   labs(x = "Paw Width (mm)", 
        y = "Count", 
        fill = "Sex")
@@ -201,9 +176,6 @@ seot_paw <- seot %>%
 pawaov <- aov(PAW ~ SEX, data = seot)
 summary(pawaov)
 ```
-
-
-
 
 ## Canine and Sexing
 The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
@@ -222,8 +194,9 @@ seot_sex <- seot %>%
 
 
 #boxplot
-ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) + 
+ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, fill = SEX)) + 
   geom_boxplot() + 
+  scale_fill_brewer(palette = "Set2") +
   ylim(2,12) + 
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
@@ -233,11 +206,12 @@ ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, color = SEX)) +
 
 ```{r scatterplot-canine}
 #scatterplot
-ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
+ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = CAN_DIA)) + 
   geom_jitter() + 
-  ylim(2,12) + 
-  geom_smooth(color = "grey") +
+  ylim(5,12) + 
+  geom_smooth(color = "white") +
   facet_grid(~SEX) +
+  scale_color_viridis_c(option = "magma") + 
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
        y = "Diameter (mm)", 
@@ -307,8 +281,8 @@ seot_baculum <- seot %>%
 
 ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
   geom_jitter() + 
-  scale_fill_viridis_c(option = "magma") +
-  geom_smooth(color = "firebrick") +
+  scale_color_viridis_c(option = "magma") +
+  geom_smooth(color = "green") +
   labs(title = "Baculum Length by Age", 
        x = "Final Age", 
        y = "Bacula Length (cm)", 
@@ -401,10 +375,10 @@ seot_bacula <- seot %>%
 #creating a plot that visualizes the relationship between weight and tail length
 ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT)) + 
   geom_point(alpha = 0.75) +
-  scale_fill_viridis_c("magma") +
+  scale_color_viridis_c(option = "magma") +
   ylim(15, 40) + 
   xlim(0, 45) + 
-  geom_smooth(color = "black") + 
+  geom_smooth(color = "white") + 
   labs(x = "Weight (kg)", 
        y = "Mean Tail Length (cm)", 
        color = "Weight")
@@ -475,8 +449,9 @@ seot_pws_wa <- seot %>%
 seot_pws_wa %>% 
   filter(AGE_CATEGORY > -1) %>% 
   filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT), fill = REGION) + 
+  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT), color = REGION) + 
   geom_histogram() + 
+  scale_color_viridis_d(option = "magma") +
   facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
   labs(title = "Weight by Location", 
        x = "Weight (lbs)", 
@@ -490,9 +465,9 @@ seot_pws_wa %>%
   filter(FINAL_AGE > -1) %>% 
   ggplot(data = seot_pws_wa, mapping = aes(x = FINAL_AGE, y = WEIGHT, color = FINAL_AGE)) + 
   geom_jitter() +
-  scale_fill_brewer(palette = "Set3") +
+  scale_color_viridis_c(option = "plasma") +
   facet_wrap(~REGION) +
-  geom_smooth(color = "firebrick") +
+  geom_smooth(color = "white") +
   labs(x = "Final Age", 
        y = "Weight (lbs)", 
        color = "Final Age")
@@ -500,8 +475,8 @@ seot_pws_wa %>%
 
 To statistically test this, we would want to perform an ANOVA test. 
 
-### Age Category = 7
-Let's compare the weight differences of otters that are in the age category of 5 between the different regions. 
+### Weights of Otters vs. Different Regions
+Let's compare the weight differences of otters that are considered to be adults (age > 4) between the different regions. 
 
 ```{r spatial-analysis-ANOVA}
 #creating a dataset that includes only the age classes that we want (7)
@@ -509,6 +484,28 @@ seot_adult <- seot %>%
   filter(FINAL_AGE > 4) %>% 
   filter(WEIGHT > 0)
 
+#factor reordering the locations from west to east
+seot_adult$REGION <- factor(seot_adult$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
+
+#mapping
+#fix the NA issue? 
+seot_adult %>% 
+  ggplot(mapping = aes(x = REGION, y = WEIGHT, fill = REGION)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_blank()) +
+  scale_fill_viridis_d(option = "plasma")+
+  theme_gray()+
+   theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) + 
+  labs(title = "", 
+       x = "Region", 
+       y = "Weight (km))", 
+       fill = "Region")
+```
+"west_aleutians", "east_aleutians", "alaskan_peninsula", 
+
+
+```{r stats-age-region}
 #creating the ANOVA test
 aovspatial2 <- aov(WEIGHT~REGION, data = seot_adult)
 summary(aovspatial2)
@@ -517,6 +514,66 @@ summary(aovspatial2)
 TukeyHSD(aovspatial2)
 ```
 
+Statistically differing
+prince_william_sound-alaskan_peninsula -4.7619899  -7.571534 -1.952446 0.0000128
+west_aleutians-alaskan_peninsula       -7.9656960 -10.706398 -5.224994 0.0000000
+prince_william_sound-kodiak            -4.0931727  -6.536506 -1.649839 0.0000171
+west_aleutians-kodiak                  -7.2968788  -9.660729 -4.933029 0.0000000
+prince_william_sound-lower_cook_inlet  -5.6967188  -8.019035 -3.374402 0.0000000
+west_aleutians-lower_cook_inlet        -8.9004249 -11.138965 -6.661885 0.0000000
+southeast_alaska-prince_william_sound   3.8814511   2.134809  5.628093 0.0000000
+west_aleutians-prince_william_sound    -3.2037061  -4.049411 -2.358001 0.0000000
+west_aleutians-southeast_alaska        -7.0851572  -8.718763 -5.451552 0.0000000
+
+Not significant:
+west_aleutians-east_aleutians          -9.1302121 -24.225179  5.964754 0.5583097
+
 REPORT: 
 The Western Aleutian otters who were older than 6 years of age were significantly heavier than otters that were captured in the south east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472 = 43.37, P < 0.005). 
 
+### Tail Length by Area
+#### Creating Plots
+We know that sea otter tail lengths are known to be morphometrically different by sex, as was shown above. We now want to investigate if there are any spatial differences between otter tail lengths by their location.
+
+To break down the morphometric differences between the otters, let's begin by looking at the tail lengths of the individuals. Let's create a histogram that displays the tail lengths of the otters at differing locations.
+
+```{r tail-length-by-area}
+#first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
+seot_taillength <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
+  mutate(AREA = fct_relevel(AREA, c("andreanof_islands", "western_alaskan_peninsula", "southern_southeast_alaska", "northern_southeast_alaska", "eastern_alaskan_peninsula", "kachemak_bay", "western_prince_william_sound")))
+
+#boxplot of tail length by area
+seot_taillength %>% 
+  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, fill = AREA)) +
+  geom_boxplot() + 
+  theme(axis.text.x = element_blank()) +
+  scale_fill_viridis_d(option = "plasma")+
+  theme_gray()+
+   theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) + 
+  labs(title = "", 
+       x = "Area", 
+       y = "Tail Length (cm)", 
+       fill = "Area")
+```
+
+#### Statistical Analysis
+
+With the predictor variable (`AREA`) being categorical and the outcome variable (`mean_tail_length`) being quantitative, we will want to use a ANOVA to determine if there is a difference in tail sizes between sexes.
+
+```{r stats-tail-location}
+tailareaaov <- aov(mean_tail_lgth ~ AREA, data = seot)
+summary(tailareaaov)
+
+TukeyHSD(tailareaaov)
+```
+
+Statistically Significant: 
+western_prince_william_sound-eastern_alaskan_peninsula
+western_prince_william_sound-kachemak_bay
+western_alaskan_peninsula-northern_southeast_alaska
+southern_southeast_alaska-rat_islands
+western_alaskan_peninsula-rat_islands
+western_prince_william_sound-southern_southeast_alaska
+western_prince_william_sound-western_alaskan_peninsula
