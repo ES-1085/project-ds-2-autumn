@@ -26,12 +26,12 @@ library(stringr)
 #seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 #computer
-seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
 
 # Analyzing the Data
 
-## Yearly Observations
+#### Yearly Observations
 Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985, which will affect our data ethics. This will need to be accounted for if there is any analysis on temporal differences. 
 
 ```{r glimpsing data}
@@ -41,13 +41,21 @@ Let's look at the yearly observations for the sea otters. As can be shown below,
 
 #visualizing the observation per year in a histogram
 seot %>% 
-  ggplot(aes(x = YEAR, fill = YEAR)) +
+  ggplot(aes(x = YEAR, fill = STATE)) +
   geom_histogram(binwidth = 1) +
   theme_minimal() +
+  scale_fill_viridis_d(option = "plasma") +
   labs(title = "Count of Observations Per Year",
        x = "Year", 
        y = "Count")
 ```
+
+#### 
+
+```{r}
+
+```
+
 
 ### Heatmap
 We can create a heatmap to display morphometric measurements on a spatial scale. 
@@ -87,7 +95,7 @@ seot_matrix_weights <- as.matrix(seot_meanweights)
 ```
 
 
-## Tail Length Analysis
+## Body/Tail Length Analysis
 
 ### Tail Length by Sex
 #### Creating Plots
@@ -102,7 +110,10 @@ seot %>%
   ggplot(mapping = aes(x = mean_tail_lgth, fill = SEX)) + 
   scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
   geom_density() + 
-  facet_wrap(~SEX, ncol = 1)
+  facet_wrap(~SEX, ncol = 1) + 
+  labs(title = "", 
+       x = "Tail Length (cm)", 
+       y = "Density")
 ```
 
 #### Statistical Analysis
@@ -118,7 +129,42 @@ seot_tail <- seot %>%
 t.test(mean_tail_lgth ~ SEX, data = seot_tail)
 ```
 
-Report: The tail length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -2.5123, df = 106.21, p-value = 0.0135). 
+Report: The tail length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -2.5123, df = 106.21, p-value = 0.0135).
+
+## Total Length Analysis
+### Total Length by Sex
+#### Creating Plots
+Just as with tail lengths, the total lengths of otters have been reported to be different depending on the sex of the otter. Let's see if this is true within this dataset. First, let's create a histogram that displays the total lengths of the male and female otters.
+
+We will again want to filter for the ages of the otters to be representative of the adult population. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five ([insert citation here]). 
+
+```{r tail-length-sex-histogram}
+seot %>% 
+  filter(SEX == "M"|SEX == "F") %>% 
+  filter(FINAL_AGE > 4) %>% 
+  ggplot(mapping = aes(x = body_lgth, fill = SEX)) + 
+  scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
+  geom_density() + 
+  facet_wrap(~SEX, ncol = 1) + 
+  labs(title = "", 
+       x = "Total Body Length (cm)", 
+       y = "Density")
+```
+
+#### Statistical Analysis
+
+With the predictor variable (`SEX`) being categorical and the outcome variable (`body_lgth`) being quantitative, we will want to use a Welch's Two Sample t-test to determine if there is a difference in total lengths between sexes.
+
+```{r tail-length-sex-statistics}
+#creating data frame with only adult otters
+seot_body <- seot %>% 
+  filter(FINAL_AGE > 4)
+
+#Welch's Two Sample t-test
+t.test(body_lgth ~ SEX, data = seot_body)
+```
+
+Report: The total length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -14.226, df = 101.57, p-value < 0.0005). Adult male otters have an average body length (from nose to tip of tail) of 104.04 cm while adult female otters have an average body length of 94.85 cm. 
 
 ## Age Diversity Among Sexes With Observations
 
@@ -146,13 +192,6 @@ seot %>%
   geom_boxplot() + 
   scale_fill_viridis_d(option = "magma") +
   scale_x_discrete(guide = guide_axis(n.dodge = 3))
-```
-
-```{r determining which is eastern vs. western2}
-#seot %>% 
-  #filter(REGION == "alaskan_peninsula"|REGION == "east_aleutians"|REGION == "kodiak"|REGION == "lower_cook_inlet"|REGION == "prince_william_sound"|REGION == "southeast_alaska"|REGION == "west_aleutians") %>% 
-  #ggplot(mapping = aes(x = LAT, y = LONG, color = REGION)) + 
-  #geom_point()
 ```
 
 ### Statistical Difference in Paw Size Between Sexes
