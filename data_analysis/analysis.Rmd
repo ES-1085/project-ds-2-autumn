@@ -120,8 +120,6 @@ t.test(mean_tail_lgth ~ SEX, data = seot_tail)
 
 Report: The tail length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -2.5123, df = 106.21, p-value = 0.0135). 
 
-** we need to check and see if there are any interactions within this statistic... I still don't trust it. 
-
 ### Tail Length by Area
 
 To break down the morphometric differences between the otters, let's begin by looking at the tail lengths of the individuals. 
