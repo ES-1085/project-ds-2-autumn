@@ -33,32 +33,101 @@ seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 # Analyzing the Data
 
-#### Yearly Observations
-Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985, which will affect our data ethics. This will need to be accounted for if there is any analysis on temporal differences. 
+## Otters Found Dead
+Let's look and see which otters were found dead and how many we have. 
 
-```{r glimpsing data}
-#counting observations per year
-#seot %>% 
-  #count(YEAR)
+In this dataset, the value `1` is defined as "Collected via harvest", `0` is defined as "Typical live capture", `4` is defined as "Measured after some time in captivity", and `5` is defined as "Captured off a beach". We will be looking for the varibles where they were captured via harvest. 
 
-#visualizing the observation per year in a histogram
+### Otter's Weight before and after the Exxon Oil Spill
+#### Creating Plots
+
+```{r glimpsing-dead-otters-weight}
+#sea otters after the oil spill
+seot <- seot %>% 
+  mutate(oil_spill = case_when(YEAR < 1989 ~ "before_oil_spill", 
+                               YEAR > 1989 ~ "after_oil_spill"))
+
+#adult weight
 seot %>% 
-  ggplot(aes(x = YEAR, fill = STATE)) +
-  geom_histogram(binwidth = 1) +
-  theme_minimal() +
-  scale_fill_viridis_d(option = "plasma") +
-  labs(title = "Count of Observations Per Year",
-       x = "Year", 
-       y = "Count")
+  filter(FINAL_AGE > 4) %>% 
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = WEIGHT, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Adult Sea Otter Weight", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 4 weight
+seot %>% 
+  filter(FINAL_AGE == "4") %>%
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = WEIGHT, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 4 Weight", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 3 weight
+seot %>% 
+  filter(FINAL_AGE == "3") %>% 
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = WEIGHT, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 3 Weight", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 2 weight
+seot %>% 
+  filter(FINAL_AGE == "2") %>%
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = WEIGHT, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 2 Weight", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 1 weight
+seot %>% 
+  filter(FINAL_AGE == "1") %>%
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = WEIGHT, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 1 Weight", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
 ```
 
+#### Check the R-Squared
 
+```{r}
 
+```
 
+#### Statistical Analysis
 
+```{r}
 
+```
 
+### Otter's morphometric measurements before and after the Exxon Oil Spill
+#### Creating Plots
 
+```{r}
+
+```
+
+#### Check the R-Squared
+
+```{r}
+
+```
+
+#### Statistical Analysis
+
+```{r}
+
+```
 
 
 
