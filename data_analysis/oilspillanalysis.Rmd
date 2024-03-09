@@ -100,21 +100,100 @@ seot %>%
 
 #### Check the R-Squared
 
-```{r}
+```{r r-squared-weight-oil}
+#now, let's create the linear model comparing weight to year
+seot_model_oilweight <- linear_reg() %>%
+  set_engine("lm") %>% 
+  fit(WEIGHT ~ oil_spill, data = seot)
 
+#let's tidy this model
+seot_model_oilweight %>% tidy()
+
+#augmenting the weight data
+seot_model_oilweight_augment <- augment(seot_model_oilweight$fit)
+
+ggplot(seot_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted weight", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_model_oilweight)$adj.r.squared
 ```
+
 
 #### Statistical Analysis
 
-```{r}
+```{r stats-weight-oil}
+#Welch's Two Sample t-test
+t_test_weight <- t.test(WEIGHT ~ oil_spill, data = seot)
+t_test_weight
+
+#two-way ANOVA
+two_anova_weight_oil <- aov(WEIGHT ~ oil_spill + FINAL_AGE + oil_spill:FINAL_AGE, data = seot)
+summary(two_anova_weight_oil)
+TukeyHSD(two_anova_weight_oil)
+
+#interaction plot of data
+interaction.plot(x.factor=seot$FINAL_AGE, trace.factor = seot$oil_spill, response = seot$WEIGHT, type = "o",pch=16)
 
 ```
+
+[perform a analysis of simple events... AAAAUUUUGGGGGHHHH]
 
 ### Otter's morphometric measurements before and after the Exxon Oil Spill
 #### Creating Plots
 
-```{r}
+```{r body_length-oil}
+#adult body length
+seot %>% 
+  filter(FINAL_AGE > 4) %>% 
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Adult Sea Otter Body Length", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
 
+#otters aged 4 body length
+seot %>% 
+  filter(FINAL_AGE == "4") %>%
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 4 Body Length", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 3 body length
+seot %>% 
+  filter(FINAL_AGE == "3") %>% 
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 3 Body Length", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 2 body length
+seot %>% 
+  filter(FINAL_AGE == "2") %>%
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 2 Body Length", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
+
+#otters aged 1 body length
+seot %>% 
+  filter(FINAL_AGE == "1") %>%
+  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  geom_boxplot() +
+  labs(title = "Sea Otter Aged 1 Body Length", 
+       subtitle = "before and after Exxon Oil Spill", 
+       x = "")
 ```
 
 #### Check the R-Squared
