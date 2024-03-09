@@ -32,7 +32,7 @@ seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv"
 # Analyzing the Data
 
 ## Yearly Observations
-Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985. This will need to be accounted for if there is any analysis on temporal differences. 
+Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985, which will affect our data ethics. This will need to be accounted for if there is any analysis on temporal differences. 
 
 ```{r glimpsing data}
 #counting observations per year
@@ -577,3 +577,5 @@ southern_southeast_alaska-rat_islands
 western_alaskan_peninsula-rat_islands
 western_prince_william_sound-southern_southeast_alaska
 western_prince_william_sound-western_alaskan_peninsula
+
+REPORT: [figure this out i guess]
