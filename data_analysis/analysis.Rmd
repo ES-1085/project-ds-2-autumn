@@ -35,85 +35,37 @@ seot = read.csv("/cloud/project/data/seot.csv", h = T)
 Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985, which will affect our data ethics. This will need to be accounted for if there is any analysis on temporal differences. 
 
 ```{r glimpsing data}
-#counting observations per year
-#seot %>% 
-  #count(YEAR)
-
 #visualizing the observation per year in a histogram
 seot %>% 
   ggplot(aes(x = YEAR, fill = STATE)) +
   geom_histogram(binwidth = 1) +
-  theme_minimal() +
-  scale_fill_viridis_d(option = "plasma") +
-  labs(title = "Count of Observations Per Year",
+  theme_grey() +
+  scale_fill_manual(values = c("#005a32")) +
+  labs(title = "Sea Otter Observations Per Year",
        x = "Year", 
-       y = "Count")
+       y = "Count", 
+       fill = "")
 ```
-
-#### 
-
-```{r}
-
-```
-
-
-### Heatmap
-We can create a heatmap to display morphometric measurements on a spatial scale. 
-
-```{r heatmap-delete-maybe}
-#libraries
-#library(d3heatmap)
-
-#creating a dataframe that does not include NA values
-seot_meanweights <- seot %>% 
-  select(AREA, WEIGHT, FINAL_AGE, BACULA_LGTH, body_lgth, mean_tail_lgth) %>% 
-  filter(WEIGHT > 0) %>% 
-  filter(FINAL_AGE > 6) %>% 
-  filter(BACULA_LGTH > 0) %>% 
-  filter(body_lgth > 0 ) %>% 
-  filter(mean_tail_lgth > 0)
-
-#creating a dataframe that includes mean morphometric measurements
-seot_meanweights <- seot_meanweights %>%
-  group_by(AREA) %>% 
-  mutate(mean_weight = mean(WEIGHT)) %>% 
-  mutate(mean_bacula = mean(BACULA_LGTH)) %>% 
-  mutate(mean_bodylgth = mean(body_lgth)) %>% 
-  mutate(mean_tail = mean(mean_tail_lgth)) %>% 
-  distinct(AREA, mean_tail, mean_bodylgth, mean_bacula, mean_weight)
-
-#
-seot_meanweights <- seot_meanweights %>% 
-  mutate(mean_tail = as.numeric(mean_tail)) %>% 
-  mutate(mean_bacula = as.numeric(mean_bacula)) %>% 
-  mutate(mean_bodylgth = as.numeric(mean_bodylgth)) %>% 
-  mutate(mean_weight = as.numeric(mean_weight))
-
-#trying to make a heatmap, ask laurie about this...
-seot_matrix_weights <- as.matrix(seot_meanweights)
-#heatmap(seot_matrix_weights)
-```
-
-
-## Body/Tail Length Analysis
 
 ### Tail Length by Sex
 #### Creating Plots
 We know that sea otter tail lengths are known to be morphometrically different by sex. Let's see if this is true within this dataset. First, let's create a histogram that displays the tail lengths of the male and female otters.
 
-We will want to compare the tail lengths of fully grown adult otters. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five ([insert citation here]). 
+We will want to compare the tail lengths of fully grown adult otters. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five (Alaska Department of Fish and Game). 
 
 ```{r tail-length-sex-histogram}
 seot %>% 
   filter(SEX == "M"|SEX == "F") %>% 
   filter(FINAL_AGE > 4) %>% 
   ggplot(mapping = aes(x = mean_tail_lgth, fill = SEX)) + 
-  scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   geom_density() + 
   facet_wrap(~SEX, ncol = 1) + 
-  labs(title = "", 
+  labs(title = "Tail Length (cm) of Adult Otters", 
+       subtitle = "by Male and Female",
        x = "Tail Length (cm)", 
-       y = "Density")
+       y = "Density", 
+       fill = "Sex")
 ```
 
 #### Statistical Analysis
@@ -131,7 +83,6 @@ t.test(mean_tail_lgth ~ SEX, data = seot_tail)
 
 Report: The tail length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -2.5123, df = 106.21, p-value = 0.0135).
 
-## Total Length Analysis
 ### Total Length by Sex
 #### Creating Plots
 Just as with tail lengths, the total lengths of otters have been reported to be different depending on the sex of the otter. Let's see if this is true within this dataset. First, let's create a histogram that displays the total lengths of the male and female otters.
@@ -143,12 +94,14 @@ seot %>%
   filter(SEX == "M"|SEX == "F") %>% 
   filter(FINAL_AGE > 4) %>% 
   ggplot(mapping = aes(x = body_lgth, fill = SEX)) + 
-  scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   geom_density() + 
   facet_wrap(~SEX, ncol = 1) + 
-  labs(title = "", 
+  labs(title = "Total Body Length of Adult Otters", 
+       subtitle = "by Male and Female",
        x = "Total Body Length (cm)", 
-       y = "Density")
+       y = "Density", 
+       fill = "Sex")
 ```
 
 #### Statistical Analysis
@@ -168,13 +121,22 @@ Report: The total length of mature male otters (ages 5 and above) is significant
 
 ## Age Diversity Among Sexes With Observations
 
+[add something here about sex diversity in observations?]
+
 ```{r age}
 seot %>% 
   filter(SEX != "U") %>% 
   ggplot(aes(x=FINAL_AGE, fill = SEX)) + 
    geom_histogram(binwidth = 1) +
+   scale_fill_manual(values = c("#addd8e", "#005a32")) +
+  theme_grey() +
   xlim(0,25) + 
-  facet_grid(~SEX)
+  facet_grid(~SEX)+ 
+  labs(title = "Observations of Ages of Sea Otters", 
+       subtitle = "by Male and Female",
+       x = "Final Age Assessment", 
+       y = "Count", 
+       fill = "Sex")
 ```
 
 ## Paw Width and Prey
@@ -185,36 +147,66 @@ The `PAW` variable is the width of the front paw at the widest point, as measure
 ```{r paw-general}
 #can I reorder this by region? eastern to western?
 seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
-
-seot %>% 
-  filter(PAW > 0) %>% 
-  ggplot(mapping = aes(x = REGION, y = PAW, fill = REGION)) + 
-  geom_boxplot() + 
-  scale_fill_viridis_d(option = "magma") +
-  scale_x_discrete(guide = guide_axis(n.dodge = 3))
 ```
 
 ### Statistical Difference in Paw Size Between Sexes
 
-```{r histogram-paw}
+```{r paw-width-age}
+#differences in paw width by age
+
+
 seot %>% 
   filter(PAW > 0) %>% 
+  mutate(AGE_CATEGORY = as.character(AGE_CATEGORY)) %>% 
+  ggplot(mapping = aes(y = PAW, fill = AGE_CATEGORY)) + 
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679", "#238443")) +
+  facet_wrap(~AGE_CATEGORY, ncol = 4)
+```
+
+Further analysis should be done on regional and sex differences. 
+```{r paw-width-region}
+#differences in paw width by region
+seot %>% 
+  filter(PAW > 0) %>% 
+  filter(REGION != "east_aleutians") %>% 
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>% 
+  ggplot(mapping = aes(x = REGION, y = PAW, fill = REGION)) + 
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#005a32")) +
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) + 
+  labs(title = "Paw Width Measurements of Adult Sea Otters", 
+       subtitle = "by Region",
+       x = "Region", 
+       y = "Paw Width (cm)", 
+       fill = "Region")
+```
+
+```{r adult-paw-width-sex}
+seot %>% 
+  filter(PAW > 0) %>%
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>%  
   ggplot(mapping = aes(x = PAW, fill = SEX)) +
   geom_histogram() + 
   facet_wrap(~SEX, ncol = 1) + 
-  scale_fill_brewer(palette = "Set2") + 
-  labs(x = "Paw Width (mm)", 
+   scale_fill_manual(values = c("#addd8e", "#005a32")) + 
+  labs(title = "Paw Width in Sea Otters", 
+       subtitle = "by Male and Female",
+       x = "Paw Width (mm)", 
        y = "Count", 
        fill = "Sex")
 ```
 
 ```{r ANOVA-paw-size}
 seot_paw <- seot %>% 
-  filter(FINAL_AGE > 6)
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6)
 
 pawaov <- aov(PAW ~ SEX, data = seot)
 summary(pawaov)
 ```
+
+REPORT: 
+
 
 ## Canine and Sexing
 The canine width was measured as a potential metric to sex the individuals. We would like to see if there are any significant differences between male canine lengths and female canine lengths (with respect to the ages of the individuals).
@@ -607,14 +599,5 @@ summary(tailareaaov)
 
 TukeyHSD(tailareaaov)
 ```
-
-Statistically Significant: 
-western_prince_william_sound-eastern_alaskan_peninsula
-western_prince_william_sound-kachemak_bay
-western_alaskan_peninsula-northern_southeast_alaska
-southern_southeast_alaska-rat_islands
-western_alaskan_peninsula-rat_islands
-western_prince_william_sound-southern_southeast_alaska
-western_prince_william_sound-western_alaskan_peninsula
 
 REPORT: [figure this out i guess]

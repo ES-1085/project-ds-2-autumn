@@ -12,10 +12,10 @@ library(tidyverse)
 
 ```{r loading-dataset}
 #base_dir="/Users/pauly/Documents/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/"
-#seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
+seot = read.csv("/cloud/project/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 
 #for Autumn's computer directory
-seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
+#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot_morphometricsReproStatus_ak_monson.csv", h = T)
 ```
 
 # Glimpsing Data
@@ -139,10 +139,12 @@ seot <- seot %>%
   mutate(FINAL_AGE = if_else(FINAL_AGE < 0, NA, FINAL_AGE)) %>%
 #bacula length
   mutate(BACULA_LGTH = if_else(BACULA_LGTH < 0, NA, BACULA_LGTH)) %>% 
-  #mean tail length
- mutate(mean_tail_lgth = if_else(mean_tail_lgth < 0, NA, mean_tail_lgth)) %>% 
+#mean tail length
+  mutate(mean_tail_lgth = if_else(mean_tail_lgth < 0, NA, mean_tail_lgth)) %>% 
 #sex of otters
-mutate(SEX = if_else(SEX == "U", NA, SEX))
+  mutate(SEX = if_else(SEX == "U", NA, SEX)) %>%
+#age category
+  mutate(AGE_CATEGORY = if_else(AGE_CATEGORY < 0, NA, AGE_CATEGORY))
 ```
 
 Problem solved!

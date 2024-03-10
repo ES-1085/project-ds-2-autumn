@@ -3040,7 +3040,7 @@ GE-91-005,0,1991-05-23,1991,chichagof,Alaska,southeast_alaska,central_southeast_
 GE-91-006,0,1991-05-23,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.618231,-136.203898,M,36.7,137.4,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,8.6,7,7,16.5,0
 GE-91-007,0,1991-05-23,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.618231,-136.203898,F,29,126.7,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,PP,7.4,7,7,NA,0
 GE-91-008,0,1991-05-23,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.618231,-136.203898,F,20,118.7,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,7.4,1.5,2,NA,0
-GE-91-009,0,1991-05-23,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.618231,-136.203898,M,NA,NA,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,NA,-9,NA,NA,0
+GE-91-009,0,1991-05-23,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.618231,-136.203898,M,NA,NA,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,NA,NA,NA,NA,0
 GE-91-010,0,1991-05-24,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.618862,-136.185637,F,13.2,99.9,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,6.7,1.5,1,NA,0
 GE-91-011,0,1991-05-24,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.588542,-136.185704,F,22.2,125,NA,NA,NA,NA,Y,GE-91-013,F,7.3,-9,-9,.,-9,.,-9,-9,.,.,NP,7.8,7,5,NA,0
 GE-91-012,0,1991-05-24,1991,chichagof,Alaska,southeast_alaska,central_southeast_alaska,57.588542,-136.185704,F,16.8,111.5,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,7.2,1.5,2,NA,0
@@ -3397,10 +3397,10 @@ AM-93-115,0,1993-06-21,1993,amchitka,Alaska,west_aleutians,rat_islands,51.403757
 AM-93-116,0,1993-06-23,1993,amchitka,Alaska,west_aleutians,rat_islands,51.40326,179.350447,M,10,93,NA,NA,52,NA,D,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,3,0,0,6.5,0
 AM-93-117,0,1993-06-23,1993,amchitka,Alaska,west_aleutians,rat_islands,51.40326,179.350447,F,21.8,120,NA,NA,70,NA,Y,AM-93-116,M,10,93,-9,.,-9,.,-9,-9,.,.,NP,7.8,13,11,NA,0
 AM-93-118,0,1993-06-23,1993,amchitka,Alaska,west_aleutians,rat_islands,51.40326,179.350447,F,NA,125,NA,NA,72,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NPP,8,7,4,NA,0
-SO-95-01,0,1995-08-17,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,23.6,115,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,7.3,-9,NA,NA,0
+SO-95-01,0,1995-08-17,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,23.6,115,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,7.3,NA,NA,NA,0
 SO-95-02,0,1995-08-17,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,20.9,113,NA,NA,NA,NA,Y,SO-95-02a,U,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,7.5,7,NA,NA,0
 SO-95-03,0,1995-08-17,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,M,43.5,135,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,9.3,7,NA,18,0
-SO-95-04,0,1995-08-17,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,21.8,114,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,7.4,-9,NA,NA,0
+SO-95-04,0,1995-08-17,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,21.8,114,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,7.4,NA,NA,NA,0
 SO-95-05,0,1995-08-18,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,23.6,118,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,7.2,1.5,NA,NA,0
 SO-95-06,0,1995-08-18,1995,deep bay,Alaska,prince_william_sound,eastern_prince_william_sound,60.591573,-145.784064,F,20.9,117,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,7.3,1.5,NA,NA,0
 AD-95-01,0,1995-07-12,1995,adak - sweeper cove,Alaska,west_aleutians,andreanof_islands,51.854,-176.631,F,18.6,114,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,7.4,1.5,2,NA,0
@@ -3659,8 +3659,8 @@ KA-97-03,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754
 KA-97-04,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,M,26.8,125,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,8.7,7,NA,17,0
 KA-97-05,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,F,23.6,124,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,8.3,7,4,NA,0
 KA-97-06,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,F,22.7,NA,NA,NA,NA,NA,Y,.,U,-9,-9,-9,.,-9,.,-9,-9,.,.,NP,NA,7,NA,NA,0
-KA-97-07,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,F,27.7,NA,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,NA,-9,NA,NA,0
-KA-97-08,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,M,33.1,NA,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,NA,-9,NA,NA,0
+KA-97-07,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,F,27.7,NA,NA,NA,NA,NA,N,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,U,NA,NA,NA,NA,0
+KA-97-08,0,1997-08-20,1997,kanaga,Alaska,west_aleutians,andreanof_islands,51.754884,-177.248616,M,33.1,NA,NA,NA,NA,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,NA,NA,NA,NA,0
 AM-97-01,0,1997-05-01,1997,amchitka,Alaska,west_aleutians,rat_islands,51.404349,179.325627,M,29.9,133,NA,NA,79,NA,.,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,8.4,7,7,18,0
 AM-97-02,0,1997-05-07,1997,amchitka,Alaska,west_aleutians,rat_islands,51.404349,179.325627,F,20.4,117,NA,NA,75,NA,Y,9703,M,11.3,-9,-9,.,-9,.,-9,-9,.,.,NP,7.9,7,6,NA,0
 AM-97-03,0,1997-05-07,1997,amchitka,Alaska,west_aleutians,rat_islands,51.404349,179.325627,M,11.3,NA,NA,NA,NA,NA,D,.,.,-9,-9,-9,.,-9,.,-9,-9,.,.,.,NA,0,0,NA,0
