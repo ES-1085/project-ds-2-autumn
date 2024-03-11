@@ -1,0 +1,239 @@
+---
+title: "Island Biogeography Analysis"
+author: "Autumn Pauly and Asher Panikian"
+output: github_document
+---
+
+# Background Information
+[Insert background information here?]
+
+# Loading the Data
+First, we'll want to load the appropriate packages and data for the analysis of this dataset.
+
+```{r loading-packages, echo = FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+library(RColorBrewer)
+library(stringr)
+#install.packages("plotly")
+#library(plotly)
+#install.packages("gapminder")
+#library(gapminder)
+```
+
+```{r reading-CSV, echo = FALSE}
+#posit cloud
+seot = read.csv("/cloud/project/data/seot.csv", h = T)
+
+#computer
+#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+```
+
+## Analysis
+### Background Information
+
+### Picking Islands 
+
+Some of the most obvious choices would be the Andreanof Islands (1584 observations), Rat Islands (1254), Western Prince William Sound (778), Eastern Prince William Sound (207), 
+```{r general-island-count}
+seot %>% 
+  count(AREA) %>% 
+  arrange(desc(n))
+
+seot %>% 
+  count(LOCATION) %>% 
+  arrange(desc(n))
+```
+
+[add something here about wanting to have adult otters]
+
+```{r adult-island-count}
+seot %>% 
+  filter(FINAL_AGE > 4) %>% 
+  count(AREA) %>% 
+  arrange(desc(n))
+```
+
+### Spatial Analysis
+#### Otter Body Length 
+
+```{r factoring-locations}
+#factoring locations
+seot$AREA <- factor(seot$AREA, levels = c("rat_islands", "delarof_islands", "andreanof_islands", "eastern_prince_william_sound", "western_prince_william_sound"))
+
+seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "prince_william_sound"))
+```
+
+```{r lengths-of-near-islands}
+#boxplot of lengths by area not including prince william sound
+seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"| AREA == "afognak_island") %>% 
+  filter(FINAL_AGE > 4) %>% 
+  filter(SEX == "F") %>% 
+  ggplot(mapping = aes(x = AREA, y = true_standard_lgth, fill = AREA)) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+  labs(title = "Body Length of Sea Otters", 
+       subtitle = "of Andreanof, Delarof, and Rat Islands",
+       x = "Island Locality", 
+       y = "Body Length (cm)", 
+       fill = "Island")
+
+#boxplots of lengths including prince william sound
+seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"| AREA == "western_prince_william_sound") %>% 
+  filter(FINAL_AGE > 4) %>% 
+    filter(SEX == "M") %>%
+  ggplot(mapping = aes(x = AREA, y = true_standard_lgth, fill = AREA)) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+  labs(title = "Body Length of Sea Otters", 
+       subtitle = "of Andreanof, Delarof, and Rat Islands",
+       x = "Island Locality", 
+       y = "Body Length (cm)", 
+       fill = "Island")
+
+#statistical analysis of difference - Welch's ANOVA
+seot_close <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands")
+
+seot_aov <- aov(true_standard_lgth ~ AREA, data = seot_close)
+TukeyHSD(seot_aov)
+```
+#### Otter Tail Length 
+
+```{r tail-length-island-count}
+seot %>% 
+  filter(mean_tail_lgth > 0) %>% 
+  count(AREA) %>% 
+  arrange(desc(n))
+
+seot %>% 
+  filter(mean_tail_lgth > 0) %>% 
+  count(AREA) %>% 
+  arrange(desc(n))
+```
+
+```{r tail-lengths-of-near-islands}
+#boxplot of tail lengths by area not including prince william sound
+seot %>% 
+  filter(AREA == "rat_islands"|AREA == "andreanof_islands") %>% 
+  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, fill = AREA)) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+  labs(title = "Body Length of Sea Otters", 
+       subtitle = "of Andreanof, Delarof, and Rat Islands",
+       x = "Island Locality", 
+       y = "Body Length (cm)", 
+       fill = "Island")
+
+#boxplots of tail lengths including prince william sound
+seot %>% 
+  filter(AREA == "western_prince_william_sound"|AREA == "rat_islands"|AREA == "andreanof_islands") %>% 
+  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, fill = AREA)) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+  labs(title = "Body Length of Sea Otters", 
+       subtitle = "of Andreanof, Delarof, and Rat Islands",
+       x = "Island Locality", 
+       y = "Body Length (cm)", 
+       fill = "Island")
+
+
+#statistical analysis of difference - Welch's ANOVA
+seot_close <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "western_prince_william_sound")
+
+seot_aov <- aov(mean_tail_lgth ~ AREA, data = seot_close)
+TukeyHSD(seot_aov)
+
+#t-test for prince williams sound and andreanof islands
+seot_close <- seot_close %>% 
+  filter(AREA == "andreanof_islands"|AREA == "western_prince_william_sound")
+
+t.test(mean_tail_lgth ~ AREA, data = seot_close)
+```
+
+REPORT: The mean tail lenghts of the sea otters captured on the Rat Islands did not differ significantly from the otters captured on either the Andreanof Islands (Tukey Multiple Comparison of Means; p-value = 0.57) or Prince William Sound (Tukey Multiple Comparison of Means; p-value = 0.36). The tail lengths of the otters from the Andreanof Islands did differ significantly from those that were captured in Prince William Sound (Tukey Multiple Comparison of Means; p-value = 0.047). 
+
+REPORT: The mean tail length of sea otters captured on the Andreanof Islands were significantly longer than those that were caught in Prince William's Sound (Welch Two Sample t-test; t = 3.5851, df = 35.969, p-value < 0.005). The average tail length of otters caught on the Andreanof Islands had an average length of 30.51mm while the average tail length of otters caught in Prince William's Sound was 29.10mm. 
+
+#### Otter Weight
+
+```{r tail-length-island-count}
+seot %>% 
+  filter(WEIGHT > 0) %>% 
+  count(AREA) %>% 
+  arrange(desc(n))
+```
+
+```{r tail-lengths-of-near-islands}
+#boxplot of tail lengths by area not including prince william sound
+seot %>% 
+  filter(AREA == "delarof_islands"| AREA == "andreanof_islands") %>% 
+    filter(SEX == "F") %>% 
+  filter(FINAL_AGE > 4) %>% 
+  ggplot(mapping = aes(x = AREA, y = WEIGHT, fill = AREA)) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+  labs(title = "Weight of Adult Sea Otters", 
+       subtitle = "of Andreanof and Delarof Islands",
+       x = "Island Locality", 
+       y = "Body Length (cm)", 
+       fill = "Island")
+
+#boxplots of tail lengths including prince william sound
+seot %>% 
+  filter(AREA == "western_prince_william_sound"|AREA == "delarof_islands"| AREA == "andreanof_islands") %>% 
+  filter(SEX == "F") %>% 
+    filter(FINAL_AGE > 4) %>%
+  ggplot(mapping = aes(x = AREA, y = WEIGHT, fill = AREA)) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+  labs(title = "Weight of Adult Sea Otters", 
+       subtitle = "of Andreanof and Delarof Islands and Prince William Sound",
+       x = "Island Locality", 
+       y = "Body Length (cm)", 
+       fill = "Island")
+```
+
+```{r statistical-islands-weight}
+#statistical analysis of difference - t-test - delarof_islands and western_prince_william_sound
+seot_close <- seot %>% 
+  filter(AREA == "delarof_islands"|AREA == "western_prince_william_sound") %>% 
+  filter(SEX == "F") %>% 
+  filter(FINAL_AGE > 4) 
+  
+t.test(WEIGHT ~ AREA, data = seot_close)
+
+#statistical analysis of difference - t-test - andreanof_islands and western_prince_william_sound
+seot_close <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "western_prince_william_sound")%>% 
+  filter(SEX == "F") %>% 
+  filter(FINAL_AGE > 4)
+
+t.test(WEIGHT ~ AREA, data = seot_close)
+
+#statistical analysis of difference - t-test - delarof_islands and andreanof_islands
+seot_close <- seot %>% 
+  filter(AREA == "delarof_islands"|AREA == "andreanof_islands")%>% 
+  filter(SEX == "F") %>% 
+  filter(FINAL_AGE > 4)
+
+t.test(WEIGHT ~ AREA, data = seot_close)
+```
+
+
+REPORT: The weight of adult female sea otters were significantly heavier in western Prince William Sound than the weights of the adult female sea otters on the Delarof Islands (Welch Two Sample t-test; t = -10.288, df = 109.2, p-value < 2.2e-16). The average weight of an adult female from Prince William Sound was 23.56 kg. The average weight of an adult female from the Delarof Islands was 19.76 kg.
+
+REPORT: The weight of adult female sea otters were significantly heavier in western Prince William Sound than the weights of the adult female sea otters on the Andreanof Islands (Welch Two Sample t-test; t = -11.554, df = 582.7, p-value < 2.2e-16). The average weight of an adult female from Prince William Sound was 23.56 kg. The average weight of an adult female from the Andreanof Islands was 21.36 kg.
+
+REPORT: The weight of adult female sea otters were significantly heavier on the Andreanof Islands than the weights of the adult female sea otters on the Delarof Islands (Welch Two Sample t-test; t = -4.5091, df = 94.231, p-value = 1.873e-05). The average weight of an adult female from Delarof Islands was 19.76 kg. The average weight of an adult female from the Andreanof Islands was 21.36 kg.
+
+
