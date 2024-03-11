@@ -47,7 +47,7 @@ seot %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
   ggplot(mapping = aes(y = WEIGHT, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
-  scale_fill_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   labs(title = "Adult Sea Otter Weight", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "Status", 
@@ -60,7 +60,7 @@ seot %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
   ggplot(mapping = aes(y = WEIGHT, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
-  scale_fill_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   labs(title = "Sea Otter Aged 4 Weight", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "Status", 
@@ -73,7 +73,7 @@ seot %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
   ggplot(mapping = aes(y = WEIGHT, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
-  scale_fill_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   labs(title = "Sea Otter Aged 3 Weight", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "Status", 
@@ -86,7 +86,7 @@ seot %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
   ggplot(mapping = aes(y = WEIGHT, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
-  scale_fill_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   labs(title = "Sea Otter Aged 2 Weight", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "Status", 
@@ -99,7 +99,7 @@ seot %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
   ggplot(mapping = aes(y = WEIGHT, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
-  scale_fill_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   labs(title = "Sea Otter Aged 1 Weight", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "Status", 
@@ -180,7 +180,7 @@ seot_west_aleutians %>%
   filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>% 
   ggplot(mapping = aes(y = WEIGHT, x = YEAR, color = oil_spill)) + 
   geom_jitter() +
-  scale_color_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_color_manual(values = c("#78c679", "#005a32")) +
   geom_smooth(color = "black") +
   labs(title = "Otters Observed Through the Years", 
        subtitle = "in the West Aleutians", 
@@ -193,7 +193,7 @@ seot_west_aleutians %>%
 seot_west_aleutians %>%
   filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>% 
   ggplot(mapping = aes(y = WEIGHT, x = oil_spill, fill = oil_spill)) + 
-  scale_fill_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_fill_manual(values = c("#78c679", "#005a32")) +
   geom_boxplot() +
   labs(title = "Otters Observed Through the Years", 
        subtitle = "in the West Aleutians", 
@@ -292,6 +292,7 @@ seot %>%
   filter(SEX == "M"|SEX == "F") %>% 
   ggplot(mapping = aes(y = WEIGHT, x = YEAR, color = oil_spill)) + 
   geom_jitter() +
+  scale_color_manual(values = c("#78c679", "#005a32")) +
   geom_smooth(color = "black") +
   labs(title = "Adult Sea Otter Weight", 
        subtitle = "before and after Exxon Oil Spill", 
@@ -304,7 +305,7 @@ seot %>%
   filter(FINAL_AGE > 4) %>% 
   ggplot(mapping = aes(y = WEIGHT, x = YEAR, color = oil_spill)) + 
   geom_jitter() +
-  scale_color_manual(values = c("#ef8a62", "#67a9cf")) +
+  scale_color_manual(values = c("#78c679", "#005a32")) +
   geom_smooth(color = "black") +
   labs(title = "Adult Sea Otter Weight", 
        subtitle = "before and after Exxon Oil Spill", 
@@ -470,7 +471,7 @@ REPORT: There was no significant impact of the oil spill on the body length of t
 #plot of age at capture before and after oil spill
 seot_age_oilspill_graph <- seot %>% 
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
-  ggplot(mapping = aes(y = FINAL_AGE, x = oil_spill)) + 
+  ggplot(mapping = aes(y = FINAL_AGE, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
   labs(title = "Sea Otter Final Age", 
        subtitle = "before and after Exxon Oil Spill", 
