@@ -197,6 +197,8 @@ seot %>%
        fill = "Sex")
 ```
 
+
+
 ```{r ANOVA-paw-size}
 seot_paw <- seot %>% 
   filter(FINAL_AGE > 4|AGE_CATEGORY > 6)

@@ -116,7 +116,7 @@ seot %>%
   geom_boxplot() + 
   scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
   scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
-  labs(title = "Body Length of Sea Otters", 
+  labs(title = "Tail Length of Sea Otters", 
        subtitle = "of Andreanof, Delarof, and Rat Islands",
        x = "Island Locality", 
        y = "Body Length (cm)", 

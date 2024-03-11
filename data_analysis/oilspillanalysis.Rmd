@@ -110,24 +110,24 @@ seot %>%
 #### Check the R-Squared
 
 ```{r r-squared-weight-oil}
-# #now, let's create the linear model comparing weight to year
-# seot_model_oilweight <- linear_reg() %>%
-#   set_engine("lm") %>% 
-#   fit(WEIGHT ~ oil_spill, data = seot)
-# 
-# #let's tidy this model
-# seot_model_oilweight %>% tidy()
-# 
-# #augmenting the weight data
-# seot_model_oilweight_augment <- augment(seot_model_oilweight$fit)
-# 
-# ggplot(seot_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
-#   geom_jitter(alpha = 0.75) +
-#   geom_smooth(color = "black") +
-#   labs(x = "Predicted weight", y = "Residuals")
-# 
-# #assessing the r-squared value
-# glance(seot_model_oilweight)$adj.r.squared
+#now, let's create the linear model comparing weight to year
+seot_model_oilweight <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(WEIGHT ~ oil_spill, data = seot)
+
+#let's tidy this model
+seot_model_oilweight %>% tidy()
+
+#augmenting the weight data
+seot_model_oilweight_augment <- augment(seot_model_oilweight$fit)
+
+ggplot(seot_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted weight", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_model_oilweight)$adj.r.squared
 ```
 The r-squared value is `0.03906333`, which means that the variable `oil_spill` accounts for 39% of the variation in the dependent variable, `WEIGHT`. 
 
@@ -323,10 +323,11 @@ seot %>%
 ```{r body_length-oil}
 #adult body length
 seot_west_aleutians %>% 
-  filter(FINAL_AGE > 4) %>% 
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>% 
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>%
   ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+    scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Adult Sea Otter Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -335,8 +336,9 @@ seot_west_aleutians %>%
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "4") %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
-  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+    scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Sea Otter Aged 4 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -345,8 +347,9 @@ seot_west_aleutians %>%
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "3") %>% 
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
-  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+    scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Sea Otter Aged 3 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -355,8 +358,9 @@ seot_west_aleutians %>%
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "2") %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>%
-  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+    scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Sea Otter Aged 2 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -365,8 +369,9 @@ seot_west_aleutians %>%
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "1") %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>%  
-  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill)) + 
+  ggplot(mapping = aes(y = true_standard_lgth, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+    scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Sea Otter Aged 1 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -416,8 +421,9 @@ seot_west_aleutians %>%
   filter(FINAL_AGE > 4) %>% 
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>%
   filter(REGION == "west_aleutians") %>% 
-  ggplot(mapping = aes(y = BACULA_LGTH, x = oil_spill)) + 
+  ggplot(mapping = aes(y = BACULA_LGTH, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+  scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Adult Sea Otter Bacula Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -427,23 +433,23 @@ seot_west_aleutians %>%
 
 ```{r stats-weight-oilspill}
 #now, let's create the linear model comparing weight to year
-seot_model_oillength <- linear_reg() %>%
+seot_model_baclength <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(true_standard_lgth ~ oil_spill, data = seot_west_aleutians)
+  fit(BACULA_LGTH ~ oil_spill, data = seot_west_aleutians)
 
 #let's tidy this model
-seot_model_oillength %>% tidy()
+seot_model_baclength %>% tidy()
 
 #augmenting the weight data
-seot_model_oillength_augment <- augment(seot_model_oillength$fit)
+seot_model_baclength_augment <- augment(seot_model_baclength$fit)
 
-ggplot(seot_model_oillength_augment, mapping = aes(x = .fitted, y = .resid)) +
+ggplot(seot_model_baclength_augment, mapping = aes(x = .fitted, y = .resid)) +
   geom_jitter(alpha = 0.75) +
   geom_smooth(color = "black") +
   labs(x = "Predicted weight", y = "Residuals")
 
 #assessing the r-squared value
-glance(seot_model_oillength)$adj.r.squared
+glance(seot_model_baclength)$adj.r.squared
 ```
 
 #### Statistical Analysis
@@ -452,17 +458,40 @@ We are performing a statistical analysis on the body length of adult otters befo
 
 ```{r specific-oil-length-statstest}
 #Welch's Two Sample t-test
-t_test_length <- t.test(true_standard_lgth ~ oil_spill, data = seot_west_aleutians)
+t_test_length <- t.test(BACULA_LGTH ~ oil_spill, data = seot_west_aleutians)
 t_test_length
 
 #two-way ANOVA
-two_anova_lgth_oil <- aov(true_standard_lgth ~ oil_spill + FINAL_AGE + oil_spill:FINAL_AGE, data = seot_west_aleutians)
-summary(two_anova_lgth_oil)
+two_anova_lgth_bac <- aov(BACULA_LGTH ~ oil_spill + FINAL_AGE + oil_spill:FINAL_AGE, data = seot_west_aleutians)
+summary(two_anova_lgth_bac)
 ```
 
-With there being no statistical significance with the interaction between the two variables `FINAL_AGE` and `oil_spill` for the dependent variable `true_standard_length`, we don't have to perform any analysis of simple events. 
+With there being no statistical significance with the interaction between the two variables `FINAL_AGE` and `oil_spill` for the dependent variable `BACULA_LGTH`, we don't have to perform any analysis of simple events. 
 
-REPORT: There was no significant impact of the oil spill on the body length of the sea otter population (Two-way ANOVA; F_1,3375, f = 0.207, p=0.65). There was a significant impact on the age of the otter on the body length (Two-way ANOVA; F_1,3375, f = 2297.583, p < 0.0005).
+REPORT: There was a significant difference in baculum sizes in adult male otters before and after the Exxon Mobil oil spill in 1989 (Welch Two Sample t-test; t = 4.6688, df = 183.77, p-value = 0.005). The average baculum length for adult male otters before the oil spill was 14.02 mm and 15.85 mm after the oil spill. 
+
+There was no significant impact of the oil spill on the body length of the sea otter population (Two-way ANOVA; F_1,3375, f = 0.207, p=0.65). There was a significant impact on the age of the otter on the body length (Two-way ANOVA; F_1,3375, f = 2297.583, p < 0.0005).
+
+### Temporal Time Scale
+We want to see if there was a noticale change in baculum length over time. 
+
+```{r bac-through-time}
+seot <- seot %>% 
+  mutate(YEAR = as.numeric(YEAR))
+
+seot %>% 
+  filter(FINAL_AGE > 4) %>% 
+  ggplot(mapping = aes(x = YEAR, y = BACULA_LGTH, color = BACULA_LGTH)) + 
+  geom_jitter() + 
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") + 
+  labs(title = "Baculum Length of Adult Otters", 
+       subtitle = "Through the Years", 
+       x= "Year", 
+       y = "Baculum Length (mm)", 
+       color = "Baculum Length")
+```
+
 
 ### Otter's Final Age before and after the Exxon Oil Spill
 #### Creating Plots
@@ -473,6 +502,7 @@ seot_age_oilspill_graph <- seot %>%
   filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
   ggplot(mapping = aes(y = FINAL_AGE, x = oil_spill, fill = oil_spill)) + 
   geom_boxplot() +
+  scale_fill_manual(values = c("#a1d99b", "#238b45")) +
   labs(title = "Sea Otter Final Age", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
@@ -514,39 +544,3 @@ t.test(data = seot, FINAL_AGE ~ oil_spill)
 ```
 
 REPORT: The otters captured before the oil spill were significantly older than the otters captured after the oil spill (Welch Two Sample t-test; t = -12.825, df = 3472.6, p-value < 0.005).
-
-### Prince William Sound Otter Decline
-
-The "Sea Otter Population Assessment" portion of the Nearshore Marine Ecosystem Research webpage of the Alaska Science Center states that, "there is good evidence that the recent declines in sea otters in SW Alaska are related to killer whale predation and the Exxon Valdez oil spill reduced the size of the western Prince William Sound population in 1989" (Alaska Science Center 2024) (website = https://www.usgs.gov/centers/alaska-science-center/science/nearshore-marine-ecosystem-research). 
-
-We would like to analyze this data to see if we find this to be true for this dataset. 
-
-#### Creating Plots
-
-```{r otter-pop-pws-historical}
-seot %>% 
-  filter(REGION == "prince_william_sound") %>% 
-  ggplot(mapping = aes(x = YEAR)) + 
-  geom_histogram()
-```
-
-
-#### Statistical Analysis
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
