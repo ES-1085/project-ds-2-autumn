@@ -23,10 +23,10 @@ library(stringr)
 
 ```{r reading-CSV, echo = FALSE}
 #posit cloud
-seot = read.csv("/cloud/project/data/seot.csv", h = T)
+#seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 #computer
-#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
 
 # Analyzing the Data
@@ -444,21 +444,21 @@ tail length = 24.41 + 0.23(weight) ± 0.014.
 ## Recapture Data 
 
 ```{r recaptured-otters, include=FALSE}
-seot_recapture <- seot %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, WEIGHT, SEX) %>%
-  mutate(OTTER.NO = as.factor(OTTER.NO))
+# seot_recapture <- seot %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, WEIGHT, SEX) %>%
+#   mutate(OTTER.NO = as.factor(OTTER.NO))
 ```
 
 ```{r recapture-data-again, include=FALSE}
-seot_recapture %>% 
-  filter(OTTER.NO == "SO-01-28") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
-
-seot_recapture %>% 
-  filter(OTTER.NO == "SO-02-07") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
-
-seot_recapture %>% 
-  filter(FINAL_AGE > 0) %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+# seot_recapture %>% 
+#   filter(OTTER.NO == "SO-01-28") %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
+# 
+# seot_recapture %>% 
+#   filter(OTTER.NO == "SO-02-07") %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
+# 
+# seot_recapture %>% 
+#   filter(FINAL_AGE > 0) %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
 ```
