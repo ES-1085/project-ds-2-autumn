@@ -223,11 +223,10 @@ seot_sex <- seot %>%
   filter(CAN_DIA > 0) %>% 
   filter(FINAL_AGE > 0)
 
-
 #boxplot
 ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, fill = SEX)) + 
   geom_boxplot() + 
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = c("#addd8e", "#005a32")) +
   ylim(2,12) + 
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
@@ -240,41 +239,22 @@ ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, fill = SEX)) +
 ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = CAN_DIA)) + 
   geom_jitter() + 
   ylim(5,12) + 
-  geom_smooth(color = "white") +
+  geom_smooth(color = "black") +
   facet_grid(~SEX) +
-  scale_color_viridis_c(option = "magma") + 
+  scale_color_viridis_c() + 
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
        y = "Diameter (mm)", 
        color = "Sex")
 
 ```
-
-```{r interactive-plot-sex}
-#interactive scatterplot
-ggplotsex <- gapminder %>% 
-  ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
-  geom_jitter() + 
-  ylim(2,12) + 
-  scale_color_viridis_d(option = "inferno") +
-  geom_smooth(color = "firebrick4") +
-  facet_grid(~SEX) +
-  labs(title = "Canine Diameter by Sex",
-       x = "Sex",
-       y = "Diameter (mm)", 
-       color = "Sex")
-
-#ggplotly(ggplotsex)
-
-```
-
-
 
 ```{r canine-histogram}
 #histogram
 ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
   facet_grid(~SEX) + 
+  scale_fill_manual(values = c("#addd8e", "#005a32")) +
   xlim(2,13) + 
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
@@ -293,6 +273,40 @@ t.test(CAN_DIA ~ SEX, data = seot_sex, var.equal = TRUE)
 
 The diameter of the canine tooth for female sea otters is significantly smaller than that of the male otters (Two Sample t-test; t = -19.164, df = 1132, p-value < 2.2e-16). This would mean that this would be an appropriate metric by which to determine the sex of an unknown sea otter. 
 
+#### Modeling Canine Diameter
+```{r install-tidymodels}
+install.packages("tidymodels")
+library(tidymodels)
+```
+
+For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
+```{r model-canine-vs-sex}
+#first, we need to filter out the na values (that being -9.0)
+seot_canine <- seot %>% 
+  filter(CAN_DIA > 0)
+
+#now, let's create the linear model comparing final age to baculum length
+seot_model_canine <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(CAN_DIA ~ SEX, data = seot_canine)
+
+#let's tidy this model
+seot_model_canine %>% tidy()
+```
+
+```{r graphical-diagnostics-canine}
+#augmenting the baculum data
+seot_model_canine_augment <- augment(seot_model_canine$fit)
+
+ggplot(seot_model_canine_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted Age", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_model_canine)$adj.r.squared
+```
 ## Baculum Length and Aging
 
 The baculum length was measured on males a way to estimate age-class of the animal. We would like to perform statistical analysis on if there is a difference in baculum length in males of various ages and if this is an appropriate metric by which to estimate the age of male individuals.
@@ -312,8 +326,8 @@ seot_baculum <- seot %>%
 
 ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
   geom_jitter() + 
-  scale_color_viridis_c(option = "magma") +
-  geom_smooth(color = "green") +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
   labs(title = "Baculum Length by Age", 
        x = "Final Age", 
        y = "Bacula Length (cm)", 
@@ -365,11 +379,6 @@ REPORT: The baculum length of individuals who are ages 1 - 7 are significantly d
 
 ## Creating a Model of Baculum Length by Age
 
-```{r install-tidymodels}
-#install.packages("tidymodels")
-#library(tidymodels)
-```
-
 For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
 ```{r model-baculum-vs-age}
 #first, we need to filter out the na values (that being -9.0)
@@ -377,25 +386,26 @@ seot_bacula <- seot %>%
   filter(BACULA_LGTH > 0)
 
 #now, let's create the linear model comparing final age to baculum length
-#seot_model_baculum <- linear_reg() %>%
-  #set_engine("lm") %>% 
-  #fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
+seot_model_baculum <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
 
 #let's tidy this model
-#seot_model_baculum %>% tidy()
+seot_model_baculum %>% tidy()
 ```
 
 ```{r graphical-diagnostics-baculum}
 #augmenting the baculum data
-#seot_model_baculum_augment <- augment(seot_model_baculum$fit)
+seot_model_baculum_augment <- augment(seot_model_baculum$fit)
 
-#ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid)) +
-  #geom_jitter(alpha = 0.75) +
-  #geom_smooth(color = "black") +
-  #labs(x = "Predicted Age", y = "Residuals")
+ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid, color = .fitted)) +
+  geom_jitter(alpha = 0.75) +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted Age", y = "Residuals")
 
 #assessing the r-squared value
-#glance(seot_model_baculum)$adj.r.squared
+glance(seot_model_baculum)$adj.r.squared
 ```
 
 ## Weight by Tail Length
@@ -406,10 +416,10 @@ seot_bacula <- seot %>%
 #creating a plot that visualizes the relationship between weight and tail length
 ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT)) + 
   geom_point(alpha = 0.75) +
-  scale_color_viridis_c(option = "magma") +
+  scale_color_viridis_c() +
   ylim(15, 40) + 
   xlim(0, 45) + 
-  geom_smooth(color = "white") + 
+  geom_smooth(color = "black") + 
   labs(x = "Weight (kg)", 
        y = "Mean Tail Length (cm)", 
        color = "Weight")
@@ -452,152 +462,3 @@ seot_recapture %>%
   filter(FINAL_AGE > 0) %>% 
   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
 ```
-
-## Spatial Analysis
-We want to determine if there is a difference of morphometric measurements on a spatial scale.
-
-### Introduction
-First, let's see if there is a size difference between Prince William's Sound and the Western Aleutians. 
-
-```{r lat-long-glimpse}
-seot %>% 
-  filter(REGION == "west_aleutians") %>% 
-  count(LOCATION)
-
-seot %>% 
-  count(REGION)
-```
-
-```{r spatial-difference-pws-wa}
-#creating a dataset that includes only the west aleutians and prince williams sound
-seot_pws_wa <- seot %>% 
-  filter(REGION == "west_aleutians"|REGION == "prince_william_sound") %>% 
-  filter(WEIGHT > 0) %>% 
-  filter(AGE_CATEGORY > -1) %>% 
-  filter(FINAL_AGE > -1)
-
-#mapping weight by age category between the two locations (histogram)
-seot_pws_wa %>% 
-  filter(AGE_CATEGORY > -1) %>% 
-  filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT), color = REGION) + 
-  geom_histogram() + 
-  scale_color_viridis_d(option = "magma") +
-  facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
-  labs(title = "Weight by Location", 
-       x = "Weight (lbs)", 
-       y = "Count")
-```
-
-```{r jitter-weight-final-age-region}
-#mapping weight by age category between the two locations (scatterplot)
-#how do I color this differently???
-seot_pws_wa %>% 
-  filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = FINAL_AGE, y = WEIGHT, color = FINAL_AGE)) + 
-  geom_jitter() +
-  scale_color_viridis_c(option = "plasma") +
-  facet_wrap(~REGION) +
-  geom_smooth(color = "white") +
-  labs(x = "Final Age", 
-       y = "Weight (lbs)", 
-       color = "Final Age")
-```
-
-To statistically test this, we would want to perform an ANOVA test. 
-
-### Weights of Otters vs. Different Regions
-Let's compare the weight differences of otters that are considered to be adults (age > 4) between the different regions. 
-
-```{r spatial-analysis-ANOVA}
-#creating a dataset that includes only the age classes that we want (7)
-seot_adult <- seot %>% 
-  filter(FINAL_AGE > 4) %>% 
-  filter(WEIGHT > 0)
-
-#factor reordering the locations from west to east
-seot_adult$REGION <- factor(seot_adult$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
-
-#mapping
-#fix the NA issue? 
-seot_adult %>% 
-  ggplot(mapping = aes(x = REGION, y = WEIGHT, fill = REGION)) + 
-  geom_boxplot() + 
-  theme(axis.text.x = element_blank()) +
-  scale_fill_viridis_d(option = "plasma")+
-  theme_gray()+
-   theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank()) + 
-  labs(title = "", 
-       x = "Region", 
-       y = "Weight (km))", 
-       fill = "Region")
-```
-"west_aleutians", "east_aleutians", "alaskan_peninsula", 
-
-
-```{r stats-age-region}
-#creating the ANOVA test
-aovspatial2 <- aov(WEIGHT~REGION, data = seot_adult)
-summary(aovspatial2)
-
-#Tukey HSD Test
-TukeyHSD(aovspatial2)
-```
-
-Statistically differing
-prince_william_sound-alaskan_peninsula -4.7619899  -7.571534 -1.952446 0.0000128
-west_aleutians-alaskan_peninsula       -7.9656960 -10.706398 -5.224994 0.0000000
-prince_william_sound-kodiak            -4.0931727  -6.536506 -1.649839 0.0000171
-west_aleutians-kodiak                  -7.2968788  -9.660729 -4.933029 0.0000000
-prince_william_sound-lower_cook_inlet  -5.6967188  -8.019035 -3.374402 0.0000000
-west_aleutians-lower_cook_inlet        -8.9004249 -11.138965 -6.661885 0.0000000
-southeast_alaska-prince_william_sound   3.8814511   2.134809  5.628093 0.0000000
-west_aleutians-prince_william_sound    -3.2037061  -4.049411 -2.358001 0.0000000
-west_aleutians-southeast_alaska        -7.0851572  -8.718763 -5.451552 0.0000000
-
-Not significant:
-west_aleutians-east_aleutians          -9.1302121 -24.225179  5.964754 0.5583097
-
-REPORT: 
-The Western Aleutian otters who were older than 6 years of age were significantly heavier than otters that were captured in the south east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472 = 43.37, P < 0.005). 
-
-### Tail Length by Area
-#### Creating Plots
-We know that sea otter tail lengths are known to be morphometrically different by sex, as was shown above. We now want to investigate if there are any spatial differences between otter tail lengths by their location.
-
-To break down the morphometric differences between the otters, let's begin by looking at the tail lengths of the individuals. Let's create a histogram that displays the tail lengths of the otters at differing locations.
-
-```{r tail-length-by-area}
-#first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
-seot_taillength <- seot %>% 
-  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
-  mutate(AREA = fct_relevel(AREA, c("andreanof_islands", "western_alaskan_peninsula", "southern_southeast_alaska", "northern_southeast_alaska", "eastern_alaskan_peninsula", "kachemak_bay", "western_prince_william_sound")))
-
-#boxplot of tail length by area
-seot_taillength %>% 
-  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, fill = AREA)) +
-  geom_boxplot() + 
-  theme(axis.text.x = element_blank()) +
-  scale_fill_viridis_d(option = "plasma")+
-  theme_gray()+
-   theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank()) + 
-  labs(title = "", 
-       x = "Area", 
-       y = "Tail Length (cm)", 
-       fill = "Area")
-```
-
-#### Statistical Analysis
-
-With the predictor variable (`AREA`) being categorical and the outcome variable (`mean_tail_length`) being quantitative, we will want to use a ANOVA to determine if there is a difference in tail sizes between sexes.
-
-```{r stats-tail-location}
-tailareaaov <- aov(mean_tail_lgth ~ AREA, data = seot)
-summary(tailareaaov)
-
-TukeyHSD(tailareaaov)
-```
-
-REPORT: [figure this out i guess]
