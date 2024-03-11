@@ -13,17 +13,24 @@ library(htmltools) ## For html
 library(leafsync) ## For placing plots side by side
 library(stringr) ## For character string manipulation
 library(kableExtra)
+library(gganimate)
+library(learnr)
+library(devtools)
+library(urbnmapr) # potential source for alaska basemap
+library(rworldmap)
+library(sp) # for transforming coordinates
+library(proj4) #for transforming coordinates
 ```
 
 ```{r color-palette}
-# mapcolor <- c("alaskan_peninsula" = "#CC6677", "west_aleutians" = "#DDCC77", "kodiak" = "#117733", "prince_william_sound" = "#332288", "southeast_alaska" = "#AA4499", "east_aleutians" ="#44AA99", "lower_cook_inlet" = "#999933")
-# 
-# mapcolor2 <- c("#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", "#44AA99", "#999933")
+mapcolor <- c("alaskan_peninsula" = "#CC6677", "west_aleutians" = "#DDCC77", "kodiak" = "#117733", "prince_william_sound" = "#332288", "southeast_alaska" = "#AA4499", "east_aleutians" ="#44AA99", "lower_cook_inlet" = "#999933")
+
+mapcolor2 <- c("#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", "#44AA99", "#999933")
 
 #I'm not sure it's possible to smilutaneously color code the individual points by region while also having them clustered...
 ```
 
-```{r create-map-one}
+```{r create-leaflet-map-one}
 #map displaying all capture locations for all otters in study
 map1 <- leaflet(data = seot) %>%
   addTiles () %>%
@@ -32,9 +39,91 @@ map1 <- leaflet(data = seot) %>%
           zoom = 5) %>%
   addCircleMarkers(lng = ~ LONG, lat = ~ LAT, popup = seot$OTTER.NO,
                    clusterOptions = markerClusterOptions())
+
+map1
 ```
 
-```{r create-animated-map}
+```{r clean-urbnmapr-data}
+seot_clean <- subset(seot, select = -c(5, 6, 12:49)) #select only columns needed for animated map
+seot_coor <- st_as_sf(seot_clean, coords = c("LONG","LAT"))
+seot_coor <- st_set_crs(seot_coor, 3395)
 
+basemap_sf <- st_set_crs(basemap_sf, 3395)
+seot_coor_df <- as.data.frame(seot_coor)
+
+basemap_sf
 ```
 
+```{r map-attempt}
+world <- map_data("world")
+
+ggplot() +
+  geom_polygon(data = world, aes(x = long, y = lat, group = group), colour = "darkgrey", fill = "grey", alpha = 1)
+```
+
+```{r create-alaska-basemap}
+basemap_sf <- get_urbn_map("states", sf = TRUE)
+
+#create map with just alaska
+ak_sf <- basemap_sf %>%
+  filter(state_name == "Alaska") %>%
+  ggplot() +
+    geom_sf()
+```
+
+```{r add-otter-data}
+ak_sf +
+  geom_sf(data = seot_coor)
+```
+
+```{r read-mapper-base-layers}
+mapper_base_layers <- st_read("/cloud/project/data/Mapper_Base_Layers/Mapper_Base_Layers.shp")
+```
+
+```{r visualize-mapper-base-layers}
+mapper_base_layers_crs_1 %>%
+  ggplot() +
+  geom_sf()
+
+mapper_base_layers_crs_1 <- st_transform(mapper_base_layers, 3995) #using arctic stereographic projection
+mapper_base_layers_crs_1 <- st_set_crs(mapper_base_layers, 3995)
+seot_clean <- st_as_sf(seot_clean, coords = c("LONG", "LAT"))
+seot_clean <- st_set_crs(seot_clean, 3995)
+
+seot_coor <- st_as_sf(seot_clean, coords = c("LONG","LAT")) #make seot_coor an sf file
+seot_coor <- st_set_crs(seot_coor, 3995) #set seot_coor to arctic stereographic projection
+seot_coor_df <- as.data.frame(seot_coor)
+st_transform(seot_coor, crs = st_crs(3995))
+```
+
+```{r add-otter-points}
+ggplot(data = mapper_base_layers_crs_1) +
+  geom_sf() +
+  geom_sf(data = seot_coor, expand = FALSE)
+  
+  geom_sf(data = seot_coor, mapping = aes(x = LONG, y = LAT)) +
+  coord_sf()
+```
+
+```{r make-another-basemap???}
+seot_clean_shift <- subset(seot, select = -c(5, 6, 12:49)) #make new clean dataframe
+seot_shift_sf <- st_as_sf(seot_clean_shift, coords = c("LONG","LAT"), crs = 4326) #make df into sf
+seot_shift_sf <- st_shift_longitude(seot_shift_sf) #deal with dateline using st_shift
+
+
+mapper_base_shift <- st_read("/cloud/project/data/Mapper_Base_Layers/Mapper_Base_Layers.shp") #make new basemap
+mapper_base_shift <- st_shift_longitude(mapper_base_shift) #deal with dateline using st_shift
+
+ggplot() + #plot new map
+  geom_sf(data = mapper_base_shift) +
+  geom_sf(data = seot_shift_sf, aes(color = REGION, group = YEAR), size = 1) +
+  transition_states(YEAR,
+                    transition_length = .1,
+                    state_length = 20)
+
+#SUCCESS
+```
+```{r animate-otter-points-by-year}
+
+```
+ 
