@@ -11,11 +11,15 @@ Autumn Pauly and Asher Panikian
 First, we’ll want to load the appropriate packages and data for the
 analysis of this dataset.
 
+    ## Warning: package 'tidyverse' was built under R version 4.3.3
+
+    ## Warning: package 'ggplot2' was built under R version 4.3.2
+
     ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+    ## ✔ dplyr     1.1.3     ✔ readr     2.1.4
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
     ## ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+    ## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
     ## ✔ purrr     1.0.2     
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
@@ -32,19 +36,16 @@ shown below, there is a gap in data collection starting from the year
 be accounted for if there is any analysis on temporal differences.
 
 ``` r
-#counting observations per year
-#seot %>% 
-  #count(YEAR)
-
 #visualizing the observation per year in a histogram
 seot %>% 
   ggplot(aes(x = YEAR, fill = STATE)) +
   geom_histogram(binwidth = 1) +
-  theme_minimal() +
-  scale_fill_viridis_d(option = "plasma") +
-  labs(title = "Count of Observations Per Year",
+  theme_grey() +
+  scale_fill_manual(values = c("#005a32")) +
+  labs(title = "Sea Otter Observations Per Year",
        x = "Year", 
-       y = "Count")
+       y = "Count", 
+       fill = "")
 ```
 
 ![](analysis_files/figure-gfm/glimpsing%20data-1.png)<!-- -->
@@ -61,19 +62,21 @@ female otters.
 We will want to compare the tail lengths of fully grown adult otters.
 According to the Alaska Department of Fish and Game, female sea otters
 become mature around four years of age and male sea otters become mature
-at age five (\[insert citation here\]).
+at age five (Alaska Department of Fish and Game).
 
 ``` r
 seot %>% 
   filter(SEX == "M"|SEX == "F") %>% 
   filter(FINAL_AGE > 4) %>% 
   ggplot(mapping = aes(x = mean_tail_lgth, fill = SEX)) + 
-  scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   geom_density() + 
   facet_wrap(~SEX, ncol = 1) + 
-  labs(title = "", 
+  labs(title = "Tail Length (cm) of Adult Otters", 
+       subtitle = "by Male and Female",
        x = "Tail Length (cm)", 
-       y = "Density")
+       y = "Density", 
+       fill = "Sex")
 ```
 
     ## Warning: Removed 1792 rows containing non-finite values (`stat_density()`).
@@ -112,8 +115,6 @@ Report: The tail length of mature male otters (ages 5 and above) is
 significantly longer than that of mature female otters (Welch Two Sample
 t-test, t = -2.5123, df = 106.21, p-value = 0.0135).
 
-## Total Length Analysis
-
 ### Total Length by Sex
 
 #### Creating Plots
@@ -134,12 +135,14 @@ seot %>%
   filter(SEX == "M"|SEX == "F") %>% 
   filter(FINAL_AGE > 4) %>% 
   ggplot(mapping = aes(x = body_lgth, fill = SEX)) + 
-  scale_fill_viridis_d(name = "Sex", labels = c("Female", "Male"), option = "cividis") +
+  scale_fill_manual(values = c("#d9f0a3", "#005a32")) +
   geom_density() + 
   facet_wrap(~SEX, ncol = 1) + 
-  labs(title = "", 
+  labs(title = "Total Body Length of Adult Otters", 
+       subtitle = "by Male and Female",
        x = "Total Body Length (cm)", 
-       y = "Density")
+       y = "Density", 
+       fill = "Sex")
 ```
 
     ## Warning: Removed 1792 rows containing non-finite values (`stat_density()`).
@@ -182,13 +185,22 @@ while adult female otters have an average body length of 94.85 cm.
 
 ## Age Diversity Among Sexes With Observations
 
+\[add something here about sex diversity in observations?\]
+
 ``` r
 seot %>% 
   filter(SEX != "U") %>% 
   ggplot(aes(x=FINAL_AGE, fill = SEX)) + 
    geom_histogram(binwidth = 1) +
+   scale_fill_manual(values = c("#addd8e", "#005a32")) +
+  theme_grey() +
   xlim(0,25) + 
-  facet_grid(~SEX)
+  facet_grid(~SEX)+ 
+  labs(title = "Observations of Ages of Sea Otters", 
+       subtitle = "by Male and Female",
+       x = "Final Age Assessment", 
+       y = "Count", 
+       fill = "Sex")
 ```
 
     ## Warning: Removed 993 rows containing non-finite values (`stat_bin()`).
@@ -210,38 +222,68 @@ measured in millimeters.
 ``` r
 #can I reorder this by region? eastern to western?
 seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
-
-seot %>% 
-  filter(PAW > 0) %>% 
-  ggplot(mapping = aes(x = REGION, y = PAW, fill = REGION)) + 
-  geom_boxplot() + 
-  scale_fill_viridis_d(option = "magma") +
-  scale_x_discrete(guide = guide_axis(n.dodge = 3))
 ```
-
-![](analysis_files/figure-gfm/paw-general-1.png)<!-- -->
 
 ### Statistical Difference in Paw Size Between Sexes
 
 ``` r
+#differences in paw width by age
+
+
 seot %>% 
   filter(PAW > 0) %>% 
+  mutate(AGE_CATEGORY = as.character(AGE_CATEGORY)) %>% 
+  ggplot(mapping = aes(y = PAW, fill = AGE_CATEGORY)) + 
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679", "#238443")) +
+  facet_wrap(~AGE_CATEGORY, ncol = 4)
+```
+
+![](analysis_files/figure-gfm/paw-width-age-1.png)<!-- -->
+
+Further analysis should be done on regional and sex differences.
+
+``` r
+#differences in paw width by region
+seot %>% 
+  filter(PAW > 0) %>% 
+  filter(REGION != "east_aleutians") %>% 
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>% 
+  ggplot(mapping = aes(x = REGION, y = PAW, fill = REGION)) + 
+  geom_boxplot() + 
+  scale_fill_manual(values = c("#ffffcc", "#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#005a32")) +
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) + 
+  labs(title = "Paw Width Measurements of Adult Sea Otters", 
+       subtitle = "by Region",
+       x = "Region", 
+       y = "Paw Width (cm)", 
+       fill = "Region")
+```
+
+![](analysis_files/figure-gfm/paw-width-region-1.png)<!-- -->
+
+``` r
+seot %>% 
+  filter(PAW > 0) %>%
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>%  
   ggplot(mapping = aes(x = PAW, fill = SEX)) +
   geom_histogram() + 
   facet_wrap(~SEX, ncol = 1) + 
-  scale_fill_brewer(palette = "Set2") + 
-  labs(x = "Paw Width (mm)", 
+   scale_fill_manual(values = c("#addd8e", "#005a32")) + 
+  labs(title = "Paw Width in Sea Otters", 
+       subtitle = "by Male and Female",
+       x = "Paw Width (mm)", 
        y = "Count", 
        fill = "Sex")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](analysis_files/figure-gfm/histogram-paw-1.png)<!-- -->
+![](analysis_files/figure-gfm/adult-paw-width-sex-1.png)<!-- -->
 
 ``` r
 seot_paw <- seot %>% 
-  filter(FINAL_AGE > 6)
+  filter(FINAL_AGE > 4|AGE_CATEGORY > 6)
 
 pawaov <- aov(PAW ~ SEX, data = seot)
 summary(pawaov)
@@ -253,6 +295,8 @@ summary(pawaov)
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 3695 observations deleted due to missingness
+
+REPORT:
 
 ## Canine and Sexing
 
@@ -281,11 +325,10 @@ seot_sex <- seot %>%
   filter(CAN_DIA > 0) %>% 
   filter(FINAL_AGE > 0)
 
-
 #boxplot
 ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, fill = SEX)) + 
   geom_boxplot() + 
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = c("#addd8e", "#005a32")) +
   ylim(2,12) + 
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
@@ -300,9 +343,9 @@ ggplot(data = seot_sex, mapping = aes(x = SEX, y = CAN_DIA, fill = SEX)) +
 ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = CAN_DIA)) + 
   geom_jitter() + 
   ylim(5,12) + 
-  geom_smooth(color = "white") +
+  geom_smooth(color = "black") +
   facet_grid(~SEX) +
-  scale_color_viridis_c(option = "magma") + 
+  scale_color_viridis_c() + 
   labs(title = "Canine Diameter by Sex",
        x = "Sex",
        y = "Diameter (mm)", 
@@ -318,27 +361,11 @@ ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = CAN_DI
 ![](analysis_files/figure-gfm/scatterplot-canine-1.png)<!-- -->
 
 ``` r
-#interactive scatterplot
-ggplotsex <- gapminder %>% 
-  ggplot(data = seot_sex, mapping = aes(x = FINAL_AGE, y = CAN_DIA, color = SEX)) + 
-  geom_jitter() + 
-  ylim(2,12) + 
-  scale_color_viridis_d(option = "inferno") +
-  geom_smooth(color = "firebrick4") +
-  facet_grid(~SEX) +
-  labs(title = "Canine Diameter by Sex",
-       x = "Sex",
-       y = "Diameter (mm)", 
-       color = "Sex")
-
-#ggplotly(ggplotsex)
-```
-
-``` r
 #histogram
 ggplot(data = seot_sex, mapping = aes(x = CAN_DIA, fill = SEX)) +
   geom_histogram() + 
   facet_grid(~SEX) + 
+  scale_fill_manual(values = c("#addd8e", "#005a32")) +
   xlim(2,13) + 
   labs( title = "Canine Diameter of Sea Otters", 
         subtitle = "by Sex", 
@@ -383,6 +410,45 @@ smaller than that of the male otters (Two Sample t-test; t = -19.164, df
 appropriate metric by which to determine the sex of an unknown sea
 otter.
 
+#### Modeling Canine Diameter
+
+``` r
+# install.packages("tidymodels")
+# library(tidymodels)
+```
+
+For each additional year, the male otter’s baculum is expected to grow
+by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is
+expected to be 14.33 cm.
+
+``` r
+# #first, we need to filter out the na values (that being -9.0)
+# seot_canine <- seot %>% 
+#   filter(CAN_DIA > 0)
+# 
+# #now, let's create the linear model comparing final age to baculum length
+# seot_model_canine <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(CAN_DIA ~ SEX, data = seot_canine)
+# 
+# #let's tidy this model
+# seot_model_canine %>% tidy()
+```
+
+``` r
+# #augmenting the baculum data
+# seot_model_canine_augment <- augment(seot_model_canine$fit)
+# 
+# ggplot(seot_model_canine_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_canine)$adj.r.squared
+```
+
 ## Baculum Length and Aging
 
 The baculum length was measured on males a way to estimate age-class of
@@ -413,8 +479,8 @@ seot_baculum <- seot %>%
 
 ggplot(data = seot_baculum, mapping = aes(x = FINAL_AGE, y = BACULA_LGTH, color = FINAL_AGE)) +
   geom_jitter() + 
-  scale_color_viridis_c(option = "magma") +
-  geom_smooth(color = "green") +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
   labs(title = "Baculum Length by Age", 
        x = "Final Age", 
        y = "Bacula Length (cm)", 
@@ -619,40 +685,36 @@ old.
 
 ## Creating a Model of Baculum Length by Age
 
-``` r
-#install.packages("tidymodels")
-#library(tidymodels)
-```
-
 For each additional year, the male otter’s baculum is expected to grow
 by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is
 expected to be 14.33 cm.
 
 ``` r
-#first, we need to filter out the na values (that being -9.0)
-seot_bacula <- seot %>% 
-  filter(BACULA_LGTH > 0)
-
-#now, let's create the linear model comparing final age to baculum length
-#seot_model_baculum <- linear_reg() %>%
-  #set_engine("lm") %>% 
-  #fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
-
-#let's tidy this model
-#seot_model_baculum %>% tidy()
+# #first, we need to filter out the na values (that being -9.0)
+# seot_bacula <- seot %>% 
+#   filter(BACULA_LGTH > 0)
+# 
+# #now, let's create the linear model comparing final age to baculum length
+# seot_model_baculum <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
+# 
+# #let's tidy this model
+# seot_model_baculum %>% tidy()
 ```
 
 ``` r
-#augmenting the baculum data
-#seot_model_baculum_augment <- augment(seot_model_baculum$fit)
-
-#ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid)) +
-  #geom_jitter(alpha = 0.75) +
-  #geom_smooth(color = "black") +
-  #labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-#glance(seot_model_baculum)$adj.r.squared
+# #augmenting the baculum data
+# seot_model_baculum_augment <- augment(seot_model_baculum$fit)
+# 
+# ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid, color = .fitted)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_baculum)$adj.r.squared
 ```
 
 ## Weight by Tail Length
@@ -665,10 +727,10 @@ seot_bacula <- seot %>%
 #creating a plot that visualizes the relationship between weight and tail length
 ggplot(data = seot, mapping = aes(x = WEIGHT, y = mean_tail_lgth, color = WEIGHT)) + 
   geom_point(alpha = 0.75) +
-  scale_color_viridis_c(option = "magma") +
+  scale_color_viridis_c() +
   ylim(15, 40) + 
   xlim(0, 45) + 
-  geom_smooth(color = "white") + 
+  geom_smooth(color = "black") + 
   labs(x = "Weight (kg)", 
        y = "Mean Tail Length (cm)", 
        color = "Weight")
@@ -719,339 +781,3 @@ age.
 The regression equation is: tail length = 24.41 + 0.23(weight) ± 0.014.
 
 ## Recapture Data
-
-## Spatial Analysis
-
-We want to determine if there is a difference of morphometric
-measurements on a spatial scale.
-
-### Introduction
-
-First, let’s see if there is a size difference between Prince William’s
-Sound and the Western Aleutians.
-
-``` r
-seot %>% 
-  filter(REGION == "west_aleutians") %>% 
-  count(LOCATION)
-```
-
-    ##               LOCATION    n
-    ## 1                 adak  508
-    ## 2           adak - boi   20
-    ## 3   adak - clam lagoon   41
-    ## 4    adak - finger bay    9
-    ## 5    adak - gannet rks   12
-    ## 6     adak - kuluk bay   25
-    ## 7   adak - lucky point   11
-    ## 8  adak - sweeper cove   15
-    ## 9    adak - zeto point    7
-    ## 10            amchitka 1240
-    ## 11                attu    2
-    ## 12   attu - casco cove    3
-    ## 13 attu - massacre bay   18
-    ## 14      delarof island  144
-    ## 15              kanaga  328
-    ## 16               kiska   14
-    ## 17       nitzki island    1
-    ## 18              shemya    8
-    ## 19              tanaga  608
-
-``` r
-seot %>% 
-  count(REGION)
-```
-
-    ##                 REGION    n
-    ## 1       west_aleutians 3014
-    ## 2       east_aleutians    1
-    ## 3    alaskan_peninsula   81
-    ## 4     southeast_alaska  174
-    ## 5               kodiak  148
-    ## 6 prince_william_sound  985
-    ## 7                 <NA>   75
-
-``` r
-#creating a dataset that includes only the west aleutians and prince williams sound
-seot_pws_wa <- seot %>% 
-  filter(REGION == "west_aleutians"|REGION == "prince_william_sound") %>% 
-  filter(WEIGHT > 0) %>% 
-  filter(AGE_CATEGORY > -1) %>% 
-  filter(FINAL_AGE > -1)
-
-#mapping weight by age category between the two locations (histogram)
-seot_pws_wa %>% 
-  filter(AGE_CATEGORY > -1) %>% 
-  filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = WEIGHT), color = REGION) + 
-  geom_histogram() + 
-  scale_color_viridis_d(option = "magma") +
-  facet_wrap(AGE_CATEGORY~REGION, ncol = 2) + 
-  labs(title = "Weight by Location", 
-       x = "Weight (lbs)", 
-       y = "Count")
-```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](analysis_files/figure-gfm/spatial-difference-pws-wa-1.png)<!-- -->
-
-``` r
-#mapping weight by age category between the two locations (scatterplot)
-#how do I color this differently???
-seot_pws_wa %>% 
-  filter(FINAL_AGE > -1) %>% 
-  ggplot(data = seot_pws_wa, mapping = aes(x = FINAL_AGE, y = WEIGHT, color = FINAL_AGE)) + 
-  geom_jitter() +
-  scale_color_viridis_c(option = "plasma") +
-  facet_wrap(~REGION) +
-  geom_smooth(color = "white") +
-  labs(x = "Final Age", 
-       y = "Weight (lbs)", 
-       color = "Final Age")
-```
-
-    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
-
-![](analysis_files/figure-gfm/jitter-weight-final-age-region-1.png)<!-- -->
-
-To statistically test this, we would want to perform an ANOVA test.
-
-### Weights of Otters vs. Different Regions
-
-Let’s compare the weight differences of otters that are considered to be
-adults (age \> 4) between the different regions.
-
-``` r
-#creating a dataset that includes only the age classes that we want (7)
-seot_adult <- seot %>% 
-  filter(FINAL_AGE > 4) %>% 
-  filter(WEIGHT > 0)
-
-#factor reordering the locations from west to east
-seot_adult$REGION <- factor(seot_adult$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
-
-#mapping
-#fix the NA issue? 
-seot_adult %>% 
-  ggplot(mapping = aes(x = REGION, y = WEIGHT, fill = REGION)) + 
-  geom_boxplot() + 
-  theme(axis.text.x = element_blank()) +
-  scale_fill_viridis_d(option = "plasma")+
-  theme_gray()+
-   theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank()) + 
-  labs(title = "", 
-       x = "Region", 
-       y = "Weight (km))", 
-       fill = "Region")
-```
-
-![](analysis_files/figure-gfm/spatial-analysis-ANOVA-1.png)<!-- -->
-“west_aleutians”, “east_aleutians”, “alaskan_peninsula”,
-
-``` r
-#creating the ANOVA test
-aovspatial2 <- aov(WEIGHT~REGION, data = seot_adult)
-summary(aovspatial2)
-```
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)    
-    ## REGION         5   9809  1961.8   74.94 <2e-16 ***
-    ## Residuals   1941  50809    26.2                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 47 observations deleted due to missingness
-
-``` r
-#Tukey HSD Test
-TukeyHSD(aovspatial2)
-```
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = WEIGHT ~ REGION, data = seot_adult)
-    ## 
-    ## $REGION
-    ##                                              diff        lwr       upr
-    ## east_aleutians-west_aleutians           9.1302121  -5.469668 23.730092
-    ## alaskan_peninsula-west_aleutians        7.9656960   5.314884 10.616508
-    ## southeast_alaska-west_aleutians         7.0851572   5.505131  8.665183
-    ## kodiak-west_aleutians                   7.2968788   5.010558  9.583199
-    ## prince_william_sound-west_aleutians     3.2037061   2.385739  4.021674
-    ## alaskan_peninsula-east_aleutians       -1.1645161 -15.992586 13.663554
-    ## southeast_alaska-east_aleutians        -2.0450549 -16.719568 12.629458
-    ## kodiak-east_aleutians                  -1.8333333 -16.600598 12.933932
-    ## prince_william_sound-east_aleutians    -5.9265060 -20.538622  8.685610
-    ## southeast_alaska-alaskan_peninsula     -0.8805388  -3.915610  2.154532
-    ## kodiak-alaskan_peninsula               -0.6688172  -4.124600  2.786965
-    ## prince_william_sound-alaskan_peninsula -4.7619899  -7.479386 -2.044593
-    ## kodiak-southeast_alaska                 0.2117216  -2.510798  2.934241
-    ## prince_william_sound-southeast_alaska  -3.8814511  -5.570806 -2.192096
-    ## prince_william_sound-kodiak            -4.0931727  -6.456370 -1.729976
-    ##                                            p adj
-    ## east_aleutians-west_aleutians          0.4764345
-    ## alaskan_peninsula-west_aleutians       0.0000000
-    ## southeast_alaska-west_aleutians        0.0000000
-    ## kodiak-west_aleutians                  0.0000000
-    ## prince_william_sound-west_aleutians    0.0000000
-    ## alaskan_peninsula-east_aleutians       0.9999230
-    ## southeast_alaska-east_aleutians        0.9987238
-    ## kodiak-east_aleutians                  0.9992710
-    ## prince_william_sound-east_aleutians    0.8571062
-    ## southeast_alaska-alaskan_peninsula     0.9624668
-    ## kodiak-alaskan_peninsula               0.9939175
-    ## prince_william_sound-alaskan_peninsula 0.0000093
-    ## kodiak-southeast_alaska                0.9999267
-    ## prince_william_sound-southeast_alaska  0.0000000
-    ## prince_william_sound-kodiak            0.0000125
-
-Statistically differing prince_william_sound-alaskan_peninsula
--4.7619899 -7.571534 -1.952446 0.0000128
-west_aleutians-alaskan_peninsula -7.9656960 -10.706398 -5.224994
-0.0000000 prince_william_sound-kodiak -4.0931727 -6.536506 -1.649839
-0.0000171 west_aleutians-kodiak -7.2968788 -9.660729 -4.933029 0.0000000
-prince_william_sound-lower_cook_inlet -5.6967188 -8.019035 -3.374402
-0.0000000 west_aleutians-lower_cook_inlet -8.9004249 -11.138965
--6.661885 0.0000000 southeast_alaska-prince_william_sound 3.8814511
-2.134809 5.628093 0.0000000 west_aleutians-prince_william_sound
--3.2037061 -4.049411 -2.358001 0.0000000 west_aleutians-southeast_alaska
--7.0851572 -8.718763 -5.451552 0.0000000
-
-Not significant: west_aleutians-east_aleutians -9.1302121 -24.225179
-5.964754 0.5583097
-
-REPORT: The Western Aleutian otters who were older than 6 years of age
-were significantly heavier than otters that were captured in the south
-east region of Alaska (Alaskan Peninsula, Southeast Alaska, Prince
-William Sound, Lower Cook Inlet, Kodiak Island) (one-way ANOVA, F_6,1472
-= 43.37, P \< 0.005).
-
-### Tail Length by Area
-
-#### Creating Plots
-
-We know that sea otter tail lengths are known to be morphometrically
-different by sex, as was shown above. We now want to investigate if
-there are any spatial differences between otter tail lengths by their
-location.
-
-To break down the morphometric differences between the otters, let’s
-begin by looking at the tail lengths of the individuals. Let’s create a
-histogram that displays the tail lengths of the otters at differing
-locations.
-
-``` r
-#first, let's factor reorder the areas so their in order of the eastern-most location to the western-most location
-seot_taillength <- seot %>% 
-  filter(AREA == "andreanof_islands"|AREA == "eastern_alaskan_peninsula"|AREA == "kachemak_bay"|AREA == "northern_southeast_alaska"|AREA == "rat_islands"|AREA == "southern_southeast_alaska"|AREA == "western_alaskan_peninsula"|AREA == "western_prince_william_sound") %>% 
-  mutate(AREA = fct_relevel(AREA, c("andreanof_islands", "western_alaskan_peninsula", "southern_southeast_alaska", "northern_southeast_alaska", "eastern_alaskan_peninsula", "kachemak_bay", "western_prince_william_sound")))
-
-#boxplot of tail length by area
-seot_taillength %>% 
-  ggplot(mapping = aes(x = AREA, y = mean_tail_lgth, fill = AREA)) +
-  geom_boxplot() + 
-  theme(axis.text.x = element_blank()) +
-  scale_fill_viridis_d(option = "plasma")+
-  theme_gray()+
-   theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank()) + 
-  labs(title = "", 
-       x = "Area", 
-       y = "Tail Length (cm)", 
-       fill = "Area")
-```
-
-    ## Warning: Removed 3524 rows containing non-finite values (`stat_boxplot()`).
-
-![](analysis_files/figure-gfm/tail-length-by-area-1.png)<!-- -->
-
-#### Statistical Analysis
-
-With the predictor variable (`AREA`) being categorical and the outcome
-variable (`mean_tail_length`) being quantitative, we will want to use a
-ANOVA to determine if there is a difference in tail sizes between sexes.
-
-``` r
-tailareaaov <- aov(mean_tail_lgth ~ AREA, data = seot)
-summary(tailareaaov)
-```
-
-    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## AREA          7  505.3   72.19   11.59 2.08e-13 ***
-    ## Residuals   394 2455.0    6.23                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 4076 observations deleted due to missingness
-
-``` r
-TukeyHSD(tailareaaov)
-```
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = mean_tail_lgth ~ AREA, data = seot)
-    ## 
-    ## $AREA
-    ##                                                              diff          lwr
-    ## eastern_alaskan_peninsula-andreanof_islands             0.6075000 -1.475645414
-    ## kachemak_bay-andreanof_islands                          0.6265625 -1.194121952
-    ## northern_southeast_alaska-andreanof_islands            -0.1925000 -2.275645414
-    ## rat_islands-andreanof_islands                          -0.7182143 -2.734143683
-    ## southern_southeast_alaska-andreanof_islands             1.4250000 -0.629009078
-    ## western_alaskan_peninsula-andreanof_islands             1.7169118 -0.311041175
-    ## western_prince_william_sound-andreanof_islands         -1.4053105 -3.075340378
-    ## kachemak_bay-eastern_alaskan_peninsula                  0.0190625 -1.664007844
-    ## northern_southeast_alaska-eastern_alaskan_peninsula    -0.8000000 -2.764008331
-    ## rat_islands-eastern_alaskan_peninsula                  -1.3257143 -3.218280069
-    ## southern_southeast_alaska-eastern_alaskan_peninsula     0.8175000 -1.115577133
-    ## western_alaskan_peninsula-eastern_alaskan_peninsula     1.1094118 -0.795956188
-    ## western_prince_william_sound-eastern_alaskan_peninsula -2.0128105 -3.531636927
-    ## northern_southeast_alaska-kachemak_bay                 -0.8190625 -2.502132844
-    ## rat_islands-kachemak_bay                               -1.3447768 -2.943902266
-    ## southern_southeast_alaska-kachemak_bay                  0.7984375 -0.848433551
-    ## western_alaskan_peninsula-kachemak_bay                  1.0903493 -0.523907249
-    ## western_prince_william_sound-kachemak_bay              -2.0318730 -3.164229307
-    ## rat_islands-northern_southeast_alaska                  -0.5257143 -2.418280069
-    ## southern_southeast_alaska-northern_southeast_alaska     1.6175000 -0.315577133
-    ## western_alaskan_peninsula-northern_southeast_alaska     1.9094118  0.004043812
-    ## western_prince_william_sound-northern_southeast_alaska -1.2128105 -2.731636927
-    ## southern_southeast_alaska-rat_islands                   2.1432143  0.282767102
-    ## western_alaskan_peninsula-rat_islands                   2.4351261  0.603486469
-    ## western_prince_william_sound-rat_islands               -0.6870962 -2.112336630
-    ## western_alaskan_peninsula-southern_southeast_alaska     0.2919118 -1.581557080
-    ## western_prince_william_sound-southern_southeast_alaska -2.8303105 -4.308922077
-    ## western_prince_william_sound-western_alaskan_peninsula -3.1222222 -4.564419211
-    ##                                                               upr     p adj
-    ## eastern_alaskan_peninsula-andreanof_islands             2.6906454 0.9869729
-    ## kachemak_bay-andreanof_islands                          2.4472470 0.9665152
-    ## northern_southeast_alaska-andreanof_islands             1.8906454 0.9999930
-    ## rat_islands-andreanof_islands                           1.2977151 0.9595637
-    ## southern_southeast_alaska-andreanof_islands             3.4790091 0.4075888
-    ## western_alaskan_peninsula-andreanof_islands             3.7448647 0.1663992
-    ## western_prince_william_sound-andreanof_islands          0.2647195 0.1723570
-    ## kachemak_bay-eastern_alaskan_peninsula                  1.7021328 1.0000000
-    ## northern_southeast_alaska-eastern_alaskan_peninsula     1.1640083 0.9190439
-    ## rat_islands-eastern_alaskan_peninsula                   0.5668515 0.3945064
-    ## southern_southeast_alaska-eastern_alaskan_peninsula     2.7505771 0.9027529
-    ## western_alaskan_peninsula-eastern_alaskan_peninsula     3.0147797 0.6379129
-    ## western_prince_william_sound-eastern_alaskan_peninsula -0.4939840 0.0016517
-    ## northern_southeast_alaska-kachemak_bay                  0.8640078 0.8162870
-    ## rat_islands-kachemak_bay                                0.2543487 0.1729960
-    ## southern_southeast_alaska-kachemak_bay                  2.4453086 0.8191896
-    ## western_alaskan_peninsula-kachemak_bay                  2.7046058 0.4440499
-    ## western_prince_william_sound-kachemak_bay              -0.8995166 0.0000022
-    ## rat_islands-northern_southeast_alaska                   1.3668515 0.9902432
-    ## southern_southeast_alaska-northern_southeast_alaska     3.5505771 0.1779910
-    ## western_alaskan_peninsula-northern_southeast_alaska     3.8147797 0.0490780
-    ## western_prince_william_sound-northern_southeast_alaska  0.3060160 0.2282411
-    ## southern_southeast_alaska-rat_islands                   4.0036615 0.0116252
-    ## western_alaskan_peninsula-rat_islands                   4.2667656 0.0015691
-    ## western_prince_william_sound-rat_islands                0.7381443 0.8234823
-    ## western_alaskan_peninsula-southern_southeast_alaska     2.1653806 0.9997575
-    ## western_prince_william_sound-southern_southeast_alaska -1.3516988 0.0000003
-    ## western_prince_william_sound-western_alaskan_peninsula -1.6800252 0.0000000
-
-REPORT: \[figure this out i guess\]

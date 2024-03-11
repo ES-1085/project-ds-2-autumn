@@ -275,37 +275,37 @@ The diameter of the canine tooth for female sea otters is significantly smaller 
 
 #### Modeling Canine Diameter
 ```{r install-tidymodels}
-install.packages("tidymodels")
-library(tidymodels)
+# install.packages("tidymodels")
+# library(tidymodels)
 ```
 
 For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
 ```{r model-canine-vs-sex}
-#first, we need to filter out the na values (that being -9.0)
-seot_canine <- seot %>% 
-  filter(CAN_DIA > 0)
-
-#now, let's create the linear model comparing final age to baculum length
-seot_model_canine <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(CAN_DIA ~ SEX, data = seot_canine)
-
-#let's tidy this model
-seot_model_canine %>% tidy()
+# #first, we need to filter out the na values (that being -9.0)
+# seot_canine <- seot %>% 
+#   filter(CAN_DIA > 0)
+# 
+# #now, let's create the linear model comparing final age to baculum length
+# seot_model_canine <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(CAN_DIA ~ SEX, data = seot_canine)
+# 
+# #let's tidy this model
+# seot_model_canine %>% tidy()
 ```
 
 ```{r graphical-diagnostics-canine}
-#augmenting the baculum data
-seot_model_canine_augment <- augment(seot_model_canine$fit)
-
-ggplot(seot_model_canine_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_canine)$adj.r.squared
+# #augmenting the baculum data
+# seot_model_canine_augment <- augment(seot_model_canine$fit)
+# 
+# ggplot(seot_model_canine_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_canine)$adj.r.squared
 ```
 ## Baculum Length and Aging
 
@@ -381,31 +381,31 @@ REPORT: The baculum length of individuals who are ages 1 - 7 are significantly d
 
 For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
 ```{r model-baculum-vs-age}
-#first, we need to filter out the na values (that being -9.0)
-seot_bacula <- seot %>% 
-  filter(BACULA_LGTH > 0)
-
-#now, let's create the linear model comparing final age to baculum length
-seot_model_baculum <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
-
-#let's tidy this model
-seot_model_baculum %>% tidy()
+# #first, we need to filter out the na values (that being -9.0)
+# seot_bacula <- seot %>% 
+#   filter(BACULA_LGTH > 0)
+# 
+# #now, let's create the linear model comparing final age to baculum length
+# seot_model_baculum <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
+# 
+# #let's tidy this model
+# seot_model_baculum %>% tidy()
 ```
 
 ```{r graphical-diagnostics-baculum}
-#augmenting the baculum data
-seot_model_baculum_augment <- augment(seot_model_baculum$fit)
-
-ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid, color = .fitted)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_baculum)$adj.r.squared
+# #augmenting the baculum data
+# seot_model_baculum_augment <- augment(seot_model_baculum$fit)
+# 
+# ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid, color = .fitted)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_baculum)$adj.r.squared
 ```
 
 ## Weight by Tail Length
