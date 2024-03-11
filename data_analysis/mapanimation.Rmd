@@ -1,0 +1,10 @@
+```{r}
+test <- ggplot(seot_shift_sf) + #plot new map
+  geom_sf(data = mapper_base_shift) +
+  geom_sf(data = seot_shift_sf, aes(color = REGION, group = YEAR), size = 1) +
+  transition_states(YEAR,
+                    transition_length = .1,
+                    state_length = 20)
+animate(test)
+```
+

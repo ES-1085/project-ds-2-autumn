@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <origin/>
+                <pubdate>20210208</pubdate>
+                <title>Mapper Base Layers</title>
+                <geoform>vector digital data</geoform>
+                <onlink>https://arcgis.dnr.alaska.gov/arcgis/rest/services/Mapper/Base_Layers/MapServer</onlink>
+                <onlink>https://dnr.alaska.gov/projects/irm/mapper/Base_Pro.zip</onlink>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>This dataset will be archived in January 2024.The replacement can be found here: https://soa-dnr.maps.arcgis.com/home/item.html?id=db4869e8f713484ab531dd8835a3e52fA web service containing all the layers available in the Alaska Mapper Base map.</abstract>
+            <purpose>Service containing Mapper symbology for base layers.</purpose>
+            <supplinf>Download a layer pack age for use with ArcGIS Pro here:  https://dnr.alaska.gov/projects/irm/mapper/Base.zip</supplinf>
+        </descript>
+        <timeperd>
+            <timeinfo>
+                <sngdate>
+                    <caldate>20210208</caldate>
+                </sngdate>
+            </timeinfo>
+            <current>The temporal extent is current.</current>
+        </timeperd>
+        <status>
+            <progress>Complete</progress>
+            <update>As needed</update>
+        </status>
+        <spdom>
+            <bounding>
+                <westbc>-178.9177</westbc>
+                <eastbc>-128.4685</eastbc>
+                <northbc>71.963</northbc>
+                <southbc>50.5086</southbc>
+            </bounding>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekt>None</themekt>
+                <themekey>Mapper</themekey>
+                <themekey>AKMapper</themekey>
+                <themekey>Base</themekey>
+                <themekey>Alaska</themekey>
+            </theme>
+        </keywords>
+        <accconst>None</accconst>
+        <useconst>None</useconst>
+        <datacred>GIS Services Unit - DNR</datacred>
+    </idinfo>
+    <spdoinfo>
+        <direct>Vector</direct>
+    </spdoinfo>
+    <metainfo>
+        <metd>20210208</metd>
+        <metc>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>Alaska Department of Natural Resources - Information Resource Management</cntorg>
+                </cntorgp>
+                <cntpos>GIS Public Access Coordinator</cntpos>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>550 West 7th Ave Suite 706</address>
+                    <city>Anchorage</city>
+                    <state>Alaska</state>
+                    <postal>99501</postal>
+                    <country>US</country>
+                </cntaddr>
+                <cntvoice>907-269-8060</cntvoice>
+                <cntfax>907-269-8920</cntfax>
+                <cntemail>dnr.gispub@alaska.gov</cntemail>
+            </cntinfo>
+        </metc>
+        <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+        <mettc>local time</mettc>
+    </metainfo>
+</metadata>
