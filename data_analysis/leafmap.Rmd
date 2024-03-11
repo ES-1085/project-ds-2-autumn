@@ -114,16 +114,26 @@ seot_shift_sf <- st_shift_longitude(seot_shift_sf) #deal with dateline using st_
 mapper_base_shift <- st_read("/cloud/project/data/Mapper_Base_Layers/Mapper_Base_Layers.shp") #make new basemap
 mapper_base_shift <- st_shift_longitude(mapper_base_shift) #deal with dateline using st_shift
 
-ggplot() + #plot new map
+
+ggplot(seot_shift_sf) + #plot new map
+  geom_sf(data = mapper_base_shift, fill = "darkgray") +
+  theme(panel.background = element_rect(fill = "#D7E6E8")) +
+  geom_sf(data = seot_shift_sf, aes(color = REGION, group = YEAR), size = 1) +
+  labs(title = "Otter Capture Location",
+       y = "Latitude",
+       x = "Longitude")
+#SUCCESS
+```
+```{r animate-otter-points-by-year}
+
+test <- ggplot(seot_shift_sf) + #plot new map
   geom_sf(data = mapper_base_shift) +
   geom_sf(data = seot_shift_sf, aes(color = REGION, group = YEAR), size = 1) +
   transition_states(YEAR,
                     transition_length = .1,
                     state_length = 20)
 
-#SUCCESS
-```
-```{r animate-otter-points-by-year}
-
+animate(test)
+#it keeps crashing because posit is weak and sad, not big and beefy like rstudio
 ```
  
