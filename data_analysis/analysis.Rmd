@@ -1,13 +1,18 @@
 ---
 title: "Morphometric Analysis"
+subtitle: "Of Sea Otters Captured in Alaska (1946-2021)"
 author: "Autumn Pauly and Asher Panikian"
-output: github_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
 ---
-
-# Background Information
+# Initial Setup
+## Background Information
 [Insert background information here?]
 
-# Loading the Data
+## Loading the Data
 First, we'll want to load the appropriate packages and data for the analysis of this dataset.
 
 ```{r loading-packages, echo = FALSE}
@@ -23,15 +28,15 @@ library(stringr)
 
 ```{r reading-CSV, echo = FALSE}
 #posit cloud
-seot = read.csv("/cloud/project/data/seot.csv", h = T)
+#seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 #computer
-#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
 
 # Analyzing the Data
 
-#### Yearly Observations
+### Yearly Observations
 Let's look at the yearly observations for the sea otters. As can be shown below, there is a gap in data collection starting from the year 1970 through 1985, which will affect our data ethics. This will need to be accounted for if there is any analysis on temporal differences. 
 
 ```{r glimpsing data}
@@ -46,7 +51,6 @@ seot %>%
        y = "Count", 
        fill = "")
 ```
-
 ### Tail Length by Sex
 #### Creating Plots
 We know that sea otter tail lengths are known to be morphometrically different by sex. Let's see if this is true within this dataset. First, let's create a histogram that displays the tail lengths of the male and female otters.
@@ -83,7 +87,7 @@ t.test(mean_tail_lgth ~ SEX, data = seot_tail)
 
 Report: The tail length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -2.5123, df = 106.21, p-value = 0.0135).
 
-### Total Length by Sex
+### BOdy and Tail Length by Sex
 #### Creating Plots
 Just as with tail lengths, the total lengths of otters have been reported to be different depending on the sex of the otter. Let's see if this is true within this dataset. First, let's create a histogram that displays the total lengths of the male and female otters.
 
@@ -119,7 +123,7 @@ t.test(body_lgth ~ SEX, data = seot_body)
 
 Report: The total length of mature male otters (ages 5 and above) is significantly longer than that of mature female otters (Welch Two Sample t-test, t = -14.226, df = 101.57, p-value < 0.0005). Adult male otters have an average body length (from nose to tip of tail) of 104.04 cm while adult female otters have an average body length of 94.85 cm. 
 
-## Age Diversity Among Sexes With Observations
+## Age Diversity Among Sex
 
 [add something here about sex diversity in observations?]
 
@@ -139,7 +143,7 @@ seot %>%
        fill = "Sex")
 ```
 
-## Paw Width and Prey
+## Paw Width by Sex
 The paw width data was collected in an effort to study the estimates of prey size in relation to paw size for sea otter foraging studies. If we are able to find the appropriate datasets, it would be interesting to study the relationship between paw size and prey size.
 
 The `PAW` variable is the width of the front paw at the widest point, as measured in millimeters. 
@@ -149,7 +153,7 @@ The `PAW` variable is the width of the front paw at the widest point, as measure
 seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "kodiak", "prince_william_sound"))
 ```
 
-### Statistical Difference in Paw Size Between Sexes
+### Creating Plots
 
 ```{r paw-width-age}
 #differences in paw width by age
@@ -196,6 +200,9 @@ seot %>%
        y = "Count", 
        fill = "Sex")
 ```
+#### Statistical Analysis 
+
+
 
 ```{r ANOVA-paw-size}
 seot_paw <- seot %>% 
@@ -203,9 +210,12 @@ seot_paw <- seot %>%
 
 pawaov <- aov(PAW ~ SEX, data = seot)
 summary(pawaov)
+TukeyHSD(pawaov)
 ```
 
-REPORT: 
+REPORT: The paw size of female otters was signficantly different than that of female otters [insert test statistic here]. 
+
+Is this the test to use? 
 
 
 ## Canine and Sexing
@@ -275,37 +285,37 @@ The diameter of the canine tooth for female sea otters is significantly smaller 
 
 #### Modeling Canine Diameter
 ```{r install-tidymodels}
-install.packages("tidymodels")
-library(tidymodels)
+# install.packages("tidymodels")
+# library(tidymodels)
 ```
 
 For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
 ```{r model-canine-vs-sex}
-#first, we need to filter out the na values (that being -9.0)
-seot_canine <- seot %>% 
-  filter(CAN_DIA > 0)
-
-#now, let's create the linear model comparing final age to baculum length
-seot_model_canine <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(CAN_DIA ~ SEX, data = seot_canine)
-
-#let's tidy this model
-seot_model_canine %>% tidy()
+# #first, we need to filter out the na values (that being -9.0)
+# seot_canine <- seot %>% 
+#   filter(CAN_DIA > 0)
+# 
+# #now, let's create the linear model comparing final age to baculum length
+# seot_model_canine <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(CAN_DIA ~ SEX, data = seot_canine)
+# 
+# #let's tidy this model
+# seot_model_canine %>% tidy()
 ```
 
 ```{r graphical-diagnostics-canine}
-#augmenting the baculum data
-seot_model_canine_augment <- augment(seot_model_canine$fit)
-
-ggplot(seot_model_canine_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_canine)$adj.r.squared
+# #augmenting the baculum data
+# seot_model_canine_augment <- augment(seot_model_canine$fit)
+# 
+# ggplot(seot_model_canine_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_canine)$adj.r.squared
 ```
 ## Baculum Length and Aging
 
@@ -377,35 +387,35 @@ TukeyHSD(aovbaculum2)
 
 REPORT: The baculum length of individuals who are ages 1 - 7 are significantly different than one another (one-way ANOVA, F_2,457, = 112, P < 0.005). In a Tukey HSD post-hoc test, the baculum length of individuals who were from ages 7 to 13 did not differ significantly (refer to Tukey multiple comparisons of means). This would suggest that you could use the baculum length to estimate the age of individuals who were 7 years or younger, but not for individuals who are over 7 years old. 
 
-## Creating a Model of Baculum Length by Age
+### Creating a Model of Baculum Length by Age
 
 For each additional year, the male otter's baculum is expected to grow by 0.22 cm. For otters that are 0 (aka newborn), the baculum length is expected to be 14.33 cm. 
 ```{r model-baculum-vs-age}
-#first, we need to filter out the na values (that being -9.0)
-seot_bacula <- seot %>% 
-  filter(BACULA_LGTH > 0)
-
-#now, let's create the linear model comparing final age to baculum length
-seot_model_baculum <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
-
-#let's tidy this model
-seot_model_baculum %>% tidy()
+# #first, we need to filter out the na values (that being -9.0)
+# seot_bacula <- seot %>% 
+#   filter(BACULA_LGTH > 0)
+# 
+# #now, let's create the linear model comparing final age to baculum length
+# seot_model_baculum <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(BACULA_LGTH ~ FINAL_AGE, data = seot_bacula)
+# 
+# #let's tidy this model
+# seot_model_baculum %>% tidy()
 ```
 
 ```{r graphical-diagnostics-baculum}
-#augmenting the baculum data
-seot_model_baculum_augment <- augment(seot_model_baculum$fit)
-
-ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid, color = .fitted)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_baculum)$adj.r.squared
+# #augmenting the baculum data
+# seot_model_baculum_augment <- augment(seot_model_baculum$fit)
+# 
+# ggplot(seot_model_baculum_augment, mapping = aes(x = .fitted, y = .resid, color = .fitted)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_baculum)$adj.r.squared
 ```
 
 ## Weight by Tail Length
@@ -444,21 +454,21 @@ tail length = 24.41 + 0.23(weight) ± 0.014.
 ## Recapture Data 
 
 ```{r recaptured-otters, include=FALSE}
-seot_recapture <- seot %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, WEIGHT, SEX) %>%
-  mutate(OTTER.NO = as.factor(OTTER.NO))
+# seot_recapture <- seot %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, WEIGHT, SEX) %>%
+#   mutate(OTTER.NO = as.factor(OTTER.NO))
 ```
 
 ```{r recapture-data-again, include=FALSE}
-seot_recapture %>% 
-  filter(OTTER.NO == "SO-01-28") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
-
-seot_recapture %>% 
-  filter(OTTER.NO == "SO-02-07") %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
-
-seot_recapture %>% 
-  filter(FINAL_AGE > 0) %>% 
-  select(YEAR, OTTER.NO, FINAL_AGE, SEX)
+# seot_recapture %>% 
+#   filter(OTTER.NO == "SO-01-28") %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
+# 
+# seot_recapture %>% 
+#   filter(OTTER.NO == "SO-02-07") %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, SEX, WEIGHT)
+# 
+# seot_recapture %>% 
+#   filter(FINAL_AGE > 0) %>% 
+#   select(YEAR, OTTER.NO, FINAL_AGE, SEX)
 ```

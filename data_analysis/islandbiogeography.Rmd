@@ -1,7 +1,11 @@
 ---
 title: "Island Biogeography Analysis"
 author: "Autumn Pauly and Asher Panikian"
-output: github_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
 ---
 
 # Background Information
@@ -23,16 +27,14 @@ library(stringr)
 
 ```{r reading-CSV, echo = FALSE}
 #posit cloud
-seot = read.csv("/cloud/project/data/seot.csv", h = T)
+#seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 #computer
-#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
 
 ## Analysis
-### Background Information
-
-#### Otter Body Length 
+### Otter Body Length 
 
 ```{r factoring-locations}
 #factoring locations
@@ -79,7 +81,8 @@ seot_close <- seot %>%
 seot_aov <- aov(true_standard_lgth ~ AREA, data = seot_close)
 TukeyHSD(seot_aov)
 ```
-#### Otter Tail Length 
+
+### Otter Tail Length 
 
 ```{r tail-length-island-count}
 seot %>% 
@@ -116,7 +119,7 @@ seot %>%
   geom_boxplot() + 
   scale_fill_manual(values = c("#ffffcc", "#c2e699", "#78c679","#31a354","#006837")) + 
   scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
-  labs(title = "Body Length of Sea Otters", 
+  labs(title = "Tail Length of Sea Otters", 
        subtitle = "of Andreanof, Delarof, and Rat Islands",
        x = "Island Locality", 
        y = "Body Length (cm)", 
@@ -144,7 +147,7 @@ REPORT: The mean tail lenghts of the sea otters captured on the Rat Islands did 
 
 REPORT: The mean tail length of sea otters captured on the Andreanof Islands were significantly longer than those that were caught in Prince William's Sound (Welch Two Sample t-test; t = 3.5851, df = 35.969, p-value < 0.005). The average tail length of otters caught on the Andreanof Islands had an average length of 30.51mm while the average tail length of otters caught in Prince William's Sound was 29.10mm. 
 
-#### Otter Weight
+### Otter Weight
 
 ```{r weight-island-count}
 seot %>% 
