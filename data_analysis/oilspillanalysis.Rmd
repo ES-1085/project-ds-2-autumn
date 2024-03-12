@@ -1,7 +1,10 @@
 ---
 title: "Oil Spill Analysis"
 author: "Autumn Pauly and Asher Panikian"
-output: github_document
+output: 
+  html_document:
+    toc: true
+    number_sections: true
 ---
 
 # Background Information
@@ -41,6 +44,7 @@ seot <- seot %>%
   mutate(oil_spill = case_when(YEAR < 1989 ~ "before_oil_spill", 
                                YEAR > 1989 ~ "after_oil_spill"))
 
+seot$oil_spill <- factor(seot$oil_spill, levels = c("before_oil_spill", "after_oil_spill"))
 #adult weight
 seot %>% 
   filter(FINAL_AGE > 4) %>% 
@@ -110,24 +114,24 @@ seot %>%
 #### Check the R-Squared
 
 ```{r r-squared-weight-oil}
-#now, let's create the linear model comparing weight to year
-seot_model_oilweight <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(WEIGHT ~ oil_spill, data = seot)
-
-#let's tidy this model
-seot_model_oilweight %>% tidy()
-
-#augmenting the weight data
-seot_model_oilweight_augment <- augment(seot_model_oilweight$fit)
-
-ggplot(seot_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_oilweight)$adj.r.squared
+# #now, let's create the linear model comparing weight to year
+# seot_model_oilweight <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(WEIGHT ~ oil_spill, data = seot)
+# 
+# #let's tidy this model
+# seot_model_oilweight %>% tidy()
+# 
+# #augmenting the weight data
+# seot_model_oilweight_augment <- augment(seot_model_oilweight$fit)
+# 
+# ggplot(seot_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_oilweight)$adj.r.squared
 ```
 The r-squared value is `0.03906333`, which means that the variable `oil_spill` accounts for 39% of the variation in the dependent variable, `WEIGHT`. 
 
@@ -205,43 +209,43 @@ seot_west_aleutians %>%
 #### Check the R-Squared
 
 ```{r r-squared-weight-oil-west-aluetian}
-#now, let's create the linear model comparing weight to year
-seot_wa_model_oilweight <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(WEIGHT ~ oil_spill, data = seot_west_aleutians)
-
-#let's tidy this model
-seot_wa_model_oilweight %>% tidy()
-
-#augmenting the weight data
-seot_wa_model_oilweight_augment <- augment(seot_wa_model_oilweight$fit)
-
-ggplot(seot_wa_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_wa_model_oilweight)$adj.r.squared
+# #now, let's create the linear model comparing weight to year
+# seot_wa_model_oilweight <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(WEIGHT ~ oil_spill, data = seot_west_aleutians)
+# 
+# #let's tidy this model
+# seot_wa_model_oilweight %>% tidy()
+# 
+# #augmenting the weight data
+# seot_wa_model_oilweight_augment <- augment(seot_wa_model_oilweight$fit)
+# 
+# ggplot(seot_wa_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_wa_model_oilweight)$adj.r.squared
 ```
 REPORT: The r-squared value is `0.01960116`, which means that the variable `oil_spill` accounts for 1.96% of the variation in the dependent variable, `WEIGHT`. 
 
 ```{r new-model-wa}
-#now, let's create the linear model comparing weight to year
-seot_new_wa_model_oilweight <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(WEIGHT ~ oil_spill, data = seot_west_aleutians)
-
-#augmenting the weight data
-seot_new_wa_model_oilweight_augment <- augment(seot_new_wa_model_oilweight$fit)
-
-ggplot(seot_new_wa_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the new r-squared value
-glance(seot_new_wa_model_oilweight)$adj.r.squared
+# #now, let's create the linear model comparing weight to year
+# seot_new_wa_model_oilweight <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(WEIGHT ~ oil_spill, data = seot_west_aleutians)
+# 
+# #augmenting the weight data
+# seot_new_wa_model_oilweight_augment <- augment(seot_new_wa_model_oilweight$fit)
+# 
+# ggplot(seot_new_wa_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the new r-squared value
+# glance(seot_new_wa_model_oilweight)$adj.r.squared
 ```
 
 REPORT: The r-squared value is `0.4123082`, which means that the variable `oil_spill` along with the variable `FINAL_AGE` accounts for 41.23% of the variation in the dependent variable, `WEIGHT`. 
@@ -249,27 +253,27 @@ REPORT: The r-squared value is `0.4123082`, which means that the variable `oil_s
 Now, we would like to assess the r-squared value of the variable `oil_spill` on the adult sea otter populations in the Western Aleutians.
 
 ```{r new-model-adults-wa}
-seot_west_aleutians_adult <- seot_west_aleutians %>% 
-  filter(FINAL_AGE > 4|AGE_CATEGORY > 6)
-
-#now, let's create the linear model comparing weight to year
-seot_adult_wa_model_oilweight <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(WEIGHT ~ oil_spill, data = seot_west_aleutians_adult)
-
-#let's tidy this model
-seot_adult_wa_model_oilweight %>% tidy()
-
-#augmenting the weight data
-seot_adult_wa_model_oilweight_augment <- augment(seot_adult_wa_model_oilweight$fit)
-
-ggplot(seot_adult_wa_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_adult_wa_model_oilweight)$adj.r.squared
+# seot_west_aleutians_adult <- seot_west_aleutians %>% 
+#   filter(FINAL_AGE > 4|AGE_CATEGORY > 6)
+# 
+# #now, let's create the linear model comparing weight to year
+# seot_adult_wa_model_oilweight <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(WEIGHT ~ oil_spill, data = seot_west_aleutians_adult)
+# 
+# #let's tidy this model
+# seot_adult_wa_model_oilweight %>% tidy()
+# 
+# #augmenting the weight data
+# seot_adult_wa_model_oilweight_augment <- augment(seot_adult_wa_model_oilweight$fit)
+# 
+# ggplot(seot_adult_wa_model_oilweight_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_adult_wa_model_oilweight)$adj.r.squared
 ```
 
 #### Statistical Analysis
@@ -380,24 +384,24 @@ seot_west_aleutians %>%
 #### Check the R-Squared
 
 ```{r stats-length-oilspill}
-#now, let's create the linear model comparing weight to year
-seot_model_oillength <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(true_standard_lgth ~ oil_spill, data = seot_west_aleutians)
-
-#let's tidy this model
-seot_model_oillength %>% tidy()
-
-#augmenting the weight data
-seot_model_oillength_augment <- augment(seot_model_oillength$fit)
-
-ggplot(seot_model_oillength_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_oillength)$adj.r.squared
+# #now, let's create the linear model comparing weight to year
+# seot_model_oillength <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(true_standard_lgth ~ oil_spill, data = seot_west_aleutians)
+# 
+# #let's tidy this model
+# seot_model_oillength %>% tidy()
+# 
+# #augmenting the weight data
+# seot_model_oillength_augment <- augment(seot_model_oillength$fit)
+# 
+# ggplot(seot_model_oillength_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_oillength)$adj.r.squared
 ```
 
 #### Statistical Analysis
@@ -432,24 +436,24 @@ seot_west_aleutians %>%
 #### Check the R-Squared
 
 ```{r stats-weight-oilspill}
-#now, let's create the linear model comparing weight to year
-seot_model_baclength <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(BACULA_LGTH ~ oil_spill, data = seot_west_aleutians)
-
-#let's tidy this model
-seot_model_baclength %>% tidy()
-
-#augmenting the weight data
-seot_model_baclength_augment <- augment(seot_model_baclength$fit)
-
-ggplot(seot_model_baclength_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_baclength)$adj.r.squared
+# #now, let's create the linear model comparing weight to year
+# seot_model_baclength <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(BACULA_LGTH ~ oil_spill, data = seot_west_aleutians)
+# 
+# #let's tidy this model
+# seot_model_baclength %>% tidy()
+# 
+# #augmenting the weight data
+# seot_model_baclength_augment <- augment(seot_model_baclength$fit)
+# 
+# ggplot(seot_model_baclength_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_baclength)$adj.r.squared
 ```
 
 #### Statistical Analysis
@@ -513,24 +517,24 @@ seot_age_oilspill_graph
 #### Check the R-Squared
 
 ```{r r-squared-age-oil}
-#now, let's create the linear model comparing age to year
-seot_model_oilage <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(FINAL_AGE ~ oil_spill, data = seot)
-
-#let's tidy this model
-seot_model_oilage %>% tidy()
-
-#augmenting the weight data
-seot_model_oilage_augment <- augment(seot_model_oilage$fit)
-
-ggplot(seot_model_oilage_augment, mapping = aes(x = .fitted, y = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted weight", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_model_oilage)$adj.r.squared
+# #now, let's create the linear model comparing age to year
+# seot_model_oilage <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(FINAL_AGE ~ oil_spill, data = seot)
+# 
+# #let's tidy this model
+# seot_model_oilage %>% tidy()
+# 
+# #augmenting the weight data
+# seot_model_oilage_augment <- augment(seot_model_oilage$fit)
+# 
+# ggplot(seot_model_oilage_augment, mapping = aes(x = .fitted, y = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted weight", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_model_oilage)$adj.r.squared
 ```
 The r-squared value is `0.04269101`, which means that the variable `oil_spill` accounts for 4.26% of the variation in the dependent variable, `WEIGHT`. 
 
