@@ -26,7 +26,7 @@ library(stringr)
 #library(gapminder)
 ```
 
-```{r reading-CSV, echo = FALSE}
+```{r reading-CSV, warning=FALSE}
 #posit cloud
 seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
@@ -34,17 +34,35 @@ seot = read.csv("/cloud/project/data/seot.csv", h = T)
 #seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
 
-# Analyzing the Data
-### General Otter's Weight before and after the Exxon Oil Spill
-#### Creating Plots
+First, we'll want to create a new variable called `oil_spill` where the dataset will be split into `before_oil_spill` and `after_oil_spill`. This variable will also be factored so that the years will be in chronological order. 
 
-```{r glimpsing-otters-weight}
+```{r factoring-oil-spill-status, warning=FALSE}
 #sea otters after the oil spill
 seot <- seot %>% 
   mutate(oil_spill = case_when(YEAR < 1989 ~ "before_oil_spill", 
                                YEAR > 1989 ~ "after_oil_spill"))
 
 seot$oil_spill <- factor(seot$oil_spill, levels = c("before_oil_spill", "after_oil_spill"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+# Analyzing the Data
+### General Otter's Weight before and after the Exxon Oil Spill
+#### Creating Plots
+
+This graph visually represents the difference in adult sea otter weight before and after the Exxon Oil Spill in 1989 in Prince William's Sound. 
+
+```{r adult-weight, warning=FALSE}
 #adult weight
 seot %>% 
   filter(FINAL_AGE > 4) %>% 
@@ -58,6 +76,11 @@ seot %>%
        y = "Weight (lbs)",
        fill = "Status")
 
+```
+
+This graph visually represents the difference in sea otters aged 4 years old weight before and after the Exxon Oil Spill in 1989 in Prince William's Sound. 
+
+```{r otter-age-4-weight, warning=FALSE}
 #otters aged 4 weight
 seot %>% 
   filter(FINAL_AGE == "4") %>%
@@ -70,7 +93,11 @@ seot %>%
        x = "Status", 
        y = "Weight (lbs)",
        fill = "Status")
+```
 
+This graph visually represents the difference in sea otters aged 3 years old weight before and after the Exxon Oil Spill in 1989 in Prince William's Sound. 
+
+```{r otter-age-3-weight, warning=FALSE}
 #otters aged 3 weight
 seot %>% 
   filter(FINAL_AGE == "3") %>% 
@@ -83,7 +110,11 @@ seot %>%
        x = "Status", 
        y = "Weight (lbs)",
        fill = "Status")
+```
 
+This graph visually represents the difference in sea otters aged 2 years old weight before and after the Exxon Oil Spill in 1989 in Prince William's Sound. 
+
+```{r otter-age-2-weight, warning=FALSE}
 #otters aged 2 weight
 seot %>% 
   filter(FINAL_AGE == "2") %>%
@@ -96,7 +127,11 @@ seot %>%
        x = "Status", 
        y = "Weight (lbs)",
        fill = "Status")
+```
 
+This graph visually represents the difference in sea otters aged 1 years old weight before and after the Exxon Oil Spill in 1989 in Prince William's Sound. 
+
+```{r otter-age-1-weight, warning=FALSE}
 #otters aged 1 weight
 seot %>% 
   filter(FINAL_AGE == "1") %>%
@@ -133,6 +168,7 @@ seot %>%
 # #assessing the r-squared value
 # glance(seot_model_oilweight)$adj.r.squared
 ```
+
 The r-squared value is `0.03906333`, which means that the variable `oil_spill` accounts for 39% of the variation in the dependent variable, `WEIGHT`. 
 
 #### Statistical Analysis
@@ -155,6 +191,21 @@ The two-way ANOVA suggests that there is a statistical significance with the int
 ```{r simple-events-analysis-weight}
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Specific Otter's Weight before and after the Exxon Oil Spill
 We have already looked to see if the general weight of the captured sea otters were significantly different before and after the Exxon oil spill, but now we'd like to see if there were any regional differences between the weights. 
@@ -286,6 +337,21 @@ t_test_wa_weight
 
 REPORT: There was a significant impact of the oil spill on the weight of the adult sea otter population in the Western Aleutians (Welch Two Sample t-test; t = 7.4412, df = 399.18, p-value < 0.005). An assessment of the r-squared value suggests that the variable `oil_spill` accounts for 1.96% of the variation in the dependent variable, `WEIGHT` in the western Aluetians.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Otter's Weight Year by Year  ***get rid of this??
 We will be continuing to assess the otter populations in the Western Aleutians, as this area is the only area to have otter captures both before and after the oil spill. 
 
@@ -321,10 +387,22 @@ seot %>%
 
 
 
+
+
+
+
+
+
+
+
+
+
 ### Otter's Body Length before and after the Exxon Oil Spill
 #### Creating Plots
 
-```{r body_length-oil}
+This is a graph for adult otter body lengths before and after the Exxon Oil Spill. 
+
+```{r body_length-oil, echo = FALSE}
 #adult body length
 seot_west_aleutians %>% 
   filter(FINAL_AGE > 4|AGE_CATEGORY > 6) %>% 
@@ -335,7 +413,11 @@ seot_west_aleutians %>%
   labs(title = "Adult Sea Otter Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
+```
 
+This is a graph for sea otters aged 4 body lengths before and after the Exxon Oil Spill. 
+
+```{r age-4-otter-length, echo = FALSE}
 #otters aged 4 body length
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "4") %>%
@@ -346,7 +428,11 @@ seot_west_aleutians %>%
   labs(title = "Sea Otter Aged 4 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
+```
 
+This is a graph for sea otters aged 3 body lengths before and after the Exxon Oil Spill. 
+
+```{r age-3-otter-length, echo = FALSE}
 #otters aged 3 body length
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "3") %>% 
@@ -357,7 +443,11 @@ seot_west_aleutians %>%
   labs(title = "Sea Otter Aged 3 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
+```
 
+This is a graph for sea otters aged 2 body lengths before and after the Exxon Oil Spill. 
+
+```{r age-2-otter-length, echo = FALSE}
 #otters aged 2 body length
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "2") %>%
@@ -368,7 +458,11 @@ seot_west_aleutians %>%
   labs(title = "Sea Otter Aged 2 Body Length", 
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
+```
 
+This is a graph for sea otters aged 1 body lengths before and after the Exxon Oil Spill. 
+
+```{r age-1-otter-length, echo = FALSE}
 #otters aged 1 body length
 seot_west_aleutians %>% 
   filter(FINAL_AGE == "1") %>%
@@ -380,6 +474,7 @@ seot_west_aleutians %>%
        subtitle = "before and after Exxon Oil Spill", 
        x = "")
 ```
+
 
 #### Check the R-Squared
 
@@ -415,6 +510,19 @@ t_test_length
 ```
 
 REPORT: There was no significant impact of the oil spill on the body length of the sea otter population (Welch Two Sample t-test; t = -1.0462, df = 350.38, p-value = 0.2962). 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Adult Otter's Baculum Length before and after the Exxon Oil Spill
 #### Creating Plots
@@ -495,6 +603,21 @@ seot %>%
        y = "Baculum Length (mm)", 
        color = "Baculum Length")
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### Otter's Final Age before and after the Exxon Oil Spill
