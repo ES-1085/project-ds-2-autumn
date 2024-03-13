@@ -7,14 +7,10 @@ output:
     toc: true
     number_sections: true
 ---
-
-# Background Information
-[Insert background information here?]
-
-# Loading the Data
+## Loading the Data
 First, we'll want to load the appropriate packages and data for the analysis of this dataset.
 
-```{r loading-packages, echo = FALSE}
+```{r loading-packages, warning = FALSE}
 library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 library(RColorBrewer)
@@ -27,14 +23,19 @@ library(stringr)
 
 ```{r reading-CSV, echo = FALSE}
 #posit cloud
-#seot = read.csv("/cloud/project/data/seot.csv", h = T)
+seot = read.csv("/cloud/project/data/seot.csv", h = T)
 
 #computer
-seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
+#seot = read.csv("~/GitHub/project-ds-2-autumn/project-ds-2-autumn/data/seot.csv", h = T)
 ```
+
+
+
 
 ## Analysis
 ### Otter Body Length 
+
+First, we'll want to factor the variables `AREA` and `REGION` to be spatially representative of where the locations within the dataset are. 
 
 ```{r factoring-locations}
 #factoring locations
@@ -58,7 +59,9 @@ seot %>%
        x = "Island Locality", 
        y = "Body Length (cm)", 
        fill = "Island")
+```
 
+```{r islands_pws_length}
 #boxplots of lengths including prince william sound
 seot %>% 
   filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"| AREA == "western_prince_william_sound") %>% 
@@ -73,14 +76,45 @@ seot %>%
        x = "Island Locality", 
        y = "Body Length (cm)", 
        fill = "Island")
+```
 
+```{r stats-length-islands}
 #statistical analysis of difference - Welch's ANOVA
 seot_close <- seot %>% 
-  filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands")
+  filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"|AREA == "western_prince_william_sound")
 
 seot_aov <- aov(true_standard_lgth ~ AREA, data = seot_close)
 TukeyHSD(seot_aov)
 ```
+
+REPORT: 
+
+#### Linear Model
+
+```{r model-canine-vs-sex}
+#now, let's create the linear model comparing final age to baculum length
+
+seot_body_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(true_standard_lgth ~ AREA + FINAL_AGE, data = seot_close)
+
+#let's tidy this model
+seot_body_model %>% tidy()
+
+#augmenting the baculum data
+seot_body_model_augment <- augment(seot_body_model$fit)
+
+ggplot(seot_body_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted Age", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_body_model)$adj.r.squared
+```
+
+
 
 ### Otter Tail Length 
 
@@ -96,6 +130,7 @@ seot %>%
   arrange(desc(n))
 ```
 
+#### Creating Graphs
 ```{r tail-lengths-of-near-islands}
 #boxplot of tail lengths by area not including prince william sound
 seot %>% 
@@ -110,7 +145,9 @@ seot %>%
        x = "Island Locality", 
        y = "Body Length (cm)", 
        fill = "Island")
+```
 
+```{r tail-lengths-of-pws-islands}
 #boxplots of tail lengths including prince william sound
 seot %>% 
   filter(AREA == "western_prince_william_sound"|AREA == "rat_islands"|AREA == "andreanof_islands") %>% 
@@ -126,7 +163,7 @@ seot %>%
        fill = "Island")
 ```
 
-
+#### Statistical Analysis
 ```{r stats-tail-islands}
 #statistical analysis of difference - Welch's ANOVA
 seot_close <- seot %>% 
@@ -147,6 +184,43 @@ REPORT: The mean tail lenghts of the sea otters captured on the Rat Islands did 
 
 REPORT: The mean tail length of sea otters captured on the Andreanof Islands were significantly longer than those that were caught in Prince William's Sound (Welch Two Sample t-test; t = 3.5851, df = 35.969, p-value < 0.005). The average tail length of otters caught on the Andreanof Islands had an average length of 30.51mm while the average tail length of otters caught in Prince William's Sound was 29.10mm. 
 
+#### Linear Model
+
+```{r model-canine-vs-sex}
+#now, let's create the linear model comparing final age to baculum length
+seot_close <- seot %>% 
+  filter(AREA == "andreanof_islands"|AREA == "western_prince_william_sound") %>% 
+  filter(SEX == "M")
+
+seot_close_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(mean_tail_lgth ~ AREA + FINAL_AGE, data = seot_close)
+
+#let's tidy this model
+seot_close_model %>% tidy()
+
+#augmenting the baculum data
+seot_close_model_augment <- augment(seot_close_model$fit)
+
+ggplot(seot_close_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted Age", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_close_model)$adj.r.squared
+```
+
+
+
+
+
+
+
+
+
+
 ### Otter Weight
 
 ```{r weight-island-count}
@@ -155,6 +229,8 @@ seot %>%
   count(AREA) %>% 
   arrange(desc(n))
 ```
+
+#### Creating Graphs
 
 ```{r weights-of-near-islands}
 #boxplot of tail lengths by area not including prince william sound
@@ -188,6 +264,8 @@ seot %>%
        fill = "Island")
 ```
 
+#### Statistical Analysis
+
 ```{r statistical-islands-weight}
 #statistical analysis of difference - t-test - delarof_islands and western_prince_william_sound
 seot_close <- seot %>% 
@@ -220,3 +298,32 @@ REPORT: The weight of adult female sea otters were significantly heavier in west
 REPORT: The weight of adult female sea otters were significantly heavier in western Prince William Sound than the weights of the adult female sea otters on the Andreanof Islands (Welch Two Sample t-test; t = -11.554, df = 582.7, p-value < 2.2e-16). The average weight of an adult female from Prince William Sound was 23.56 kg. The average weight of an adult female from the Andreanof Islands was 21.36 kg.
 
 REPORT: The weight of adult female sea otters were significantly heavier on the Andreanof Islands than the weights of the adult female sea otters on the Delarof Islands (Welch Two Sample t-test; t = -4.5091, df = 94.231, p-value = 1.873e-05). The average weight of an adult female from Delarof Islands was 19.76 kg. The average weight of an adult female from the Andreanof Islands was 21.36 kg.
+
+#### Linear Model
+
+```{r model-canine-vs-sex}
+#now, let's create the linear model comparing final age to baculum length
+seot_close <- seot %>% 
+  filter(AREA == "delarof_islands"|AREA == "western_prince_william_sound"|AREA == "andreanof_islands") %>% 
+  filter(SEX == "F") %>% 
+  filter(FINAL_AGE > 4) 
+
+seot_weight_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(WEIGHT ~ AREA + AGE_CATEGORY, data = seot_close)
+
+#let's tidy this model
+seot_close_model %>% tidy()
+
+#augmenting the baculum data
+seot_weight_model_augment <- augment(seot_weight_model$fit)
+
+ggplot(seot_weight_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  scale_color_viridis_c() +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted Age", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_weight_model)$adj.r.squared
+```

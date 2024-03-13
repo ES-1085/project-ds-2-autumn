@@ -27,7 +27,14 @@ For the data dictionary, navigate to the `README.md` file located within the `da
 
 To begin analyzing the data, navigate to the `data_tidying.rmd` in the `data_analysis` folder. This contains the code that is needed to clean the USGS datasets into readable formats. These cleaned files are the base files for the next .Rmd files. 
 
-For statistical analysis, navigate to the `analysis.Rmd` file within the `data_analysis` folder. [insert a couple of sentences about what this file contains]. 
+For statistical analysis on morphometric measurements, navigate to the `analysis.Rmd` file within the `data_analysis` folder.
+
+For analysis on the effect of the ExxonMobil Oil Spill in Prince William's Sound in 1989, navigate to the `oilspillanalysis.Rmd` file within the `data_analysis` folder.
+
+For analysis on the effects of isolation of sea otter populations, navigate to the `islandbiogeography.Rmd` file within the `data_analysis` folder.
+
+For the animated map of Alaska and captures, navigate to the `leafmap.Rmd` file within the `data_analysis` folder.
+
 
 ```{r load-data, echo = FALSE}
 # load data here, if you like

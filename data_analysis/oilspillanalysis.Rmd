@@ -544,24 +544,24 @@ seot_west_aleutians %>%
 #### Check the R-Squared
 
 ```{r stats-weight-oilspill}
-# #now, let's create the linear model comparing weight to year
-# seot_model_baclength <- linear_reg() %>%
-#   set_engine("lm") %>%
-#   fit(BACULA_LGTH ~ oil_spill, data = seot_west_aleutians)
-# 
-# #let's tidy this model
-# seot_model_baclength %>% tidy()
-# 
-# #augmenting the weight data
-# seot_model_baclength_augment <- augment(seot_model_baclength$fit)
-# 
-# ggplot(seot_model_baclength_augment, mapping = aes(x = .fitted, y = .resid)) +
-#   geom_jitter(alpha = 0.75) +
-#   geom_smooth(color = "black") +
-#   labs(x = "Predicted weight", y = "Residuals")
-# 
-# #assessing the r-squared value
-# glance(seot_model_baclength)$adj.r.squared
+#now, let's create the linear model comparing weight to year
+seot_model_baclength <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(BACULA_LGTH ~ oil_spill, data = seot_west_aleutians)
+
+#let's tidy this model
+seot_model_baclength %>% tidy()
+
+#augmenting the weight data
+seot_model_baclength_augment <- augment(seot_model_baclength$fit)
+
+ggplot(seot_model_baclength_augment, mapping = aes(x = .fitted, y = .resid)) +
+  geom_jitter(alpha = 0.75) +
+  geom_smooth(color = "black") +
+  labs(x = "Predicted weight", y = "Residuals")
+
+#assessing the r-squared value
+glance(seot_model_baclength)$adj.r.squared
 ```
 
 #### Statistical Analysis
