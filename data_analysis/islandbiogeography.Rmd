@@ -10,15 +10,10 @@ output:
 ## Loading the Data
 First, we'll want to load the appropriate packages and data for the analysis of this dataset.
 
-```{r loading-packages, warning = FALSE}
+```{r loading-packages, warning = FALSE, message=FALSE}
 library(tidyverse)
-knitr::opts_chunk$set(echo = TRUE)
 library(RColorBrewer)
 library(stringr)
-#install.packages("plotly")
-#library(plotly)
-#install.packages("gapminder")
-#library(gapminder)
 ```
 
 ```{r reading-CSV, echo = FALSE}
@@ -44,7 +39,7 @@ seot$AREA <- factor(seot$AREA, levels = c("rat_islands", "delarof_islands", "and
 seot$REGION <- factor(seot$REGION, levels = c("west_aleutians", "east_aleutians", "alaskan_peninsula", "southeast_alaska", "prince_william_sound"))
 ```
 
-```{r lengths-of-near-islands}
+```{r lengths-of-near-islands, warning=FALSE, warning=FALSE}
 #boxplot of lengths by area not including prince william sound
 seot %>% 
   filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"| AREA == "afognak_island") %>% 
@@ -61,7 +56,7 @@ seot %>%
        fill = "Island")
 ```
 
-```{r islands_pws_length}
+```{r islands_pws_length, warning=FALSE}
 #boxplots of lengths including prince william sound
 seot %>% 
   filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"| AREA == "western_prince_william_sound") %>% 
@@ -78,7 +73,7 @@ seot %>%
        fill = "Island")
 ```
 
-```{r stats-length-islands}
+```{r stats-length-islands, warning=FALSE}
 #statistical analysis of difference - Welch's ANOVA
 seot_close <- seot %>% 
   filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "delarof_islands"|AREA == "western_prince_william_sound")
@@ -87,38 +82,36 @@ seot_aov <- aov(true_standard_lgth ~ AREA, data = seot_close)
 TukeyHSD(seot_aov)
 ```
 
-REPORT: 
-
 #### Linear Model
 
-```{r model-canine-vs-sex}
-#now, let's create the linear model comparing final age to baculum length
-
-seot_body_model <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(true_standard_lgth ~ AREA + FINAL_AGE, data = seot_close)
-
-#let's tidy this model
-seot_body_model %>% tidy()
-
-#augmenting the baculum data
-seot_body_model_augment <- augment(seot_body_model$fit)
-
-ggplot(seot_body_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_body_model)$adj.r.squared
+```{r linear-model-baculum, warning=FALSE}
+# #now, let's create the linear model comparing final age to baculum length
+# 
+# seot_body_model <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(true_standard_lgth ~ AREA + FINAL_AGE, data = seot_close)
+# 
+# #let's tidy this model
+# seot_body_model %>% tidy()
+# 
+# #augmenting the baculum data
+# seot_body_model_augment <- augment(seot_body_model$fit)
+# 
+# ggplot(seot_body_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_body_model)$adj.r.squared
 ```
 
 
 
 ### Otter Tail Length 
 
-```{r tail-length-island-count}
+```{r tail-length-island-count, warning=FALSE}
 seot %>% 
   filter(mean_tail_lgth > 0) %>% 
   count(AREA) %>% 
@@ -131,7 +124,7 @@ seot %>%
 ```
 
 #### Creating Graphs
-```{r tail-lengths-of-near-islands}
+```{r tail-lengths-of-near-islands, warning=FALSE}
 #boxplot of tail lengths by area not including prince william sound
 seot %>% 
   filter(AREA == "rat_islands"|AREA == "andreanof_islands") %>% 
@@ -147,7 +140,7 @@ seot %>%
        fill = "Island")
 ```
 
-```{r tail-lengths-of-pws-islands}
+```{r tail-lengths-of-pws-islands, warning=FALSE}
 #boxplots of tail lengths including prince william sound
 seot %>% 
   filter(AREA == "western_prince_william_sound"|AREA == "rat_islands"|AREA == "andreanof_islands") %>% 
@@ -164,7 +157,7 @@ seot %>%
 ```
 
 #### Statistical Analysis
-```{r stats-tail-islands}
+```{r stats-tail-islands, warning=FALSE}
 #statistical analysis of difference - Welch's ANOVA
 seot_close <- seot %>% 
   filter(AREA == "andreanof_islands"|AREA == "rat_islands"|AREA == "western_prince_william_sound")
@@ -186,30 +179,29 @@ REPORT: The mean tail length of sea otters captured on the Andreanof Islands wer
 
 #### Linear Model
 
-```{r model-canine-vs-sex}
-#now, let's create the linear model comparing final age to baculum length
-seot_close <- seot %>% 
-  filter(AREA == "andreanof_islands"|AREA == "western_prince_william_sound") %>% 
-  filter(SEX == "M")
-
-seot_close_model <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(mean_tail_lgth ~ AREA + FINAL_AGE, data = seot_close)
-
-#let's tidy this model
-seot_close_model %>% tidy()
-
-#augmenting the baculum data
-seot_close_model_augment <- augment(seot_close_model$fit)
-
-ggplot(seot_close_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_close_model)$adj.r.squared
+```{r linear-model-tail}
+# seot_close <- seot %>% 
+#   filter(AREA == "andreanof_islands"|AREA == "western_prince_william_sound") %>% 
+#   filter(SEX == "M")
+# 
+# seot_close_model <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(mean_tail_lgth ~ AREA + FINAL_AGE, data = seot_close)
+# 
+# #let's tidy this model
+# seot_close_model %>% tidy()
+# 
+# #augmenting the baculum data
+# seot_close_model_augment <- augment(seot_close_model$fit)
+# 
+# ggplot(seot_close_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_close_model)$adj.r.squared
 ```
 
 
@@ -232,7 +224,7 @@ seot %>%
 
 #### Creating Graphs
 
-```{r weights-of-near-islands}
+```{r weights-of-near-islands, warning=FALSE}
 #boxplot of tail lengths by area not including prince william sound
 seot %>% 
   filter(AREA == "delarof_islands"| AREA == "andreanof_islands") %>% 
@@ -266,7 +258,7 @@ seot %>%
 
 #### Statistical Analysis
 
-```{r statistical-islands-weight}
+```{r statistical-islands-weight, warning=FALSE}
 #statistical analysis of difference - t-test - delarof_islands and western_prince_william_sound
 seot_close <- seot %>% 
   filter(AREA == "delarof_islands"|AREA == "western_prince_william_sound") %>% 
@@ -301,29 +293,28 @@ REPORT: The weight of adult female sea otters were significantly heavier on the 
 
 #### Linear Model
 
-```{r model-canine-vs-sex}
-#now, let's create the linear model comparing final age to baculum length
-seot_close <- seot %>% 
-  filter(AREA == "delarof_islands"|AREA == "western_prince_william_sound"|AREA == "andreanof_islands") %>% 
-  filter(SEX == "F") %>% 
-  filter(FINAL_AGE > 4) 
-
-seot_weight_model <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(WEIGHT ~ AREA + AGE_CATEGORY, data = seot_close)
-
-#let's tidy this model
-seot_close_model %>% tidy()
-
-#augmenting the baculum data
-seot_weight_model_augment <- augment(seot_weight_model$fit)
-
-ggplot(seot_weight_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
-  geom_jitter(alpha = 0.75) +
-  scale_color_viridis_c() +
-  geom_smooth(color = "black") +
-  labs(x = "Predicted Age", y = "Residuals")
-
-#assessing the r-squared value
-glance(seot_weight_model)$adj.r.squared
+```{r linear-model-weight}
+# seot_close <- seot %>% 
+#   filter(AREA == "delarof_islands"|AREA == "western_prince_william_sound"|AREA == "andreanof_islands") %>% 
+#   filter(SEX == "F") %>% 
+#   filter(FINAL_AGE > 4) 
+# 
+# seot_weight_model <- linear_reg() %>%
+#   set_engine("lm") %>%
+#   fit(WEIGHT ~ AREA + AGE_CATEGORY, data = seot_close)
+# 
+# #let's tidy this model
+# seot_close_model %>% tidy()
+# 
+# #augmenting the baculum data
+# seot_weight_model_augment <- augment(seot_weight_model$fit)
+# 
+# ggplot(seot_weight_model_augment, mapping = aes(x = .fitted, y = .resid, color = .resid)) +
+#   geom_jitter(alpha = 0.75) +
+#   scale_color_viridis_c() +
+#   geom_smooth(color = "black") +
+#   labs(x = "Predicted Age", y = "Residuals")
+# 
+# #assessing the r-squared value
+# glance(seot_weight_model)$adj.r.squared
 ```
