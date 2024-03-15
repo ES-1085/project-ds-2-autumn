@@ -149,7 +149,7 @@ Fitting a linear model on this shows that the r-squared value is `0.02730797`, s
 #### Creating Plots
 Just as with tail lengths, the total lengths of otters have been reported to be different depending on the sex of the otter. Let's see if this is true within this dataset. First, let's create a histogram that displays the total lengths of the male and female otters.
 
-We will again want to filter for the ages of the otters to be representative of the adult population. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five ([insert citation here]). 
+We will again want to filter for the ages of the otters to be representative of the adult population. According to the Alaska Department of Fish and Game, female sea otters become mature around four years of age and male sea otters become mature at age five. 
 
 ```{r body-length-sex-histogram}
 seot %>% 
@@ -254,12 +254,10 @@ seot %>%
 seot_paw <- seot %>% 
   filter(FINAL_AGE > 4|AGE_CATEGORY > 6)
 
-pawaov <- aov(PAW ~ SEX, data = seot)
-summary(pawaov)
-TukeyHSD(pawaov)
+t.test(PAW ~ SEX, data = seot)
 ```
 
-REPORT: The paw size of female otters was signficantly different than that of female otters [insert test statistic here]. 
+REPORT: The paw size of male otters were significantly larger than female otters (Welch Two Sample t-test; t = -13.437, df = 418.24, p-value < 0.005). 
 
 Is this the test to use? 
 
@@ -500,3 +498,8 @@ REPORT: There is a significant relationship (p < 0.001) between tail length and 
 
 The regression equation is: 
 tail length = 24.41 + 0.23(weight) ± 0.014. 
+
+
+# Conclusion
+
+The analysis delves into various morphometric characteristics of sea otters, aiming to discern differences based on sex and age within the dataset. Firstly, tail lengths were compared between mature male and female otters, with the former exhibiting significantly longer tails. Similarly, total body lengths were contrasted, revealing a notable difference between mature males and females, with adult males having significantly longer bodies. Additionally, paw width measurements demonstrated that male otters had significantly larger paw sizes compared to females, potentially indicative of foraging behavior. Furthermore, canine width emerged as a reliable metric for sexing sea otters, with females displaying significantly smaller canine lengths compared to males. Lastly, baculum length was explored as an age estimator for male otters, with statistical analysis indicating significant differences among age groups, particularly for individuals aged seven and younger. 

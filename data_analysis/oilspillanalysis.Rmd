@@ -186,13 +186,11 @@ summary(two_anova_weight_oil)
 interaction.plot(x.factor=seot$FINAL_AGE, trace.factor = seot$oil_spill, response = seot$WEIGHT, type = "o",pch=16)
 ```
 
-The two-way ANOVA suggests that there is a statistical significance with the interaction between the two variables `FINAL_AGE` and `oil_spill` for the dependent variable `WEIGHT`, we will have to perform any analysis of simple events. For simplicity's sake, I will be categorizing the ages to juvenile (`0-4`) and adult (`>4`)
+The two-way ANOVA suggests that there is a statistical significance with the interaction between the two variables `FINAL_AGE` and `oil_spill` for the dependent variable `WEIGHT`, we will have to perform any analysis of simple events.
 
 ```{r simple-events-analysis-weight}
-
+TukeyHSD(two_anova_weight_oil, "WEIGHT")
 ```
-
-
 
 
 
@@ -335,61 +333,7 @@ t_test_wa_weight <- t.test(WEIGHT ~ oil_spill, data = seot_west_aleutians)
 t_test_wa_weight
 ```
 
-REPORT: There was a significant impact of the oil spill on the weight of the adult sea otter population in the Western Aleutians (Welch Two Sample t-test; t = 7.4412, df = 399.18, p-value < 0.005). An assessment of the r-squared value suggests that the variable `oil_spill` accounts for 1.96% of the variation in the dependent variable, `WEIGHT` in the western Aluetians.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Otter's Weight Year by Year  ***get rid of this??
-We will be continuing to assess the otter populations in the Western Aleutians, as this area is the only area to have otter captures both before and after the oil spill. 
-
-```{r otter-weight-by-year}
-#all otters weight
-seot %>% 
-  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
-  filter(SEX == "M"|SEX == "F") %>% 
-  ggplot(mapping = aes(y = WEIGHT, x = YEAR, color = oil_spill)) + 
-  geom_jitter() +
-  scale_color_manual(values = c("#78c679", "#005a32")) +
-  geom_smooth(color = "black") +
-  labs(title = "Adult Sea Otter Weight", 
-       subtitle = "before and after Exxon Oil Spill", 
-       x = "")
-
-#all otters weight
-seot %>% 
-  filter(oil_spill == "before_oil_spill"|oil_spill == "after_oil_spill") %>% 
-  filter(SEX == "M"|SEX == "F") %>% 
-  filter(FINAL_AGE > 4) %>% 
-  ggplot(mapping = aes(y = WEIGHT, x = YEAR, color = oil_spill)) + 
-  geom_jitter() +
-  scale_color_manual(values = c("#78c679", "#005a32")) +
-  geom_smooth(color = "black") +
-  labs(title = "Adult Sea Otter Weight", 
-       subtitle = "before and after Exxon Oil Spill", 
-       x = "Year",
-       y = "Weight (lbs)",
-       color = "Status")
-```
-
-
-
-
-
-
-
+REPORT: There was a significant difference before and after the oil spill of the weight of the adult sea otter population in the Western Aleutians, where they were significantly heavier before the oil spill (Welch Two Sample t-test; t = 7.4412, df = 399.18, p-value < 0.005). An assessment of the r-squared value suggests that the variable `oil_spill` accounts for 1.96% of the variation in the dependent variable, `WEIGHT` in the western Aluetians.
 
 
 
@@ -509,7 +453,8 @@ t_test_length <- t.test(true_standard_lgth ~ oil_spill, data = seot_west_aleutia
 t_test_length
 ```
 
-REPORT: There was no significant impact of the oil spill on the body length of the sea otter population (Welch Two Sample t-test; t = -1.0462, df = 350.38, p-value = 0.2962). 
+REPORT: There was no significant impact of the oil spill on the body length of the sea otter population (Welch Two Sample t-test; t = -1.0462, df = 350.38, p-value = 0.2962). There was no significant impact of the oil spill on the body length of the sea otter population (Two-way ANOVA; F_1,3375, f = 0.207, p=0.65). There was a significant impact on the age of the otter on the body length (Two-way ANOVA; F_1,3375, f = 2297.583, p < 0.0005).
+
 
 
 
@@ -581,8 +526,6 @@ summary(two_anova_lgth_bac)
 With there being no statistical significance with the interaction between the two variables `FINAL_AGE` and `oil_spill` for the dependent variable `BACULA_LGTH`, we don't have to perform any analysis of simple events. 
 
 REPORT: There was a significant difference in baculum sizes in adult male otters before and after the Exxon Mobil oil spill in 1989 (Welch Two Sample t-test; t = 4.6688, df = 183.77, p-value = 0.005). The average baculum length for adult male otters before the oil spill was 14.02 mm and 15.85 mm after the oil spill. 
-
-There was no significant impact of the oil spill on the body length of the sea otter population (Two-way ANOVA; F_1,3375, f = 0.207, p=0.65). There was a significant impact on the age of the otter on the body length (Two-way ANOVA; F_1,3375, f = 2297.583, p < 0.0005).
 
 ### Temporal Time Scale
 We want to see if there was a noticale change in baculum length over time. 
@@ -671,3 +614,7 @@ t.test(data = seot, FINAL_AGE ~ oil_spill)
 ```
 
 REPORT: The otters captured before the oil spill were significantly older than the otters captured after the oil spill (Welch Two Sample t-test; t = -12.825, df = 3472.6, p-value < 0.005).
+
+# Conclusion
+The study investigated the effects of the 1989 Exxon Valdez Oil spill on the sea otter population, utilizing data spanning several decades. Findings reveal significant differences in various characteristics of otters captured before and after the spill. Specifically, adult sea otters in the Western Aleutians were notably heavier before the spill, indicating a potential impact on their overall health and condition. Moreover, there was a significant increase in the baculum length of adult male otters post-spill, suggesting possible adaptations or responses to environmental changes. However, body length remained unaffected by the spill. Additionally, otters captured before the spill were notably older than those captured after, indicating potential shifts in population demographics.
+
